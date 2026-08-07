@@ -1,0 +1,102 @@
+Ecological and agricultural development foundation incorporated or EcoAgri
+PDO to avoid sql injection.
+
+Libs: 
+- JS
+React js Potentially.
+Pure Vanilla.
+
+
+- PHP
+Pure Vanilla.
+
+
+- Python
+Python Flask.
+
+
+Color Theme:
+
+==============================================
+:Checkpoints - Laying backend first/functionalities.
+- In register.php $password = password_hash($password, $algo) looking for proper password hashing methods 8/2/26 sundayt
+- Added feedback and hashing password method. Transfer the project folder into htdocs. 8/3/26 - monday
+Must focus in register and login.
+Got sick :(
+Feedback Dialogs - DONE 8/4/26
+Dialogs, Register/Login - DONE 8/5/26
+
+- Session, Anti-Spam, Security, Reset password.
+- Add name? Which is Seperate from username.
+Session - DONE 8/6/26
+
+Focus in Inventory first. Might add name, seperate by username
+
+==============================================
+Potential React js, Google login in the far future development
+
+
+CREATE DATABASE rural_urban;
+USE rural_urban;
+
+CREATE TABLE accounts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    role VARCHAR(30) UNIQUE,
+    user VARCHAR(50) UNIQUE NOT NULL,
+    pass VARCHAR(255),
+    #email VARCHAR(255) UNIQUE
+    admin BOOLEAN UNIQUE # Only one can be admin because we only check one unqiue 'true'
+);
+
+
+ALTER TABLE accounts
+ADD previouspass varchar(255);
+$ For admin bool, Use true/null
+
+ALTER TABLE accounts
+ADD name varchar(30) UNIQUE
+
+CREATE TABLE inventory (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    product varchar(30),
+    quantity INT 
+    metric
+    status?
+    description
+);
+
+
+Phase 1: Backend, Register/Login, Foundation
+Phase 2: Inventory and Production system
+Phase 3: Forecasting Foundation
+Phase 4: Forecasting finalization
+Phase 5: Test and maintenance
+
+===================================================================
+Gotchas: 
+-Debugging for 5hours+ because of missed session_start() after verifying login condition.
+
+===================================================================
+Referecences: 
+Ways to use stmt$PDO:
+After SQL queries with :data, :user, etc.. $stmt = $pdo->prepare
+Bind values if used:
+$stmt->bindValue(':data', $var);
+$stmt->execute();
+
+$stmt->fetch(), fetchAll, fetchColumn, fetchRow
+OR
+$stmt->execute([":data" => $var])
+$stmt->fetch(), fetchAll, fetchColumn
+
+Ternary OPT:
+'Ternary vs. Null Coalescing Operator'
+Ternary Opt
+$a ?: $b
+Returns $a if it is truly
+Throw undefined errors
+
+Null Coalescing Operator
+$a ?? $b
+Returns $a if it is set and not null
+Can act like with auto inline isset
