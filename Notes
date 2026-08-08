@@ -14,8 +14,8 @@ Pure Vanilla.
 - Python
 Python Flask.
 
-
-Color Theme:
+Front-end:
+Color Theme - 
 
 ==============================================
 :Checkpoints - Laying backend first/functionalities.
@@ -57,14 +57,17 @@ ALTER TABLE accounts
 ADD name varchar(30) UNIQUE
 
 CREATE TABLE inventory (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    prod_id varchar(15) UNIQUE NOT NULL,
     product varchar(30),
-    quantity INT 
-    metric
-    status?
-    description
+    quantity INT UNSIGNED,
+    metric varhar(10),
+    status varchar(50),
+    description TINYTEXT,
+    order_date DATE NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    update_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
-
+To rename a column: ALTER TABLE inventory CHANGE update_at updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
 
 Phase 1: Backend, Register/Login, Foundation
 Phase 2: Inventory and Production system

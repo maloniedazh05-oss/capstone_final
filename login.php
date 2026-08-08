@@ -57,7 +57,7 @@ if ((isset($_POST['rusername'])) && (isset($_POST['rpassword'])) && $_SERVER['RE
     if (!in_array($role, ['admin', 'staff', 'manager'])) {
         echo "<script>message.textContent = 'Role is invalid'; feedbackdiag.showModal();</script>";
         $stmt = null;
-        $pdo = null;
+         
         exit;
     }
 
@@ -71,7 +71,7 @@ if ((isset($_POST['rusername'])) && (isset($_POST['rpassword'])) && $_SERVER['RE
             echo "<script>message.textContent = 'Only one admin is allowed!'; feedbackdiag.showModal();</script>";
             $is_admin = null;
             $stmt = null;
-            $pdo = null;
+             
             exit;
         }
         $is_admin = true;
@@ -86,7 +86,7 @@ if ((isset($_POST['rusername'])) && (isset($_POST['rpassword'])) && $_SERVER['RE
     if ($count > 0) {
         echo "<script>message.textContent = 'Username already exists!'; feedbackdiag.showModal();</script>";
         $stmt = null;
-        $pdo = null;
+         
         exit;
     }
 
@@ -99,7 +99,7 @@ if ((isset($_POST['rusername'])) && (isset($_POST['rpassword'])) && $_SERVER['RE
     } catch (Throwable $e) {
         echo "<script>message.textContent = '" . 'Something went wrong: ' . $e->getMessage() . "'; feedbackdiag.showModal();</script>";
         $stmt = null;
-        $pdo = null;
+         
         exit;
     }
     $stmt->bindValue(':roles', $role);
@@ -111,7 +111,7 @@ if ((isset($_POST['rusername'])) && (isset($_POST['rpassword'])) && $_SERVER['RE
         sleep(1000);
         header("Location:  login.php");
         $stmt = null;
-        $pdo = null;
+         
         exit;
     }
 }
@@ -130,7 +130,7 @@ if ((isset($_POST['username'])) && (isset($_POST['password'])) && $_SERVER['REQU
     $count = $stmt->fetchColumn();
     if ($count !=1) {
         echo "<script>message.textContent = 'Username not found!'; feedbackdiag.showModal();</script>";
-        $pdo = null;
+         
         exit;
     }
 
@@ -149,13 +149,13 @@ if ((isset($_POST['username'])) && (isset($_POST['password'])) && $_SERVER['REQU
         $_SESSION['user_name'] = $user;
         $_SESSION['user_role'] = $row['role'];
         header("Location: index.php");
-        $pdo = null;
+         
         exit;
     } else {
         echo "<script>message.textContent = 'Password is incorrect!'; feedbackdiag.showModal();</script>";
     }
 }
-$pdo = null;
+ 
 $stmt = null;
 exit;
 ?>

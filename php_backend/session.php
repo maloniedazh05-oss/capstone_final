@@ -20,14 +20,7 @@ function requireRole($allowed_roles) {
 
     if(!in_array($_SESSION['user_role'], $allowed_roles)) {
     http_response_code(403);
-    die("Access denied: You do not have permission to view this page!");
+    die("Access denied: You do not have permission to view this page!" . "<br><a href='php_backend/logout.php'>Continue</a>");
     }
 }
-
-echo $role;
-echo $user;
-echo $id;
-
-$pdo = null;
-$stmt = null;
 ?>
