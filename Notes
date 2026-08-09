@@ -30,7 +30,10 @@ Dialogs, Register/Login - DONE 8/5/26
 - Add name? Which is Seperate from username.
 Session - DONE 8/6/26
 
-Focus in Inventory first. Might add name, seperate by username
+Focus in Inventory first. Might add name, seperate by username for accs.
+Inventory, Debugging - DONE 8/9/26
+
+Production first then polish both inventory, production.
 
 ==============================================
 Potential React js, Google login in the far future development
