@@ -1,0 +1,32 @@
+CREATE DATABASE rural_urban;
+USE rural_urban;
+
+CREATE TABLE accounts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    role VARCHAR(30) UNIQUE,
+    user VARCHAR(50) UNIQUE NOT NULL,
+    pass VARCHAR(255),
+    #email VARCHAR(255) UNIQUE
+    admin BOOLEAN UNIQUE # Only one can be admin because we only check one unqiue 'true'
+);
+
+CREATE TABLE inventory (
+    prod_id varchar(15) PRIMARY KEY,
+    product varchar(30),
+    quantity INT UNSIGNED,
+    metric varchar(10),
+    status varchar(50),
+    description TINYTEXT,
+    order_date DATE NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    update_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE production (
+production_id INT PRIMARY KEY AUTO_INCREMENT,
+batch_id VARCHAR(7),
+production_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+quantity DECIMAL(10,2),
+unit varchar(5),
+item varchar(15)
+);
