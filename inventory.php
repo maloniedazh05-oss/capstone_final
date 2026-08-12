@@ -199,7 +199,7 @@ if (isset($_GET['success'])) {
                 }
                 
                 document.getElementById('edit-diag').showModal();
-                document.querySelectorAll('.desc').value = description;
+                document.querySelector('#edit-diag .desc').value = description;
                 
             });
         });

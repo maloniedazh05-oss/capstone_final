@@ -105,6 +105,10 @@ Phase 5: Test and maintenance
 Gotchas: 
 -Debugging for 5hours+ because of missed session_start() after verifying login condition.
 
+- document.getElementById('desc').value // Dont work if theres more than one of that id. Solution:
+document.querySelector('#edit-diag .desc').value = description; // Select the parent/main then its child id or class to specifically a select one.
+
+
 ===================================================================
 Referecences: 
 Ways to use stmt$PDO:
@@ -133,3 +137,4 @@ Can act like with auto inline isset
 js:
 condition ? expressionIfTrue : expressionIfFalse
 const newvar var ? var : null
+
