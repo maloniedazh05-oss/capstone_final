@@ -3,7 +3,7 @@ require_once "php_backend/session.php";
 
 requireRole(['admin', 'manager']);
 
-// Handle success/error messages from redirects
+// Success/error messages from redirects - pagerefresh cause js eprevent default is not working
 $feedbackMessage = '';
 if (isset($_GET['success'])) {
     $feedbackMessage = 'Operation completed successfully!';
@@ -48,18 +48,24 @@ if (isset($_GET['success'])) {
                 <option value="Sacks">Sack</option>
                 <option value="KG">KG</option>
             </select>
+            <details>
+                <summary class="summaries">Satus/Info - Optional</summary>
             <div class="status-container">
                 Status:
                 <select name="status" id="stat-insert">
                     <option value="Recent">Recent</option>
                     <option value="Processing">Processing</option>
+                    <option value="Sorted">Sorted</option>
                     <option value="custom">Custom</option>
                 </select>
                 <input type="text" name="status-custom" id="status-custom-insert" placeholder="Custom status" style="display:none;">
+                Description:<br><textarea placeholder="Notes.. OPTIONAL" name="description" class="desc"></textarea>
             </div>
+            </details>
             <button type='button' command="close" commandfor="item-diag">Cancel</button>
             <button type="submit">Insert Item</button>
         </form>
+            
     </dialog> <!--Insert/Add Item Dialog END-->
 
             <!-- Edit/Update Dialog START-->
@@ -72,16 +78,20 @@ if (isset($_GET['success'])) {
                 <option value="Sacks">Sack</option>
                 <option value="KG">KG</option>
             </select>
+            <details>
+            <summary class="summaries">Satus/Info - Optional</summary>
             <div class="status-container">
                 Status:
                 <select name="status" id="stat">
                     <option value="Recent">Recent</option>
                     <option value="Processing">Processing</option>
+                    <option value="Sorted">Sorted</option>
                     <option value="custom">Custom</option>
                 </select>
                 <input type="text" name="status-custom" id="status-custom" placeholder="Custom status" style="display:none;">
             </div>
-            Description:<br><textarea placeholder="Notes.. OPTIONAL" name="description" id="desc"></textarea>
+            Description:<br><textarea placeholder="Notes.. OPTIONAL" name="description" class="desc"></textarea>
+            </details>
             <button type='button' command="close" commandfor="edit-diag">Cancel</button>
             <button type="submit">Save Changes</button>
         </form>
@@ -133,13 +143,15 @@ if (isset($_GET['success'])) {
                     $metric = $row['metric'];
                     $status = $row['status'];
                     $desc = $row['description'];
+                    $stock_in = $row['stock_in'];
+                    $stock_out = $row['stock_out'];
                     echo "
                     <tr>
                         <td>{$id}</td>
                         <td>{$name}</td>
                         <td>{$qty} {$metric}</td>
                         <td>{$status}</td>
-                        <td><button type='button' class='edit-btn' data-id='{$id}' data-name='{$name}' data-qty='{$qty}' data-metric='{$metric}' data-status='{$status}' data-description='{$desc}'>{$status}</button><button type='button' class='details' data-detail='{$desc}'>Details</button></td>
+                        <td><button type='button' class='edit-btn' data-id='{$id}' data-name='{$name}' data-qty='{$qty}' data-metric='{$metric}' data-status='{$status}' data-description='{$desc}'>{$status}</button><button type='button' class='details' data-detail='{$desc}' data-stockin='{$stock_in}' data-stockout='{$stock_out}' data-type='{$metric}'>Details</button></td>
                     </tr>
                 ";
                 }
@@ -162,19 +174,20 @@ if (isset($_GET['success'])) {
                 const qty = target.dataset.qty;
                 const metric = target.dataset.metric;
                 const status = target.dataset.status;
-                const desc = target.dataset.description;
+                const description = target.dataset.description;
+                console.log(description);
                 
                 document.getElementById('edit_id').value = id;
                 document.getElementById('edit_name').value = name;
                 document.getElementById('edit_quantity').value = qty;
                 document.getElementById('edit_metric').value = metric;
-                document.getElementById('desc').value = desc;
+
                 
                 // Check status if value or custom
                 const statusSelect = document.getElementById('stat');
                 const customInput = document.getElementById('status-custom');
                 
-                if (status === 'Recent' || status === 'Processing') {
+                if (status === 'Recent' || status === 'Processing' || status === 'Sorted') {
                     statusSelect.value = status;
                     customInput.style.display = 'none';
                     customInput.value = '';
@@ -186,6 +199,8 @@ if (isset($_GET['success'])) {
                 }
                 
                 document.getElementById('edit-diag').showModal();
+                document.querySelectorAll('.desc').value = description;
+                
             });
         });
         
@@ -201,7 +216,7 @@ if (isset($_GET['success'])) {
             }
         });
         
-        // Handle status dropdown change for insert dialog
+        // dropdown change for insert dialog
         document.getElementById('stat-insert').addEventListener('change', (e) => {
             const customInput = document.getElementById('status-custom-insert');
             if (e.target.value === 'custom') {
@@ -214,13 +229,18 @@ if (isset($_GET['success'])) {
             }
         });
 
-        // Show feedback dialog on Detail hyperlink:
-        const detailsLinks = document.querySelectorAll('.details');
-        detailsLinks.forEach((link) => {
+        // Show feedback dialog on Detail:
+        const details = document.querySelectorAll('.details');
+        details.forEach((link) => {
             link.addEventListener("click", (e) => {
                 const detail = e.currentTarget.dataset.detail;
-                if(detail)
-                document.getElementById('message').textContent = detail;
+                const stockIn = e.currentTarget.dataset.stockin ;
+                const stockOut = e.currentTarget.dataset.stockout;
+                const stock_in = stockIn ? stockIn : '0';
+                const stock_out = stockOut ? stockOut : '0';
+                const type = e.currentTarget.dataset.type;
+                if(detail || stockIn || stockout)
+                document.getElementById('message').innerHTML = "<h3>Stock In: </h3>" + stock_in + type + "<p>" + "<h3>Stock Out: </h3>" + stock_out + type + "<p>" + detail + "</p>";
                 else
                 document.getElementById('message').textContent = "No description";
 

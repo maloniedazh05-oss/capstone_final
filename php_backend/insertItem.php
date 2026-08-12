@@ -6,6 +6,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['product_name']) && isse
     $quantity = (int)$_POST['quantity'];
     $metric = trim($_POST['metrics']);
     $description = trim($_POST['description'] ?? '');
+    $stock_in = $quantity;
 
     $date = date('Y-m-d');
     
@@ -19,9 +20,11 @@ if($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['product_name']) && isse
         $status = trim($_POST['status-custom']);
     } elseif ($statusSelection == 'Processing') {
         $status = 'Processing';
+    } else if ($statusSelection == 'Sorted') {
+        $status = 'Sorted';
     }
 
-    # Check for duplicate ID (very unlikely but safety check)
+    # Check for duplicate ID
     $stmt = $pdo->prepare("SELECT prod_id FROM inventory WHERE prod_id = :id");
     $stmt->bindValue(':id', $id_num);
     $stmt->execute();
@@ -30,7 +33,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['product_name']) && isse
         $id_num = substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 7);
     }
 
-    $stmt = $pdo->prepare("INSERT INTO inventory (prod_id, product, quantity, metric, status, description, order_date) VALUES (:id, :prod, :quan, :metric, :status, :description, :order)");
+    $stmt = $pdo->prepare("INSERT INTO inventory (prod_id, product, quantity, metric, status, description, order_date, stock_in) VALUES (:id, :prod, :quan, :metric, :status, :description, :order, :stock_in)");
     $stmt->bindValue(':id', $id_num);
     $stmt->bindValue(':prod', $product);
     $stmt->bindValue(':quan', $quantity);
@@ -38,6 +41,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['product_name']) && isse
     $stmt->bindValue(':status', $status);
     $stmt->bindValue(':description', $description);
     $stmt->bindValue(':order', $date);
+    $stmt->bindValue(':stock_in', $stock_in);
 
     if($stmt->execute()) {
         header("Location: ../inventory.php?success=1");

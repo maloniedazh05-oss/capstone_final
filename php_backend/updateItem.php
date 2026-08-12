@@ -8,13 +8,15 @@ if($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['edit_id']) && isset($_P
     $metric = trim($_POST['metrics']);
     $description = trim($_POST['description'] ?? '');
 
-    # Determine status
+    # Update to Check status
     $status = "Recent";
     $statusSelection = $_POST['status'] ?? 'Recent';
-    if ($statusSelection === 'custom' && isset($_POST['status-custom'])) {
+    if ($statusSelection == 'custom' && isset($_POST['status-custom'])) {
         $status = trim($_POST['status-custom']);
-    } elseif ($statusSelection === 'Processing') {
+    } elseif ($statusSelection == 'Processing') {
         $status = 'Processing';
+    } else if ($statusSelection == 'Sorted') {
+        $status = 'Sorted';
     }
 
     $stmt = $pdo->prepare("UPDATE inventory SET product = :prod, quantity = :quan, metric = :metric, status = :status, description = :description, updated_at = NOW() WHERE prod_id = :id");

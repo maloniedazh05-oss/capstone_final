@@ -34,6 +34,9 @@ Focus in Inventory first. Might add name, seperate by username for accs.
 Inventory, Debugging - DONE 8/9/26
 
 Production first then polish both inventory, production.
+Production - DONE 2026-08-12 15:07:42
+
+Prepare for forecasting, Polish production & inventory.
 
 ==============================================
 Potential React js, Google login in the far future development
@@ -60,7 +63,7 @@ ALTER TABLE accounts
 ADD name varchar(30) UNIQUE
 
 CREATE TABLE inventory (
-    prod_id varchar(15) UNIQUE NOT NULL,
+    prod_id varchar(15) PRIMARY KEY, // FROM UNIQUE NOT NULL
     product varchar(30),
     quantity INT UNSIGNED,
     metric varhar(10),
@@ -70,7 +73,27 @@ CREATE TABLE inventory (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     update_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+ALTER TABLE inventory
+MODIFY COLUMN prod_id varchar(15) PRIMARY KEY;
+
+stock_in DECMIAL(10,2),
+stock_out DECIMAL(10,2),
 To rename a column: ALTER TABLE inventory CHANGE update_at updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+
+ALTER TABLE inventory
+ADD stock_in DECIMAL(10,2),
+ADD stock_out DECIMAL(10,2);
+
+CREATE TABLE production (
+production_id INT PRIMARY KEY AUTO_INCREMENT,
+batch_id VARCHAR(7),// FROM TINYINT UNSIGNED
+production_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+quantity DECIMAL(10,2),
+unit varchar(5),
+item varchar(15)
+);
+ALTER TABLE production
+MODIFY COLUMN batch_id varchar(7);
 
 Phase 1: Backend, Register/Login, Foundation
 Phase 2: Inventory and Production system
@@ -106,3 +129,7 @@ Null Coalescing Operator
 $a ?? $b
 Returns $a if it is set and not null
 Can act like with auto inline isset
+
+js:
+condition ? expressionIfTrue : expressionIfFalse
+const newvar var ? var : null
