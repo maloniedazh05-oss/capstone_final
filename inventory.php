@@ -90,7 +90,7 @@ if (isset($_GET['success'])) {
     <!--Feedback dialog-->
     <dialog id="feedback-diag">
         <p id="message">Nothing to see here..</p>
-        <button type='button' command="close" commandfor="feedback-diag">Cancel</button>
+        <button type='button' command="close" commandfor="feedback-diag">Close</button>
     </dialog>
     <div class="inventorypage">
         <div class="inventorystocks">
@@ -139,7 +139,7 @@ if (isset($_GET['success'])) {
                         <td>{$name}</td>
                         <td>{$qty} {$metric}</td>
                         <td>{$status}</td>
-                        <td><button type='button' class='edit-btn' data-id='{$id}' data-name='{$name}' data-qty='{$qty}' data-metric='{$metric}' data-status='{$status}' data-description='{$desc}'>Edit</button> <a href='#' id='details'>Details</a></td>
+                        <td><button type='button' class='edit-btn' data-id='{$id}' data-name='{$name}' data-qty='{$qty}' data-metric='{$metric}' data-status='{$status}' data-description='{$desc}'>{$status}</button><button type='button' class='details' data-detail='{$desc}'>Details</button></td>
                     </tr>
                 ";
                 }
@@ -212,6 +212,20 @@ if (isset($_GET['success'])) {
                 customInput.style.display = 'none';
                 customInput.value = '';
             }
+        });
+
+        // Show feedback dialog on Detail hyperlink:
+        const detailsLinks = document.querySelectorAll('.details');
+        detailsLinks.forEach((link) => {
+            link.addEventListener("click", (e) => {
+                const detail = e.currentTarget.dataset.detail;
+                if(detail)
+                document.getElementById('message').textContent = detail;
+                else
+                document.getElementById('message').textContent = "No description";
+
+                document.getElementById('feedback-diag').showModal();
+            });
         });
         
         // Show feedback dialog if there's a message
