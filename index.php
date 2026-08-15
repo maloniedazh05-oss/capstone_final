@@ -21,6 +21,10 @@
             <?php if(in_array($_SESSION['user_role'], ['admin', 'staff'])): ?>
             <li><a href='production.php'>Production</a></li>
             <?php endif; ?> 
+        
+            <?php if (in_array($_SESSION['user_role'], ['admin'])): ?>
+                <li><a href='Reports.php'>Reports</a></li>
+            <?php endif; ?>
         </ul>
         </div>
         <form action="php_backend/logout.php" method="POST"><button type="submit">Logout</button></form>

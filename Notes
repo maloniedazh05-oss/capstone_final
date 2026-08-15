@@ -36,7 +36,9 @@ Inventory, Debugging - DONE 8/9/26
 Production first then polish both inventory, production.
 Production - DONE 2026-08-12 15:07:42
 
-Prepare for forecasting, Polish production & inventory.
+Prepare for forecasting, Polish production & inventory. - 24months max historical data, End of month stock-out predictions and forecasted inventory demand.
+
+Sync production/inventory ingoing. Revise Status: Default in db 'Recent'. - DONE 8/14/26
 
 ==============================================
 Potential React js, Google login in the far future development
@@ -138,3 +140,5 @@ js:
 condition ? expressionIfTrue : expressionIfFalse
 const newvar var ? var : null
 
+
+CREATE TABLE users (id INT, status VARCHAR(50) DEFAULT 'active');

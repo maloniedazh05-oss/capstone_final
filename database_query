@@ -15,11 +15,10 @@ CREATE TABLE inventory (
     product varchar(30),
     quantity INT UNSIGNED,
     metric varchar(10),
-    status varchar(50),
+    status varchar(50) DEFAULT 'Recent',
     description TINYTEXT,
-    order_date DATE NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    update_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL
 );
 
 CREATE TABLE production (

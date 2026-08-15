@@ -24,6 +24,10 @@ requireRole(['admin', 'staff']);
             <?php if (in_array($_SESSION['user_role'], ['admin', 'staff'])): ?>
                 <li><a href='production.php'>Production</a></li>
             <?php endif; ?>
+
+            <?php if (in_array($_SESSION['user_role'], ['admin'])): ?>
+                <li><a href='Reports.php'>Reports</a></li>
+            <?php endif; ?>
         </ul>
     </div>
 
@@ -31,7 +35,7 @@ requireRole(['admin', 'staff']);
         <div class="batchcontainer">
             <h2>Start production Batch</h2>
             <form method="POST" action="php_backend/insertBatch.php">
-                Item: <input type="text" name="item" required>
+                Item: <input type="text" name="item" value="Vermicast" required>
                 Quantity: <input type="number" name="quantity" min="0" required>
                 <select name="unit">
                     <option value="Sac">Sac</option>

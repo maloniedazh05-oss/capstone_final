@@ -34,6 +34,10 @@ if (isset($_GET['success'])) {
             <?php if (in_array($_SESSION['user_role'], ['admin', 'staff'])): ?>
                 <li><a href='production.php'>Production</a></li>
             <?php endif; ?>
+
+            <?php if (in_array($_SESSION['user_role'], ['admin'])): ?>
+                <li><a href='Reports.php'>Reports</a></li>
+            <?php endif; ?>            
         </ul>
     </div>
             <!-- Dialogs -->
@@ -41,7 +45,7 @@ if (isset($_GET['success'])) {
             <!--Insert/Add Item Dialog START-->
 <dialog id="item-diag">
         <form method="POST" action="php_backend/insertItem.php">
-            Name: <input type="text" name="product_name" required>
+            Name: <input type="text" name="product_name" value="Vermicast" required>
             Quantity: <input type="number" name="quantity" min="0" required>
             <select id="metrics" name="metrics" required>
                 <option value="">Type</option>

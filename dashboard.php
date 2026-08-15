@@ -26,6 +26,10 @@ requireRole(['admin', 'staff']);
             <?php if(in_array($_SESSION['user_role'], ['admin', 'staff'])): ?>
             <li><a href='production.php'>Production</a></li>
             <?php endif; ?> 
+
+            <?php if (in_array($_SESSION['user_role'], ['admin'])): ?>
+                <li><a href='Reports.php'>Reports</a></li>
+            <?php endif; ?>
         </ul>
         </div>
 
