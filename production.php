@@ -41,6 +41,10 @@ requireRole(['admin', 'staff']);
                     <option value="Sac">Sac</option>
                     <option value="KG">KG</option>
                 </select>
+                <details>
+                    <summary>Optional</summary>
+                    Receiver: <input type="text" name="company">
+                </details>
                 <br>
                 <button tpye="submit">Create Production Batch</button>
             </form>
