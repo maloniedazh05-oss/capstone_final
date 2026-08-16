@@ -46,19 +46,9 @@ Summary month date of production, in/out stock -Reports.
 
         $start_month = $today . '00:00:00';
 
-        // Select 1 month. From very first day exact 12:00 or 0:00 
-       // $stmt = $pdo->prepare("SELECT date FROM production WHERE production_date >= :start_date AND < :end_date ORDER BY production_date ASC"); 
-       // $stmt->execute();
-// 2026-08-12 15:07:15 // Y-M-D time
-        //$totalQuantity = 0;
-        //while($row=$stmt->fetch(PDO::FETCH_ASSOC)) {
-        //    $totalQuantity += $row['quantity'];
-        //}
-        //echo "Monthly Quantity Production: " . $totalQuantity;
-
         ?>
         <form method="GET">
-        <select id="months-select">
+        <select id="months-select" name="month-selected">
             <?php
             // Check current Year , in checking Jan-Dec
             for($month = 1; $month <= 12; $month++) {
@@ -79,37 +69,60 @@ Summary month date of production, in/out stock -Reports.
             if(!$count || $count == 0) echo "<option>No Record</option>";
             ?>
         </select>
-        <button>View Month Report</button>
+        <button type="submit">View Month Report</button>
         </form>
             <!--View month report-->
         <?php 
         require_once "php_backend/db.php";
         
         $stmt = null;
-        // Get the unit first
-        $stmt = $pdo->prepare("SELECT unit,quantity FROM production WHERE unit = :unit");
-        $stmt->execute([':unit'=>'Sac']); // Sac KG
-                // For Sac
-                $total_sac = 0;
-        while($sac = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $total_sac += $sac['quantity'];
-        }
 
-        // For KG
-        $total_kg = 0;
-        $stmt->execute([':unit' => 'KG']);
-        while($kg = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $total_kg += $kg['quantity'];
+        if($_SERVER['REQUEST_METHOD'] == 'GET' && isset($_GET['month-selected'])) {
+            $month = $_GET['month-selected'];
+            $get_month = date('m', strtotime($month));
+            //echo $get_month . "<br>";
+            //echo date('Y-m-01', strtotime($month));
+            
+            $date_start = date('Y-m-01', strtotime($month)) . ' 00:00:00';
+            $date_end = date('Y-m-01', strtotime($month . '+1 month')) . ' 00:00:00';
+
+            echo 'Start: ' . $date_start;
+            echo 'End: '. $date_end;
+
+                //Fetch all from selected mopnth fetched.
+            $stmt = $pdo->prepare("SELECT production_date, quantity, unit FROM production WHERE production_date >= :date_start AND production_date < :date_end");
+            $stmt->execute([':date_start' => $date_start, ':date_end'=> $date_end]);
+
+            //Init UNITS
+            $total_sac = 0;
+            $total_kg = 0;
+            while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+
+                if($row['unit'] == 'Sac') {
+                    $total_sac += $row['quantity'];
+                }
+
+                if($row['unit'] == 'KG') {
+                    $total_kg += $row['quantity'];
+                }    
+                echo $row['quantity'];           
+            }
+
+            
+            echo $total_kg;
         }
 
         ?>
 
         <div class="production-summary">
+            <?php 
+            
+            ?>
             <div id="card-1">
-                <p>Total Quantity(Sac): <?=$total_sac?></p>
+                <p>Total Production(Sac)<?=$total_sac ?? 0?></p>
             </div>
             <div id="card-2">
-                <p>Total Quantity(KG): <?=$total_kg?></p>
+                <p>Total Production(KG)<?=$total_kg ?? 0?></p>
             </div>
         </div>
 
