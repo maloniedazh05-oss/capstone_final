@@ -108,15 +108,13 @@ Summary month date of production, in/out stock -Reports.
                 echo $row['quantity'];           
             }
 
-            
-            echo $total_kg;
         }
 
         ?>
 
         <div class="production-summary">
             <?php 
-            
+            if($_SERVER['REQUEST_METHOD'] == 'GET' && isset($_GET['month-selected'])):
             ?>
             <div id="card-1">
                 <p>Total Production(Sac)<?=$total_sac ?? 0?></p>
@@ -124,7 +122,8 @@ Summary month date of production, in/out stock -Reports.
             <div id="card-2">
                 <p>Total Production(KG)<?=$total_kg ?? 0?></p>
             </div>
-        </div>
+        </div> <!--Production summary END-->
+        <?php endif; ?>
 
     </div>
 </body>

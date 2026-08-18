@@ -70,13 +70,31 @@ requireRole(['admin', 'staff']);
                 <td><?php echo $row['item']; ?></td>
                 <td><?php echo $row['quantity'] . $row['unit']; ?></td>
                 <td><?php echo $row['production_date']; ?></td>
+                <td><button data-company="<?=$row['receiver'];?>">Details</button></td>
             </tr>
             <?php endwhile;?>
 
             </table>
 
+
         </div><!--Production histopry END-->
             
     </div> <!--Production page END-->
+            <script>
+                const historyButton = document.querySelectorAll('.productionhistory button');
+                historyButton.forEach((button) => {
+                    button.addEventListener('click', (e) => {
+                        const receiver = e.currentTarget.dataset.company;
+                        const company = receiver ? receiver : 'None';
+                        console.log(company);
+                        document.getElementById('feedback-diag').showModal();
+                        document.getElementById('message').innerHTML = '<h3>Company: </h3>' + company;
+                    });
+                });
+            </script>
+    <dialog id="feedback-diag">
+           <p id="message"></p> 
+           <button command="close" commandFor="feedback-diag">Close</button>   
+    </dialog>
 </body>
 </html>

@@ -29,3 +29,6 @@ quantity DECIMAL(10,2),
 unit varchar(5),
 item varchar(15)
 );
+
+ALTER TABLE production
+ADD receiver VARCHAR(50);
