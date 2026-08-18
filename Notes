@@ -1,6 +1,17 @@
 Ecological and agricultural development foundation incorporated or EcoAgri
 PDO to avoid sql injection.
 
+daily raw records to be used/input + weekly forecasting/reporting + monthly reporting/forecasting, with 24 to 36 months of historical data when available.
+
+Can forecast only for weekly end of the week, same for month which is at the end of month.
+
+End of week is Friday.
+So Saturday and Sunday is non-working days.
+Forecasting - From this end of week/month upto previous 24-36months of data in format everyday data, still records non-working days as 0 value NOT null.
+
+Demand and Stockout prediction. 
+Stockout = Projected demand - Total Stocks.
+
 Libs: 
 - JS
 React js Potentially.
@@ -36,10 +47,11 @@ Inventory, Debugging - DONE 8/9/26
 Production first then polish both inventory, production.
 Production - DONE 2026-08-12 15:07:42
 
-Prepare for forecasting, Polish production & inventory. - 24months max historical data, End of month stock-out predictions and forecasted inventory demand.
+Prepare for forecasting, Polish production & inventory. - from 12-36 months max historical data, End of month stock-out predictions and forecasted inventory demand.
 
 Sync production/inventory ingoing. Revise Status: Default in db 'Recent'. - DONE 8/14/26
 Reports Total Quantity - Half Done 8/16/26
+Added Receiver - 8/18/26
 
 ==============================================
 Potential React js, Google login in the far future development
@@ -112,7 +124,7 @@ Gotchas:
 - document.getElementById('desc').value // Dont work if theres more than one of that id. Solution:
 document.querySelector('#edit-diag .desc').value = description; // Select the parent/main then its child id or class to specifically a select one.
 
-
+forEach needed a All, querySelectorAll. NOT querySelector.
 ===================================================================
 Referecences: 
 Ways to use stmt$PDO:

@@ -5,6 +5,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['item']) && isset($_POS
     $item = trim($_POST['item']);
     $quantity = $_POST['quantity'] ?? '';
     $unit = $_POST['unit'];
+    $receiver = $_POST['company'] ?? '';
 
     $batch_id = substr(str_shuffle("0123456789"), 0, 7);
     # Check for duplicate ID (very unlikely but safety check)
@@ -17,13 +18,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['item']) && isset($_POS
     }
 
     # INsert into Production db
-    $stmt = $pdo->prepare("INSERT INTO production (batch_id, quantity, unit, item) VALUES (:batch_id, :quantity, :unit, :item)");
+    $stmt = $pdo->prepare("INSERT INTO production (batch_id, quantity, unit, item, receiver) VALUES (:batch_id, :quantity, :unit, :item, :receiver)");
     $stmt->bindValue(':batch_id', $batch_id);
     $stmt->bindValue(':quantity', $quantity);
     $stmt->bindValue(':unit', $unit);
     $stmt->bindValue(':item', $item);
+    $stmt->bindValue(':receiver', $receiver);
 
-    
 
     # Auto insert in inventory for every production:
     $id_num = substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 7);
