@@ -53,8 +53,11 @@ Sync production/inventory ingoing. Revise Status: Default in db 'Recent'. - DONE
 Reports Total Quantity - Half Done 8/16/26
 Added Receiver - 8/18/26
 
+Revise inventory and production - add status in prodcution table so when status is completed then it will be automatically goes to inventory,
+Added status in production, revise updated new db, FK removed - /8/20/26
+
 ==============================================
-Potential React js, Google login in the far future development
+Potential React js
 
 
 CREATE DATABASE rural_urban;
@@ -156,3 +159,10 @@ const newvar var ? var : null
 
 
 CREATE TABLE users (id INT, status VARCHAR(50) DEFAULT 'active');
+
+SELECT 
+p.quantity,
+i.product,
+FROM production p
+LEFT JOIN inventory i
+    ON p p.prod_id = i.prod_id

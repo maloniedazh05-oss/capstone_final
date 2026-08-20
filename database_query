@@ -32,3 +32,28 @@ item varchar(15)
 
 ALTER TABLE production
 ADD receiver VARCHAR(50);
+
+
+NEW UPDATED DB:
+
+CREATE TABLE inventory (
+    prod_id VARCHAR(15) PRIMARY KEY,
+    product VARCHAR(30) NOT NULL,
+    quantity INT UNSIGNED DEFAULT 0,
+    unit VARCHAR(10) NOT NULL, 
+    status VARCHAR(50) DEFAULT 'Recent',
+    description TINYTEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL
+);
+
+CREATE TABLE production (
+    production_id INT PRIMARY KEY AUTO_INCREMENT,
+    batch_id VARCHAR(7) NOT NULL,
+    production_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    item varchar(15),
+    quantity DECIMAL(10,2) NOT NULL, 
+    unit VARCHAR(10) NOT NULL,
+    status VARCHAR(30) DEFAULT 'Recent',
+    receiver VARCHAR(50)
+);
