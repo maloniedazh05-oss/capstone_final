@@ -144,18 +144,18 @@ if (isset($_GET['success'])) {
                     $id = $row['prod_id'];
                     $name =$row['product'];
                     $qty = $row['quantity'];
-                    $metric = $row['metric'];
+                    $metric = $row['unit'];
                     $status = $row['status'];
                     $desc = $row['description'];
-                    $stock_in = $row['stock_in'];
-                    $stock_out = $row['stock_out'];
+                    //$stock_in = $row['stock_in'];
+                    //$stock_out = $row['stock_out'];
                     echo "
                     <tr>
                         <td>{$id}</td>
                         <td>{$name}</td>
                         <td>{$qty} {$metric}</td>
                         <td>{$status}</td>
-                        <td><button type='button' class='edit-btn' data-id='{$id}' data-name='{$name}' data-qty='{$qty}' data-metric='{$metric}' data-status='{$status}' data-description='{$desc}'>{$status}</button><button type='button' class='details' data-detail='{$desc}' data-stockin='{$stock_in}' data-stockout='{$stock_out}' data-type='{$metric}'>Details</button></td>
+                        <td><button type='button' class='edit-btn' data-id='{$id}' data-name='{$name}' data-qty='{$qty}' data-metric='{$metric}' data-status='{$status}' data-description='{$desc}'>{$status}</button><button type='button' class='details' data-detail='{$desc}' data-stockin='stockinvar' data-stockout='stockoutvar' data-type='{$metric}'>Details</button></td>
                     </tr>
                 ";
                 }

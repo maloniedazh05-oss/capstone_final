@@ -33,11 +33,11 @@ if($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['product_name']) && isse
         $id_num = substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 7);
     }
 
-    $stmt = $pdo->prepare("INSERT INTO inventory (prod_id, product, quantity, metric, description, stock_in) VALUES (:id, :prod, :quan, :metric, :stock_in)");
+    $stmt = $pdo->prepare("INSERT INTO inventory (prod_id, product, quantity, unit, description, stock_in) VALUES (:id, :prod, :quan, :unit, :description, :stock_in)");
     $stmt->bindValue(':id', $id_num);
     $stmt->bindValue(':prod', $product);
     $stmt->bindValue(':quan', $quantity);
-    $stmt->bindValue(':metric', $metric);
+    $stmt->bindValue(':unit', $metric);
     $stmt->bindValue(':description', $description);
     $stmt->bindValue(':stock_in', $quantity);
 

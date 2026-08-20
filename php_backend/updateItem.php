@@ -19,11 +19,11 @@ if($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['edit_id']) && isset($_P
         $status = 'Sorted';
     }
 
-    $stmt = $pdo->prepare("UPDATE inventory SET product = :prod, quantity = :quan, metric = :metric, status = :status, description = :description, updated_at = NOW() WHERE prod_id = :id");
+    $stmt = $pdo->prepare("UPDATE inventory SET product = :prod, quantity = :quan, unit = :unit, status = :status, description = :description, updated_at = NOW() WHERE prod_id = :id");
     $stmt->bindValue(':id', $id);
     $stmt->bindValue(':prod', $product);
     $stmt->bindValue(':quan', $quantity);
-    $stmt->bindValue(':metric', $metric);
+    $stmt->bindValue(':unit', $metric);
     $stmt->bindValue(':status', $status);
     $stmt->bindValue(':description', $description);
 

@@ -62,7 +62,7 @@ requireRole(['admin', 'staff']);
             require_once "php_backend/db.php";
 
             $stmt = $pdo->prepare("SELECT * FROM production WHERE status = :recent OR status = :ongoing");
-            $stmt->execute(['recent' => 'Recent', 'ongoing' => 'Ongoing']);
+            $stmt->execute([':recent' => 'Recent', ':ongoing' => 'Ongoing']);
             while($row = $stmt->fetch(PDO::FETCH_ASSOC)):
             ?>
             <tr>

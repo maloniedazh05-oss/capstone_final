@@ -43,16 +43,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET' && isset($_GET['status_id'])) {
     $quantity = $_GET['quantity'];
     $unit = $_GET['unit'];
     $status = $_GET['status_id'];
-    
 # Auto insert if completed instead. 
 # prod_id	product	quantity	unit	status	description	created_at	updated_at	
     if ($status == 'Completed') {
-        $stmt_inventory = $pdo->prepare("INSERT INTO inventory (prod_id, product, quantity, unit, status) VALUES (:prod_id, :product, :quantity, :unit, :status)");
+        $stmt_inventory = $pdo->prepare("INSERT INTO inventory (prod_id, product, quantity, unit) VALUES (:prod_id, :product, :quantity, :unit)");
         $stmt_inventory->bindValue(':prod_id', $id);
         $stmt_inventory->bindValue(':product', $item);
         $stmt_inventory->bindValue(':quantity', $quantity);
         $stmt_inventory->bindValue(':unit', $unit);
-        $stmt_inventory->bindValue(':status', $status);
         
         $id_num = substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 7);
         $stmt_id = $pdo->prepare(
