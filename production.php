@@ -50,7 +50,7 @@ requireRole(['admin', 'staff']);
             </form>
         </div>  <!--Batch COntainer END-->
 
-        <div class="productionhistory">  <!--Production histopry START-->
+        <div class="productionview">  <!--Production START-->
             <table>
                 <tr>
                     <th>Batch ID</th>
@@ -77,12 +77,35 @@ requireRole(['admin', 'staff']);
 
             </table>
 
+            <div class="productionhistory">
+                <?php 
+                require_once "php_backend/db.php";
 
-        </div><!--Production histopry END-->
+                $history = $pdo->prepare("SELECT batch_id, production_date, item, quantity, unit, status FROM production");
+                if($history->execute()) echo "<h2>History</h2><table>                    <tr>
+                        <th>Name</th>
+                        <th>Quantity</th>
+                        <th>Batch ID</th>
+                        <th>Date Created</th>
+                    </tr>";
+                while($h_row = $history->fetch(PDO::FETCH_ASSOC)):
+                ?>
+
+
+                    <tr>
+                        <td><?php echo $h_row['item']; ?></td>
+                        <td><?php echo $h_row['quantity'] . $h_row['unit']; ?></td>
+                        <td><?php echo $h_row['batch_id']; ?></td>
+                        <td><?php echo $h_row['production_date']; ?></td>
+                    </tr>
+                <?php endwhile;?>
+                </table>
+            </div>
+        </div><!--Production view END-->
             
     </div> <!--Production page END-->
             <script>
-                const historyButton = document.querySelectorAll('.productionhistory #receiverButton');
+                const historyButton = document.querySelectorAll('.productionview #receiverButton');
                 historyButton.forEach((button) => {
                     button.addEventListener('click', (e) => {
                         const receiver = e.currentTarget.dataset.company;
@@ -95,7 +118,7 @@ requireRole(['admin', 'staff']);
                 });
 
                 // Status Fetch
-                document.querySelectorAll(".productionhistory #statusButton").forEach((button) => {
+                document.querySelectorAll(".productionview #statusButton").forEach((button) => {
                     button.addEventListener('click', (e) => {
                         const target = e.currentTarget;
                         const p_id = target.dataset.production_id;
