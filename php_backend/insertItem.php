@@ -20,8 +20,10 @@ if($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['product_name']) && isse
         $status = trim($_POST['status-custom']);
     } elseif ($statusSelection == 'Processing') {
         $status = 'Processing';
-    } else if ($statusSelection == 'Sorted') {
+    } elseif ($statusSelection == 'Sorted') {
         $status = 'Sorted';
+    } elseif ($statusSelection == 'Completed') {
+        $status = 'Completed';
     }
 
     # Check for duplicate ID

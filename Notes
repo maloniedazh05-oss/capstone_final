@@ -55,6 +55,7 @@ Added Receiver - 8/18/26
 
 Revise inventory and production - add status in prodcution table so when status is completed then it will be automatically goes to inventory,
 Added status in production, revise updated new db, FK removed - /8/20/26
+Added Production history - 8/21/26
 
 ==============================================
 Potential React js

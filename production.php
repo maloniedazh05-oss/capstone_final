@@ -77,21 +77,21 @@ requireRole(['admin', 'staff']);
 
             </table>
 
-            <div class="productionhistory">
+            <div class="productionhistory"> <!-- Production history START-->
                 <?php 
                 require_once "php_backend/db.php";
 
-                $history = $pdo->prepare("SELECT batch_id, production_date, item, quantity, unit, status FROM production");
-                if($history->execute()) echo "<h2>History</h2><table>                    <tr>
+                $history = $pdo->prepare("SELECT batch_id, production_date, item, quantity, unit, status FROM production WHERE status = :status");
+                if($history->execute([':status' => 'Completed'])) {
+                    echo "<h2>History</h2><table>                    <tr>
                         <th>Name</th>
                         <th>Quantity</th>
                         <th>Batch ID</th>
                         <th>Date Created</th>
                     </tr>";
+                }
                 while($h_row = $history->fetch(PDO::FETCH_ASSOC)):
                 ?>
-
-
                     <tr>
                         <td><?php echo $h_row['item']; ?></td>
                         <td><?php echo $h_row['quantity'] . $h_row['unit']; ?></td>
@@ -100,7 +100,7 @@ requireRole(['admin', 'staff']);
                     </tr>
                 <?php endwhile;?>
                 </table>
-            </div>
+            </div> <!-- Productin history END-->
         </div><!--Production view END-->
             
     </div> <!--Production page END-->

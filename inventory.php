@@ -55,11 +55,12 @@ if (isset($_GET['success'])) {
             <details>
                 <summary class="summaries">Satus/Info - Optional</summary>
             <div class="status-container">
-                Status:
-                <select name="status" id="stat-insert">
+Status:
+                <select name="status" id="stat">
                     <option value="Recent">Recent</option>
                     <option value="Processing">Processing</option>
                     <option value="Sorted">Sorted</option>
+                    <option value="Completed">Completed</option>
                     <option value="custom">Custom</option>
                 </select>
                 <input type="text" name="status-custom" id="status-custom-insert" placeholder="Custom status" style="display:none;">
@@ -82,16 +83,18 @@ if (isset($_GET['success'])) {
                 <option value="Sacks">Sack</option>
                 <option value="KG">KG</option>
             </select>
-            <details>
-            <summary class="summaries">Satus/Info - Optional</summary>
-            <div class="status-container">
-                Status:
+                <br>Status: 
                 <select name="status" id="stat">
                     <option value="Recent">Recent</option>
                     <option value="Processing">Processing</option>
                     <option value="Sorted">Sorted</option>
+                    <option value="Completed">Completed</option>
                     <option value="custom">Custom</option>
                 </select>
+            <details>
+            <summary class="summaries">Satus/Info - Optional</summary>
+            <div class="status-container">
+
                 <input type="text" name="status-custom" id="status-custom" placeholder="Custom status" style="display:none;">
             </div>
             Description:<br><textarea placeholder="Notes.. OPTIONAL" name="description" class="desc"></textarea>
@@ -126,7 +129,7 @@ if (isset($_GET['success'])) {
             <!--Fetch and display the items-->
             <?php 
             require_once "php_backend/db.php";
-            $stmt = $pdo->prepare("SELECT * FROM inventory");
+            $stmt = $pdo->prepare("SELECT * FROM inventory WHERE status != 'Completed'");
             $stmt->execute();            
             ?>
 
@@ -167,7 +170,34 @@ if (isset($_GET['success'])) {
             <h2>Receive New Supplies</h2>
             <button command="show-modal" commandfor="item-diag">Add Item</button>
         <?php endif; ?>
+<div> <!--Inventory history START-->
+    <?php
+    require_once "php_backend/db.php";
 
+    $i_history = $pdo->prepare("SELECT product, quantity, unit, status, description, created_at FROM inventory WHERE status = :status");
+    if ($i_history->execute([':status' => 'Completed'])) {
+        echo "<h2>History</h2><table><tr>
+                        <th>Name</th>
+                        <th>Quantity</th>
+                        <th>Unit</th>
+                        <th>Status</th>
+                        <th>Description</th>
+                        <th>Date Created</th>
+                    </tr>";
+    }
+    while ($h_row = $i_history->fetch(PDO::FETCH_ASSOC)):
+        ?>
+        <tr>
+            <td><?php echo $h_row['product']; ?></td>
+            <td><?php echo $h_row['quantity']; ?></td>
+            <td><?php echo $h_row['unit']; ?></td>
+            <td><?php echo $h_row['status']; ?></td>
+            <td><?php echo $h_row['description']; ?></td>
+            <td><?php echo $h_row['created_at']; ?></td>
+        </tr>
+    <?php endwhile; ?>
+    </table>
+</div><!--Inventory history END-->
 </div> <!-- Inventory END-->
     <script>
         document.querySelectorAll('.edit-btn').forEach(btn => {
@@ -191,7 +221,7 @@ if (isset($_GET['success'])) {
                 const statusSelect = document.getElementById('stat');
                 const customInput = document.getElementById('status-custom');
                 
-                if (status === 'Recent' || status === 'Processing' || status === 'Sorted') {
+                if (status === 'Recent' || status === 'Processing' || status === 'Sorted' || status === 'Completed') {
                     statusSelect.value = status;
                     customInput.style.display = 'none';
                     customInput.value = '';
