@@ -8,7 +8,12 @@ CREATE TABLE accounts (
     pass VARCHAR(255),
     #email VARCHAR(255) UNIQUE
     admin BOOLEAN UNIQUE # Only one can be admin because we only check one unqiue 'true'
+    status ENUM('active', 'disabled') NOT NULL
 );
+
+ALTER TABLE accounts
+ADD status ENUM('active', 'disabled') NOT NULL DEFAULT 'active';
+
 
 CREATE TABLE inventory (
     prod_id varchar(15) PRIMARY KEY,
@@ -56,4 +61,9 @@ CREATE TABLE production (
     unit VARCHAR(10) NOT NULL,
     status VARCHAR(30) DEFAULT 'Recent',
     receiver VARCHAR(50)
+);
+
+CREATE TABLE historical_sales (
+inventory id INT(11) PRIMARY KEY AUTO_INCREMENT
+stock_in 
 );
