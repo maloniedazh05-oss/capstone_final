@@ -58,6 +58,7 @@ Added status in production, revise updated new db, FK removed - /8/20/26
 Added Production history, inventory history - 8/21/26
 
 Reports Total Stock in/out for selected month - Done 8/23/26
+Added Users edit, Inventory fix, Main-sidebar.php, Added Logout button - Done 8/23/26
 
 ==============================================
 Potential React js
@@ -131,6 +132,10 @@ Gotchas:
 document.querySelector('#edit-diag .desc').value = description; // Select the parent/main then its child id or class to specifically a select one.
 
 forEach needed a All, querySelectorAll. NOT querySelector.
+
+inventory.php:205 Uncaught TypeError: Cannot read properties of null (reading 'addEventListener')
+    at inventory.php:205:47
+Fix: Have to put all JavaScript code inside the DOMContentLoaded 
 ===================================================================
 Referecences: 
 Ways to use stmt$PDO:
