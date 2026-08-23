@@ -7,6 +7,7 @@ requireRole(['admin']);
 
 <!--
 Summary month date of production, in/out stock -Reports.
+
 50KG per bags = 500Pesos
 -->
 <!DOCTYPE html>
@@ -90,38 +91,58 @@ Summary month date of production, in/out stock -Reports.
             echo 'End: '. $date_end;
 
                 //Fetch all from selected mopnth fetched.
-            $stmt = $pdo->prepare("SELECT production_date, quantity, unit FROM production WHERE production_date >= :date_start AND production_date < :date_end");
+            $stmt = $pdo->prepare("SELECT production_date, quantity, unit, status FROM production WHERE production_date >= :date_start AND production_date < :date_end");
             $stmt->execute([':date_start' => $date_start, ':date_end'=> $date_end]);
+            // January, Feb.. date Format:
+            $readable_date = date('F m, Y', strtotime($date_start));
 
-            //Init UNITS
+            //Init UNITS -- Display every unit total production of that month:
             $total_sac = 0;
             $total_kg = 0;
+            $stock_in = 0;
+            $stock_out = 0;
             while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 
                 if($row['unit'] == 'Sac') {
                     $total_sac += $row['quantity'];
                 }
-
                 if($row['unit'] == 'KG') {
                     $total_kg += $row['quantity'];
                 }    
-                echo $row['quantity'];           
-            }
+                echo $row['quantity'];    
 
+                // Stock in - Fetch an item with no status completed.
+                if($row['status'] != 'Completed') {
+                    $stock_in += $row['quantity'];
+                }
+
+                // Stock out - fetch item with completed staus:
+                if($row['status'] == 'Completed') {
+                    $stock_out += $row['quantity'];
+                }
+            }
         }
 
         ?>
 
-        <div class="production-summary">
+        <div class="production-summary"><!--Production summary START-->
             <?php 
             if($_SERVER['REQUEST_METHOD'] == 'GET' && isset($_GET['month-selected'])):
             ?>
+            <h2><?=$readable_date?></h2>
             <div id="card-1">
                 <p>Total Production(Sac)<?=$total_sac ?? 0?></p>
             </div>
             <div id="card-2">
                 <p>Total Production(KG)<?=$total_kg ?? 0?></p>
             </div>
+            <div id="card-3">
+                <p>Total Stock In: <?=$stock_in ?? 0?></p>
+            </div>
+            <div id="card-4">
+                <p>Total Stock Out: <?=$stock_out ?? 0?></p>
+            </div>
+
         </div> <!--Production summary END-->
         <?php endif; ?>
 
