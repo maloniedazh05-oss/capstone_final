@@ -18,25 +18,7 @@ Summary month date of production, in/out stock -Reports.
     <title>Reports</title>
 </head>
 <body>
-    <div class="main-sidebar">
-        <ul>
-            <?php if (in_array($_SESSION['user_role'], ['admin', 'staff'])): ?>
-                <li><a href='dashboard.php'>Dashboard</a></li>
-            <?php endif; ?>
-
-            <?php if (in_array($_SESSION['user_role'], ['admin', 'manager'])): ?>
-                <li><a href='inventory.php'>Inventory</a></li>
-            <?php endif; ?>
-
-            <?php if (in_array($_SESSION['user_role'], ['admin', 'staff'])): ?>
-                <li><a href='production.php'>Production</a></li>
-            <?php endif; ?>
-
-            <?php if (in_array($_SESSION['user_role'], ['admin'])): ?>
-                <li><a href='Reports.php'>Reports</a></li>
-            <?php endif; ?>
-        </ul>
-    </div>
+    <?php require_once "main-sidebar.php"; ?>
 
     <div class="reportspage">
         <?php 

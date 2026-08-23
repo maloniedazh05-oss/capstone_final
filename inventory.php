@@ -19,27 +19,8 @@ if (isset($_GET['success'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 </head>
-
 <body>
-    <div class="main-sidebar">
-        <ul>
-            <?php if (in_array($_SESSION['user_role'], ['admin', 'staff'])): ?>
-                <li><a href='dashboard.php'>Dashboard</a></li>
-            <?php endif; ?>
-
-            <?php if (in_array($_SESSION['user_role'], ['admin', 'manager'])): ?>
-                <li><a href='inventory.php'>Inventory</a></li>
-            <?php endif; ?>
-
-            <?php if (in_array($_SESSION['user_role'], ['admin', 'staff'])): ?>
-                <li><a href='production.php'>Production</a></li>
-            <?php endif; ?>
-
-            <?php if (in_array($_SESSION['user_role'], ['admin'])): ?>
-                <li><a href='Reports.php'>Reports</a></li>
-            <?php endif; ?>            
-        </ul>
-    </div>
+    <?php require_once "main-sidebar.php"; ?>
             <!-- Dialogs -->
              
             <!--Insert/Add Item Dialog START-->
@@ -142,27 +123,27 @@ Status:
                 <th>Status</th>
                 <th>Actions</th>
                 </tr>  
-                <?php 
-                while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                    $id = $row['prod_id'];
-                    $name =$row['product'];
-                    $qty = $row['quantity'];
-                    $metric = $row['unit'];
-                    $status = $row['status'];
-                    $desc = $row['description'];
-                    //$stock_in = $row['stock_in'];
-                    //$stock_out = $row['stock_out'];
-                    echo "
+                <?php
+                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)):
+                    ?>
                     <tr>
-                        <td>{$id}</td>
-                        <td>{$name}</td>
-                        <td>{$qty} {$metric}</td>
-                        <td>{$status}</td>
-                        <td><button type='button' class='edit-btn' data-id='{$id}' data-name='{$name}' data-qty='{$qty}' data-metric='{$metric}' data-status='{$status}' data-description='{$desc}'>{$status}</button><button type='button' class='details' data-detail='{$desc}' data-stockin='stockinvar' data-stockout='stockoutvar' data-type='{$metric}'>Details</button></td>
+                        <td><?= $row['prod_id'] ?></td>
+                        <td><?= $row['product'] ?></td>
+                        <td><?= $row['quantity'] ?> <?= $row['unit'] ?></td>
+                        <td><?= $row['status'] ?></td>
+                        <td><button type='button' class='edit-btn' data-id='<?=$row['prod_id']?>'
+                            data-name='<?=$row['product']?>'
+                            data-qty='<?=$row['quantity']?>'
+                            data-metric='<?=$row['unit']?>'
+                            data-status='<?=$row['status']?>'
+                            data-description='<?=$row['description'] ?>'>
+                            <?=$row['status'] ?></button>
+                            <button type='button' class='details'
+                            data-detail='<?= $row['description'] ?>'
+                            data-type='<?=$row['unit']?>'>Details</button>
+                        </td>
                     </tr>
-                ";
-                }
-                ?>
+                <?php endwhile; ?>
             </table>
         </div> <!-- Inventory Stocks END-->
 
@@ -200,81 +181,81 @@ Status:
 </div><!--Inventory history END-->
 </div> <!-- Inventory END-->
     <script>
-        document.querySelectorAll('.edit-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const target = e.currentTarget;
-                const id = target.dataset.id;
-                const name = target.dataset.name;
-                const qty = target.dataset.qty;
-                const metric = target.dataset.metric;
-                const status = target.dataset.status;
-                const description = target.dataset.description;
-                console.log(description);
-                
-                document.getElementById('edit_id').value = id;
-                document.getElementById('edit_name').value = name;
-                document.getElementById('edit_quantity').value = qty;
-                document.getElementById('edit_metric').value = metric;
+        document.addEventListener("DOMContentLoaded", () => {
+            document.querySelectorAll('.edit-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const target = e.currentTarget;
+                    const id = target.dataset.id;
+                    const name = target.dataset.name;
+                    const qty = target.dataset.qty;
+                    const metric = target.dataset.metric;
+                    const status = target.dataset.status;
+                    const description = target.dataset.description;
+                    console.log(description);
+                    
+                    document.getElementById('edit_id').value = id;
+                    document.getElementById('edit_name').value = name;
+                    document.getElementById('edit_quantity').value = qty;
+                    document.getElementById('edit_metric').value = metric;
+                    
+                    // Check status if value or custom
+                    const customInput = document.getElementById('status-custom');
+                    const statusSelect = document.getElementById('stat');
 
-                
-                // Check status if value or custom
-                const statusSelect = document.getElementById('stat');
-                const customInput = document.getElementById('status-custom');
-                
-                if (status === 'Recent' || status === 'Processing' || status === 'Sorted' || status === 'Completed') {
-                    statusSelect.value = status;
-                    customInput.style.display = 'none';
-                    customInput.value = '';
-                } else {
-                    // Custom status
-                    statusSelect.value = 'custom';
-                    customInput.style.display = 'inline-block';
-                    customInput.value = status;
-                }
-                
-                document.getElementById('edit-diag').showModal();
-                document.querySelector('#edit-diag .desc').value = description;
-                
+                    if (status === 'Recent' || status === 'Processing' || status === 'Sorted' || status === 'Completed') {
+                        statusSelect.value = status;
+                        customInput.style.display = 'none';
+                        customInput.value = '';
+                    } else {
+                        // Custom status
+                        statusSelect.value = 'custom';
+                        customInput.style.display = 'inline-block';
+                        customInput.value = status;
+                    }
+                    
+                    document.getElementById('edit-diag').showModal();
+                    document.querySelector('#edit-diag .desc').value = description;                
+                });
             });
-        });
-        
-        // Dropdown change for edit dialog
-        document.getElementById('stat').addEventListener('change', (e) => {
-            const customInput = document.getElementById('status-custom');
-            if (e.target.value === 'custom') {
-                customInput.style.display = 'inline-block';
-                customInput.focus();
-            } else {
-                customInput.style.display = 'none';
-                customInput.value = '';
-            }
-        });
-        
-        // dropdown change for insert dialog
-        document.getElementById('stat-insert').addEventListener('change', (e) => {
-            const customInput = document.getElementById('status-custom-insert');
-            if (e.target.value === 'custom') {
-                customInput.style.display = 'inline-block';
-                // Set focus to the custom input field when the status dropdown if 'custom'
-                customInput.focus();
-            } else {
-                customInput.style.display = 'none';
-                customInput.value = '';
-            }
-        });
 
+            // Dropdown change for edit dialog
+            const stat = document.getElementById('stat');
+            if (stat) {
+                stat.addEventListener("change", (e) => {
+                    const customInput = document.getElementById('status-custom');
+                    if (e.target.value === 'custom') {
+                        customInput.style.display = 'inline-block';
+                        customInput.focus();
+                    } else {
+                        customInput.style.display = 'none';
+                        customInput.value = '';
+                    }
+                });
+            }
+            
+            // dropdown change for insert dialog
+            const statInsert = document.getElementById('stat-insert');
+            if (statInsert) {
+                statInsert.addEventListener('change', (e) => {
+                    const customInput = document.getElementById('status-custom-insert');
+                    if (e.target.value === 'custom') {
+                        customInput.style.display = 'inline-block';
+                        customInput.focus();
+                    } else {
+                        customInput.style.display = 'none';
+                        customInput.value = '';
+                    }
+});
+            }
+        
         // Show feedback dialog on Detail:
         const details = document.querySelectorAll('.details');
         details.forEach((link) => {
             link.addEventListener("click", (e) => {
                 const detail = e.currentTarget.dataset.detail;
-                const stockIn = e.currentTarget.dataset.stockin ;
-                const stockOut = e.currentTarget.dataset.stockout;
-                const stock_in = stockIn ? stockIn : '0';
-                const stock_out = stockOut ? stockOut : '0';
                 const type = e.currentTarget.dataset.type;
-                if(detail || stockIn || stockout)
-                document.getElementById('message').innerHTML = "<h3>Stock In: </h3>" + stock_in + type + "<p>" + "<h3>Stock Out: </h3>" + stock_out + type + "<p>" + detail + "</p>";
+                if(detail)
+                document.getElementById('message').innerHTML = "<h3>Notes: </h3>" + "<p>" + detail + "</p>";
                 else
                 document.getElementById('message').textContent = "No description";
 
@@ -287,6 +268,7 @@ Status:
             document.getElementById('message').textContent = '<?=$feedbackMessage?>';
             document.getElementById('feedback-diag').showModal();
         <?php endif; ?>
+        });
     </script>
 </body>
 </html>
