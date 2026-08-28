@@ -16,9 +16,10 @@ Summary month date of production, in/out stock -Reports.
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reports</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <?php require_once "main-sidebar.php"; ?>
+    <?php require_once "main-sidebar.php";?>
 
     <div class="reportspage">
         <?php 
@@ -104,7 +105,6 @@ Summary month date of production, in/out stock -Reports.
                 }
             }
         }
-
         ?>
 
         <div class="production-summary"><!--Production summary START-->

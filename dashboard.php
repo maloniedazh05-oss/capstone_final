@@ -4,9 +4,6 @@ require_once "php_backend/session.php";
 requireRole(['admin', 'staff']);
 
 // 50KG per 1Sac
-// Formula for conversion:
-// 1 Sac = 1Sac * 50KG
-// 1 KG = 50 / 1 Sac
 ?>
 
 <!DOCTYPE html>
@@ -18,10 +15,8 @@ requireRole(['admin', 'staff']);
     <title>Dashboard</title>
     <link rel="stylesheet" href='style.css'>
 </head>
-
 <body>
-<?php require_once "main-sidebar.php";?>
-   
+<?php require_once "main-sidebar.php"; ?>
     <?php
     // Fetch the non-completed vermi for totla current stock:
     $vermi = $pdo->prepare("SELECT product, quantity, status FROM inventory WHERE status != :completed");
@@ -74,14 +69,16 @@ Monthly Sales Target: <input type="number" min="0" id="salesInput" value="0">
                 <p><?= $current_vermicast ?? 0 ?></p>
             </div>
             <div class="stat-card">Next Period Stockout Prediction</div>
-            <div class="stat-card">Monthly sales Goal</div>
+            <div class="stat-card"><p id="goalText">Monthly sales Goal</p></div>
         </div><!-- info-cards END-->
     </div> <!-- dashboardpage END-->
 <script>
+    // Target Goal auto-fetch value ready for calculation
     const salesInput = document.getElementById('salesInput');
     let fetchValue = salesInput.value;
     salesInput.addEventListener("change", () => {
     fetchValue = salesInput.value == '' ? 0 : salesInput.value;
+    document.getElementById("goalText").textContent = "Monthly sales Goal: " + salesInput.value;
     console.log(fetchValue);
     });
 </script>

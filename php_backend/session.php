@@ -18,7 +18,7 @@ $stmt->execute(['id'=>$id]);
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if($user['status'] == 'disabled') {
-    header("Location: login.php");
+    header("Location: php_backend/logout.php");
     exit;
 }
 
@@ -33,12 +33,6 @@ function requireRole($allowed_roles) {
     if(!in_array($_SESSION['user_role'], $allowed_roles)) {
     http_response_code(403);
     die("Access denied: You do not have permission to view this page!" . "<br><a href='php_backend/logout.php'>Continue</a>");
-    } else {
-        echo "
-        <form method='POST' action='php_backend/logout.php' id='logoutButton'>
-        <button type='submit'>Logout</button>
-        </form>
-        ";
     }
 }
 ?>

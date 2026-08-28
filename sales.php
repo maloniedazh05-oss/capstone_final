@@ -9,14 +9,16 @@ requireRole(['admin']);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sales</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <?php require_once "main-sidebar.php"; ?>
+    <?php require_once "main-sidebar.php";?>
     <?php 
     require_once "php_backend/db.php";
 
     // Fetch status completed in inventory from selected month.
     ?>
+<div class="salespage">
         <form method="GET">
         <select id="months-select" name="month-selected">
             <?php
@@ -41,5 +43,6 @@ requireRole(['admin']);
         </select>
         <button type="submit">View Month Sales</button>
         </form>
+        </div><!--Salespage END-->
 </body>
 </html>

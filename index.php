@@ -6,17 +6,17 @@
 <html lang="en">
     <head>
         <title id="home_title">Homepage</title>
+        <link rel="stylesheet" href="style.css">
     </head>
     <body>
     <?php require_once "main-sidebar.php"; ?>
-        <form action="php_backend/logout.php" method="POST"><button type="submit">Logout</button></form>
+    <div class="homepage"></div>
     <script>
-
     // Test document load to change title:
-    document.addEventListener('DOMContentLoaded', () => {
+    /*document.addEventListener('DOMContentLoaded', () => {
         const home_t = document.getElementById('home_title')
         home_t.textContent = "Homepage - Dashboard";
-    });
+    });*/
 </script>
     </body>
 </html>

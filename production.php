@@ -9,9 +9,17 @@ requireRole(['admin', 'staff']);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Production</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <?php require_once "main-sidebar.php"; ?>
+    <?php require_once "main-sidebar.php"; ;
+    $feedbackMessage = '';
+    if(isset($_GET['updated'])) {
+    $feedbackMessage = "Updated Success!";
+    } else if(isset($_GET['error'])) {
+    $feedbackMessage = "Operation invalid!";
+    } 
+    ?>
 
     <div class="productionpage"> <!--Production page START-->
         <div class="batchcontainer">
@@ -53,7 +61,7 @@ requireRole(['admin', 'staff']);
                 <td><?php echo $row['quantity'] . $row['unit']; ?></td>
                 <td><?php echo $row['production_date']; ?></td>
                 <td><button id="receiverButton" data-company="<?=$row['receiver'];?>" data-viewstatus="<?=$row['status'];?>">Details</button></td>
-                <td><button id="statusButton" data-production_id="<?=$row['production_id']?>" data-batch="<?=$row['batch_id'];?>" data-date="<?=$row['batch_id'];?>" data-item="<?=$row['item']?>" data-quantity="<?=$row['quantity']?>"  data-unit="<?=$row['unit']?>" data-status="<?=$row['status'];?>" data-receiver="<?=$row['receiver']?>">Status</button></td>
+                <td><button id="statusButton" data-productionid="<?=$row['production_id']?>" data-editstatus="<?=$row['status'];?>">Status</button></td>
             </tr>
             <?php endwhile;?>
 
@@ -65,7 +73,7 @@ requireRole(['admin', 'staff']);
 
                 $history = $pdo->prepare("SELECT batch_id, production_date, item, quantity, unit, status FROM production WHERE status = :status");
                 if($history->execute([':status' => 'Completed'])) {
-                    echo "<h2>History</h2><table>                    <tr>
+                    echo "<h2>History</h2><table><tr>
                         <th>Name</th>
                         <th>Quantity</th>
                         <th>Batch ID</th>
@@ -86,6 +94,21 @@ requireRole(['admin', 'staff']);
         </div><!--Production view END-->
             
     </div> <!--Production page END-->
+    <dialog id="feedback-diag">
+           <p id="message"></p> 
+           <button command="close" commandFor="feedback-diag" onclick="window.location.href='production.php'">Close</button>   
+    </dialog>
+
+    <dialog id="status-diag">
+<form method='POST' action='php_backend/updateBatch.php'>
+    <select id='status_id'>
+        <option value="Recent">Recent</option><option value="Ongoing">Ongoing</option><option value="Completed">Completed</option>
+    </select>
+    <input type="hidden" name="id">
+    <input type="hidden" name="status">
+    <button type="button" command="close" commandfor="status-diag">Cancel</button>&Tab;<button type="submit">Confirm</button>
+</form>
+    </dialog>
             <script>
                 const historyButton = document.querySelectorAll('.productionview #receiverButton');
                 historyButton.forEach((button) => {
@@ -100,52 +123,27 @@ requireRole(['admin', 'staff']);
                 });
 
                 // Status Fetch
-                document.querySelectorAll(".productionview #statusButton").forEach((button) => {
+                const editButton = document.querySelectorAll('.productionview #statusButton');
+                editButton.forEach((button) => {
                     button.addEventListener('click', (e) => {
-                        const target = e.currentTarget;
-                        const p_id = target.dataset.production_id;
-                        const p_batch = target.dataset.batch;
-                        const p_date = target.dataset.date;
-                        const p_item = target.dataset.item;
-                        const p_quantity = target.dataset.quantity;
-                        const p_unit = target.dataset.unit;                        
-                        const p_status = target.dataset.status;
-                        const p_receiver = target.dataset.receiver;
+                        const p_id = e.currentTarget.dataset.productionid;
+                        const p_status = e.currentTarget.dataset.editstatus;
                         console.log(p_status);
-                        console.log(p_batch);
+                        document.getElementById("status_id").value = p_status;
                         document.getElementById('status-diag').showModal();
-                        document.querySelector('input[type="hidden"][name="batch"]').value = p_batch;
-                        document.querySelector('input[type="hidden"][name="id"]').value = p_id;
-                        document.querySelector('input[type="hidden"][name="date"]').value = p_date;
-                        document.querySelector('input[type="hidden"][name="item"]').value = p_item;
-                        document.querySelector('input[type="hidden"][name="quantity"]').value = p_quantity;
-                        document.querySelector('input[type="hidden"][name="unit"]').value = p_unit;
-                        document.querySelector('input[type="hidden"][name="status"]').value = p_status;
-                        document.querySelector('input[type="hidden"][name="receiver"]').value = p_receiver;
 
+                        document.querySelector("input[type='hidden'][name='id']").value = p_id;
+                        document.querySelector("input[type='hidden'][name='status']").value = p_status;
                     });
                 });
-            </script>
-    <dialog id="feedback-diag">
-           <p id="message"></p> 
-           <button command="close" commandFor="feedback-diag">Close</button>   
-    </dialog>
 
-    <dialog id="status-diag">
-<form method='GET' action='php_backend/insertBatch.php'>
-    <select name='status_id'>
-        <option value="Recent">Recent</option><option value="Ongoing">Ongoing</option><option value="Completed">Completed</option>
-    </select>
-    <input type="hidden" name="id">
-    <input type="hidden" name="batch">
-    <input type="hidden" name="date">
-    <input type="hidden" name="item">
-    <input type="hidden" name="quantity">
-    <input type="hidden" name="unit">
-    <input type="hidden" name="status">
-    <input type="hidden" name="receiver">
-    <button>Confirm</button>
-</form>
-    </dialog>
+                <?php 
+                if ($feedbackMessage):
+                ?>
+                document.getElementById('feedback-diag').showModal();
+                document.getElementById('message').textContent = '<?=$feedbackMessage?>';
+                <?php endif; ?>
+
+            </script>
 </body>
 </html>

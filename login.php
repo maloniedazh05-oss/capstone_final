@@ -7,35 +7,40 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body> 
-    
-    <!--Login form!-->
-        <form method='POST' class="login_container" >
-            <span id="login_title"></span>EcoAgri<br>
-            <label>User:</label><input type="text" name="username" required>
-            <label>Pass:</label><input type="password" name="password" required>
-            <button type="button" command="show-modal" commandfor="register-diag">Register</button><button type="submit">Login</button>
+    <div class="login-page"> <!--Login page START-->
+    <!--Login Container-->
+    <div class="login-container">
+        <h2>EcoAgri</h2>
+        <form method='POST' class="login-form">
+            <label>Username</label><input type="text" name="username" placeholder="Enter Username" autocomplete="off" required><br>
+            <label>Password</label><input type="password" name="password" placeholder="Enter Passowrd" autocomplete="off" autocorrect="off" required>
+            <br><button type="submit">Login</button>
+            <p>Doesn't have an account?</p><button type="button" command="show-modal" commandfor="register-diag">Create an account</button>
         </form>
 
         <!--Register Form in a dialog container-->
     <dialog id="register-diag">
+        <h2>Register</h2>
         <form method="POST" >
-            <label>Username: </label><input type='text' name='rusername' required>
-            <label>Password: </label><input type='password' name='rpassword' required>
+            <label>Username: </label><input type='text' name='rusername' placeholder="Create Username" autocomplete="on" required>
+            <label>Password: </label><input type='password' name='rpassword' placeholder="Create Password" autocomplete="off" autocorrect="off" required><br>
             <select id="role" name="role">
                 <option value="manager">Inventory Manager</option>
                 <option value="staff">Production Staff</option>
                 <option value="admin">Admin</option>
-            </select>
+            </select><br>
 
-            <input type="submit" value="Register"><button type='button' command="close" commandfor="register-diag">Cancel</button>
+            <button type='button' command="close" commandfor="register-diag">Cancel</button>&Tab;<input type="submit" value="Register">
         </form>
     </dialog>
-<button type="button" command="show-modal" commandfor="message-diag">Test</button>
+<!--<button type="button" command="show-modal" commandfor="message-diag">Test</button>-->
     <!--Dialog feedback-->
     <dialog id="message-diag">
         <p id="message">Nothing to see here..</p>
         <button type='button' command="close" commandfor="message-diag">Cancel</button>
     </dialog>
+    </div> <!--Login Container END-->
+    </div> <!--Login page END-->
     <script>
     const message = document.getElementById('message');
     const feedbackdiag = document.getElementById('message-diag');
@@ -129,8 +134,7 @@ if ((isset($_POST['username'])) && (isset($_POST['password'])) && $_SERVER['REQU
     $stmt->execute([':username' => $user]);
     $count = $stmt->fetchColumn();
     if ($count !=1) {
-        echo "<script>message.textContent = 'Username not found!'; feedbackdiag.showModal();</script>";
-         
+        echo "<script>message.textContent = 'Username not found!'; feedbackdiag.showModal();</script>";         
         exit;
     }
 
@@ -139,20 +143,22 @@ if ((isset($_POST['username'])) && (isset($_POST['password'])) && $_SERVER['REQU
     $stmt->bindValue(':username', $user);
     $stmt->execute();
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    $password = $row['pass'] ?? '';
 
     # Verify the password
-    if(password_verify($pass, $row['pass'])) {
+    if(password_verify($pass, $password)) {
         session_start(); 
         session_regenerate_id(true);
         # Use the username, id, role in session.
         $_SESSION['user_id'] = $row['id'];
         $_SESSION['user_name'] = $user;
         $_SESSION['user_role'] = $row['role'];
-        header("Location: index.php");
-         
+        header("Location: index.php");         
         exit;
     } else {
+        $stmt = null;
         echo "<script>message.textContent = 'Password is incorrect!'; feedbackdiag.showModal();</script>";
+        exit;
     }
 }
  

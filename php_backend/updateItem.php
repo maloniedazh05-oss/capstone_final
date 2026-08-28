@@ -11,9 +11,10 @@ if($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['edit_id']) && isset($_P
     # Update to Check status
     $status = "Recent";
     $statusSelection = $_POST['status'] ?? 'Recent';
-    if ($statusSelection == 'custom' && isset($_POST['status-custom'])) {
-        $status = trim($_POST['status-custom']);
-    } elseif ($statusSelection == 'Processing') {
+    //if ($statusSelection == 'custom' && isset($_POST['status-custom'])) {
+     //   $status = trim($_POST['status-custom']);
+    //} else
+    if ($statusSelection == 'Processing') {
         $status = 'Processing';
     } elseif ($statusSelection == 'Sorted') {
         $status = 'Sorted';

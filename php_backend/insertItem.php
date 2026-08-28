@@ -16,9 +16,10 @@ if($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['product_name']) && isse
     # Check status
     $status = "Recent";
     $statusSelection = $_POST['status'] ?? 'Recent';
-    if ($statusSelection == 'custom' && isset($_POST['status-custom'])) {
-        $status = trim($_POST['status-custom']);
-    } elseif ($statusSelection == 'Processing') {
+    //if ($statusSelection == 'custom' && isset($_POST['status-custom'])) {
+       // $status = trim($_POST['status-custom']);
+    //} else
+    if($statusSelection == 'Processing') {
         $status = 'Processing';
     } elseif ($statusSelection == 'Sorted') {
         $status = 'Sorted';

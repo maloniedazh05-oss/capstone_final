@@ -60,6 +60,13 @@ Added Production history, inventory history - 8/21/26
 Reports Total Stock in/out for selected month - Done 8/23/26
 Added Users edit, Inventory fix, Main-sidebar.php, Added Logout button - Done 8/23/26
 
+// Wika changes, fixes and improvement.
+Removed Custom value for inserting/updating Status for much simpler impolementation.
+Reconstruct - Style and Js file and code structure for scalability.
+Made status - Non-optional, Fixed status edit not fetching in inventory. Fixed status production fetching null from <select>. Login/Register UI fixes - 8/24/26
+//
+
+
 ==============================================
 Potential React js
 
@@ -135,7 +142,7 @@ forEach needed a All, querySelectorAll. NOT querySelector.
 
 inventory.php:205 Uncaught TypeError: Cannot read properties of null (reading 'addEventListener')
     at inventory.php:205:47
-Fix: Have to put all JavaScript code inside the DOMContentLoaded 
+Fix: Have to put all JavaScript code inside the DOMContentLoaded , Syntax error to be watched too. Real fix: find the correct id for <select id='myid'> tag get myid to edit value.
 ===================================================================
 Referecences: 
 Ways to use stmt$PDO:

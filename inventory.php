@@ -13,11 +13,11 @@ if (isset($_GET['success'])) {
 ?>
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Inventory</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <?php require_once "main-sidebar.php"; ?>
@@ -33,18 +33,18 @@ if (isset($_GET['success'])) {
                 <option value="Sacks">Sack</option>
                 <option value="KG">KG</option>
             </select>
-            <details>
-                <summary class="summaries">Satus/Info - Optional</summary>
-            <div class="status-container">
-Status:
                 <select name="status" id="stat">
                     <option value="Recent">Recent</option>
                     <option value="Processing">Processing</option>
                     <option value="Sorted">Sorted</option>
                     <option value="Completed">Completed</option>
-                    <option value="custom">Custom</option>
+                    <!--<option value="custom">Custom</option>-->
                 </select>
-                <input type="text" name="status-custom" id="status-custom-insert" placeholder="Custom status" style="display:none;">
+            <details>
+                <summary class="summaries">Info - Optional</summary>
+            <div class="status-container">
+Status:
+                <!--<input type="text" name="status-custom" id="status-custom-insert" placeholder="Custom status" style="display:none;">-->
                 Description:<br><textarea placeholder="Notes.. OPTIONAL" name="description" class="desc"></textarea>
             </div>
             </details>
@@ -64,16 +64,15 @@ Status:
                 <option value="Sacks">Sack</option>
                 <option value="KG">KG</option>
             </select>
-                <br>Status: 
-                <select name="status" id="stat">
+                Status: 
+                <select name="status" id="status_edit">
                     <option value="Recent">Recent</option>
                     <option value="Processing">Processing</option>
                     <option value="Sorted">Sorted</option>
                     <option value="Completed">Completed</option>
-                    <option value="custom">Custom</option>
                 </select>
             <details>
-            <summary class="summaries">Satus/Info - Optional</summary>
+            <summary class="summaries">Info - Optional</summary>
             <div class="status-container">
 
                 <input type="text" name="status-custom" id="status-custom" placeholder="Custom status" style="display:none;">
@@ -84,11 +83,10 @@ Status:
             <button type="submit">Save Changes</button>
         </form>
     </dialog><!-- Edit/Update Dialog END-->
-
     <!--Feedback dialog-->
     <dialog id="feedback-diag">
         <p id="message">Nothing to see here..</p>
-        <button type='button' command="close" commandfor="feedback-diag">Close</button>
+        <button type='button' command="close" commandfor="feedback-diag" onclick="window.location.href='inventory.php'">Close</button>
     </dialog>
     <div class="inventorypage">
         <div class="inventorystocks">
@@ -181,7 +179,6 @@ Status:
 </div><!--Inventory history END-->
 </div> <!-- Inventory END-->
     <script>
-        document.addEventListener("DOMContentLoaded", () => {
             document.querySelectorAll('.edit-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     const target = e.currentTarget;
@@ -191,13 +188,15 @@ Status:
                     const metric = target.dataset.metric;
                     const status = target.dataset.status;
                     const description = target.dataset.description;
-                    console.log(description);
+                    console.log(status);
                     
                     document.getElementById('edit_id').value = id;
                     document.getElementById('edit_name').value = name;
                     document.getElementById('edit_quantity').value = qty;
                     document.getElementById('edit_metric').value = metric;
-                    
+                    document.getElementById('status_edit').value = status;
+
+                    /*
                     // Check status if value or custom
                     const customInput = document.getElementById('status-custom');
                     const statusSelect = document.getElementById('stat');
@@ -211,14 +210,14 @@ Status:
                         statusSelect.value = 'custom';
                         customInput.style.display = 'inline-block';
                         customInput.value = status;
-                    }
+                    }*/
                     
                     document.getElementById('edit-diag').showModal();
                     document.querySelector('#edit-diag .desc').value = description;                
                 });
             });
 
-            // Dropdown change for edit dialog
+            /* Dropdown change for edit dialog - Custom Value removed
             const stat = document.getElementById('stat');
             if (stat) {
                 stat.addEventListener("change", (e) => {
@@ -232,6 +231,7 @@ Status:
                     }
                 });
             }
+           
             
             // dropdown change for insert dialog
             const statInsert = document.getElementById('stat-insert');
@@ -246,7 +246,7 @@ Status:
                         customInput.value = '';
                     }
 });
-            }
+            }*/
         
         // Show feedback dialog on Detail:
         const details = document.querySelectorAll('.details');
@@ -268,7 +268,7 @@ Status:
             document.getElementById('message').textContent = '<?=$feedbackMessage?>';
             document.getElementById('feedback-diag').showModal();
         <?php endif; ?>
-        });
+
     </script>
 </body>
 </html>
