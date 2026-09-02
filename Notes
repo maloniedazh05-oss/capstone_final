@@ -133,7 +133,7 @@ Phase 6: Test and maintenance
 
 ===================================================================
 Gotchas: 
--Debugging for 5hours+ because of missed session_start() after verifying login condition.
+-Debugging Missed session_start() after verifying login condition.
 
 - document.getElementById('desc').value // Dont work if theres more than one of that id. Solution:
 document.querySelector('#edit-diag .desc').value = description; // Select the parent/main then its child id or class to specifically a select one.
