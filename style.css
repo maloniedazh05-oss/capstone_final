@@ -14,6 +14,7 @@ userspage
 */
 .dashboardpage, .forecastingpage, .inventorypage, .login-page, .productionpage, .reportspage, .salespage, .userspage {
     grid-area: main;
+    overflow-y: auto;
 }
 
 
@@ -25,6 +26,8 @@ body {
     grid-template-rows: 100vh;
     grid-template-areas: 
     "sidebar main";
+    height: 100vh;
+    overflow: hidden;
 }
 
 /*
@@ -117,11 +120,13 @@ Login Page END
 
 /*Main Sidebar START*/
 .main-sidebar {
-    display:grid;
+    display: grid;
     height: 100vh;
     width: 35vh fit-content;
     grid-area: sidebar;
     background: yellow;
+    position: sticky;
+    top: 0;
 }
 
 .main-sidebar h1 {
