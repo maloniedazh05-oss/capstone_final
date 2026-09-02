@@ -144,7 +144,7 @@ inventory.php:205 Uncaught TypeError: Cannot read properties of null (reading 'a
     at inventory.php:205:47
 Fix: Have to put all JavaScript code inside the DOMContentLoaded , Syntax error to be watched too. Real fix: find the correct id for <select id='myid'> tag get myid to edit value.
 ===================================================================
-Referecences: 
+Referecences: (
 Ways to use stmt$PDO:
 After SQL queries with :data, :user, etc.. $stmt = $pdo->prepare
 Bind values if used:
