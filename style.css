@@ -63,7 +63,7 @@ Login Page START
     font-size: var(--main-input);
 }
 
-.login-page .login-container input[type="text"], input[type="password"] {
+.login-page .login-container input[type="text"], .login-page .login-contaienr input[type="password"] {
     font-size: var(--main-input);
     padding: 5px;
     min-width: 60px;
@@ -127,6 +127,7 @@ Login Page END
     background: yellow;
     position: sticky;
     top: 0;
+    left: 0;
 }
 
 .main-sidebar h1 {
@@ -166,11 +167,17 @@ Login Page END
     width: 30px;
     height: 30px;
     margin-bottom: 15px;
+    cursor: pointer;
 }
 
 /*
 Main Sidebar END
 */
+
+/*
+USERS PAGE START
+*/
+
 
 /*Homepage START*/
 .homepage {
