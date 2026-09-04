@@ -63,7 +63,7 @@ Login Page START
     font-size: var(--main-input);
 }
 
-.login-page .login-container input[type="text"], .login-page .login-contaienr input[type="password"] {
+.login-page .login-container input[type="text"], .login-container input[type="password"] {
     font-size: var(--main-input);
     padding: 5px;
     min-width: 60px;
