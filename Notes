@@ -66,6 +66,7 @@ Reconstruct - Style and Js file and code structure for scalability.
 Made status - Non-optional, Fixed status edit not fetching in inventory. Fixed status production fetching null from <select>. Login/Register UI fixes - 8/24/26
 //
 
+Php POST request to Python for 1095 days forecasting to 30 days. backend DONE 6/9/26
 
 ==============================================
 Potential React js
@@ -143,6 +144,17 @@ forEach needed a All, querySelectorAll. NOT querySelector.
 inventory.php:205 Uncaught TypeError: Cannot read properties of null (reading 'addEventListener')
     at inventory.php:205:47
 Fix: Have to put all JavaScript code inside the DOMContentLoaded , Syntax error to be watched too. Real fix: find the correct id for <select id='myid'> tag get myid to edit value.
+
+    return jsonify({
+        "success": True, # need space.
+        "result": result
+    })
+
+forecasting.py - forgot "@" in @app.route - renders: IN CLI:
+- 127.0.0.1 - - [06/Sep/2026 19:03:38] "POST /py_backend/forecasting.php HTTP/1.1" 404 -
+Web:
+Not Found
+The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.
 ===================================================================
 Referecences: (
 Ways to use stmt$PDO:
