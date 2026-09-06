@@ -1,53 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Page</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body> 
-    <div class="login-page"> <!--Login page START-->
-    <!--Login Container-->
-    <div class="login-container">
-        <h2>EcoAgri</h2>
-        <form method='POST' class="login-form">
-            <label>Username</label><input type="text" name="username" placeholder="Enter Username" autocomplete="off" required><br>
-            <label>Password</label><input type="password" name="password" placeholder="Enter Passowrd" autocomplete="off" autocorrect="off" required>
-            <br><button type="submit">Login</button>
-            <p>Doesn't have an account?</p><button type="button" command="show-modal" commandfor="register-diag">Create an account</button>
-        </form>
-
-        <!--Register Form in a dialog container-->
-    <dialog id="register-diag">
-        <h2>Register</h2>
-        <form method="POST" >
-            <label>Username: </label><input type='text' name='rusername' placeholder="Create Username" autocomplete="on" required>
-            <label>Password: </label><input type='password' name='rpassword' placeholder="Create Password" autocomplete="off" autocorrect="off" required><br>
-            <select id="role" name="role">
-                <option value="manager">Inventory Manager</option>
-                <option value="staff">Production Staff</option>
-                <option value="admin">Admin</option>
-            </select><br>
-
-            <button type='button' command="close" commandfor="register-diag">Cancel</button>&Tab;<input type="submit" value="Register">
-        </form>
-    </dialog>
-<!--<button type="button" command="show-modal" commandfor="message-diag">Test</button>-->
-    <!--Dialog feedback-->
-    <dialog id="message-diag">
-        <p id="message">Nothing to see here..</p>
-        <button type='button' command="close" commandfor="message-diag">Cancel</button>
-    </dialog>
-    </div> <!--Login Container END-->
-    </div> <!--Login page END-->
-    <script>
-    const message = document.getElementById('message');
-    const feedbackdiag = document.getElementById('message-diag');
-    </script>
-</body>
-</html>
-
 <?php
 # PHP register
 if ((isset($_POST['rusername'])) && (isset($_POST['rpassword'])) && $_SERVER['REQUEST_METHOD'] == "POST") {
@@ -147,7 +97,7 @@ if ((isset($_POST['username'])) && (isset($_POST['password'])) && $_SERVER['REQU
 
     # Verify the password
     if(password_verify($pass, $password)) {
-        session_start(); 
+        session_start();
         session_regenerate_id(true);
         # Use the username, id, role in session.
         $_SESSION['user_id'] = $row['id'];
@@ -161,7 +111,128 @@ if ((isset($_POST['username'])) && (isset($_POST['password'])) && $_SERVER['REQU
         exit;
     }
 }
- 
-$stmt = null;
-exit;
 ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vermicast ERP - Login</title>
+    <link rel="stylesheet" href="assets/node_modules/@fortawesome/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="login-body"> 
+    <div class="login-page"> <!--Login page START-->
+        <!--Login Card Container-->
+        <div class="login-card">
+            <!--Card Header-->
+            <div class="login-card-header">
+                <div class="header-logo">
+                    <i class="fa-solid fa-leaf"></i>
+                </div>
+                <h1>Vermicast ERP</h1>
+                <p>Prototype System</p>
+            </div>
+
+            <!--Card Body-->
+            <div class="login-card-body">
+                <form method="POST" class="login-form">
+                    <div class="input-group">
+                        <label for="username"><i class="fa-solid fa-user"></i> Username</label>
+                        <input type="text" id="username" name="username" placeholder="Enter username" autocomplete="off" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="password"><i class="fa-solid fa-lock"></i> Password</label>
+                        <input type="password" id="password" name="password" placeholder="Enter password" autocomplete="off" autocorrect="off" required>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">
+                            <i class="fa-solid fa-right-to-bracket"></i> Login
+                        </button>
+                    </div>
+
+                    <div class="account-register-prompt">
+                        <span>Doesn't have an account?</span>
+                        <button type="button" class="btn-link" id="open-register-btn" command="show-modal" commandfor="register-diag">Create an account</button>
+                    </div>
+                </form>
+            </div>
+
+            <!--Card Footer-->
+            <div class="login-card-footer">
+                <div class="demo-title">Register to get started</div>
+                <!-- For info desc
+                <div class="demo-cred">Admin: admin / password123</div>
+                <div class="demo-cred">Staff: staff1 / password123</div>
+                <div class="demo-cred">Manager: manager1 / password123</div>-->
+            </div>
+        </div>
+
+        <!--Register Form in a dialog container-->
+        <dialog id="register-diag">
+            <div class="dialog-header">
+                <div style="font-size: 28px; margin-bottom: 6px;"><i class="fa-solid fa-leaf"></i></div>
+                <h2>Register Account</h2>
+                <p>Vermicast ERP System</p>
+            </div>
+            <div class="dialog-body">
+                <form method="POST">
+                    <div class="input-group">
+                        <label for="rusername"><i class="fa-solid fa-user"></i> Username</label>
+                        <input type="text" id="rusername" name="rusername" placeholder="Create Username" autocomplete="on" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="rpassword"><i class="fa-solid fa-lock"></i> Password</label>
+                        <input type="password" id="rpassword" name="rpassword" placeholder="Create Password" autocomplete="off" autocorrect="off" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="role"><i class="fa-solid fa-user-tag"></i> Role</label>
+                        <select id="role" name="role">
+                            <option value="manager">Inventory Manager</option>
+                            <option value="staff">Production Staff</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                    <div class="dialog-actions">
+                        <button type="button" class="btn-secondary" id="close-register-btn" command="close" commandfor="register-diag">Cancel</button>
+                        <button type="submit" class="btn-primary"><i class="fa-solid fa-user-plus"></i> Register</button>
+                    </div>
+                </form>
+            </div>
+        </dialog>
+
+        <!--Dialog feedback-->
+        <dialog id="message-diag">
+            <div class="dialog-header">
+                <h2>Notice</h2>
+            </div>
+            <div class="dialog-body">
+                <p id="message">Nothing to see here..</p>
+                <div class="dialog-actions" style="justify-content: center;">
+                    <button type="button" class="btn-primary" id="close-msg-btn" command="close" commandfor="message-diag">OK</button>
+                </div>
+            </div>
+        </dialog>
+    </div> <!--Login page END-->
+    <script>
+    const message = document.getElementById('message');
+    const feedbackdiag = document.getElementById('message-diag');
+    const registerdiag = document.getElementById('register-diag');
+    const openRegisterBtn = document.getElementById('open-register-btn');
+    const closeRegisterBtn = document.getElementById('close-register-btn');
+    const closeMsgBtn = document.getElementById('close-msg-btn');
+
+    if (openRegisterBtn && registerdiag) {
+        openRegisterBtn.addEventListener('click', () => registerdiag.showModal());
+    }
+    if (closeRegisterBtn && registerdiag) {
+        closeRegisterBtn.addEventListener('click', () => registerdiag.close());
+    }
+    if (closeMsgBtn && feedbackdiag) {
+        closeMsgBtn.addEventListener('click', () => feedbackdiag.close());
+    }
+    </script>
+</body>
+</html>
