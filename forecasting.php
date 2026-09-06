@@ -57,13 +57,41 @@ requireRole(['admin']);
                 $cursor = date('Y-m-d', strtotime($cursor . ' +1 day'));
             }
 
-            echo "<br>Total days: " . count($data) . " (expected 1096 incl. today)";
+            echo "<br>Total days: " . count($data) . " (expected 1096 including. today)";
             echo "<br><br><strong>Daily totals (oldest -> today):</strong><br>";
-            echo "<pre>" . htmlspecialchars(print_r($data, true)) . "</pre>";
-            echo "<pre>" . htmlspecialchars(print_r($data_assoc, true)) . "</pre>";
+            echo "<pre>" . (print_r($data, true)) . "</pre>";
+            echo "<pre>" .  (print_r($data_assoc, true)) . "</pre>";
             // Ready for Python: json_encode the indexed array
             echo "<br><strong>JSON for Python:</strong><br>";
-            echo "<pre>" . htmlspecialchars(json_encode($data)) . "</pre>";
+            echo "<pre>" .  (json_encode($data)) . "</pre>";
+
+            
+            // Flask route is @app.route("/forecasting") on port 5000,
+            // so POST to /forecasting (NOT /py_backend/forecasting.php)
+            $url = "http://127.0.0.1:5000/forecasting";
+            $data_json = json_encode($data);
+
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $data_json);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                "Content-Type: application/json",
+                "Content-Length: " . strlen($data_json)
+            ]);
+
+            // Receive python response:
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+            
+            $result = curl_exec($ch);
+            if ($result === false) {
+                echo "Is Flask running? Start it with: <code>python py_backend/forecasting.py</code>";
+            } else {
+                $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                curl_close($ch);
+                echo "Result: ";
+                echo "<pre>" . $result . "</pre>";
+            }
         }
             
             
