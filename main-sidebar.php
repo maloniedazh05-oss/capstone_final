@@ -1,5 +1,5 @@
 <div class="main-sidebar">
-    <button id="navicon">=</button>
+    <input type="checkbox" id="navicon">
     <h1 id="pagetitle"></h1>
     <ul>
         <?php if (in_array($_SESSION['user_role'], ['admin', 'staff'])): ?>
@@ -26,7 +26,7 @@
     </ul>
     <div class="currentUser">
     <h3><?=$_SESSION['user_name'] ?? ''?></h3>
-    <h4><?=$_SESSION['user_role'] ?? ''?></h4>
+    <h4><?=ucfirst($_SESSION['user_role']) ?? ''?></h4>
     <?php 
     if($id && $user):
     ?>
@@ -51,4 +51,6 @@
             window.location.href= link.target.textContent + '.php';
         })
     })
+
+    
 </script>
