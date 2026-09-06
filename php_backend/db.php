@@ -10,4 +10,17 @@ try {
 } catch (PDOException $e) {
     die("Connection failed: " . $e->getMessage());
 }
+/* Potential
+class dbconn {
+    private $host = 'localhost';
+    private $dbname = 'rural_urban';
+    private $username = 'root';
+    private $password = '';
+
+    public function __construct() {
+        $pdow = new PDO("mysql=$this->host;dbname=$this->dbname", $this->username, $this->password);
+    }
+}
+then classes inventory, production, etc.    
+*/
 ?>
