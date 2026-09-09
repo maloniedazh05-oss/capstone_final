@@ -19,6 +19,10 @@ requireRole(['admin']);
     // Fetch status completed in inventory from selected month.
     ?>
 <div class="salespage">
+    <form method="POST" action="php_backend/import.php" enctype="multipart/form-data">
+    <input type="file"  accept=".txt,.json,.csv" name="historyFile"  required>
+    <br><button type="submit">Import Historical Data</button>
+    </form><br>
         <form method="GET">
         <select id="months-select" name="month-selected">
             <?php
@@ -44,5 +48,12 @@ requireRole(['admin']);
         <button type="submit">View Month Sales</button>
         </form>
         </div><!--Salespage END-->
+        <script>
+            import '@fortawesome/fontawesome-free/css/all.min.css';
+            document.getElementById('file_data').addEventListener("change", () => {
+                console.log("test")
+            });
+            
+        </script>
 </body>
 </html>
