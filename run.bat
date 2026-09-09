@@ -8,19 +8,20 @@ if not exist venv\Lib\site-packages\pandas (pip install pandas)
 if not exist venv\Lib\site-packages\flask (pip install flask)
 if not exist venv\Lib\site-packages\statsmodels (pip install statsmodels)
 
+start http://localhost/capstone_final
+echo RUN the Xampp for localhost to fully work - Apache and MySQL
 
-py_backend\forecasting.py
 
 REM Check if node_modules folder exists
-if not exist asset (
-    mkdir asset
+if not exist assets (
+    mkdir assets
 )
 
-if not exist asset\node_modules (
+if not exist assets\node_modules (
     REM If not, install fontawesome
     echo Installing fontawesome...
-    cd asset
-    npm install @fortawesome/fontawesome-free
+    cd assets
+    call npm install @fortawesome/fontawesome-free
     cd ..
 ) else (
     REM If yes, check if npm is installed
@@ -31,4 +32,4 @@ if not exist asset\node_modules (
     )
 )
 
-start http://localhost/capstone_final
+py_backend\forecasting.py
