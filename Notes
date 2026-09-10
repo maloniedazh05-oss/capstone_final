@@ -68,6 +68,8 @@ Made status - Non-optional, Fixed status edit not fetching in inventory. Fixed s
 
 Php POST request to Python for 1095 days forecasting to 30 days. backend DONE 6/9/26
 
+Sidebar, Inventory, & Production UI Redesign - IMplementing frontend - 9/10/26
+
 ==============================================
 Potential React js
 
@@ -192,4 +194,22 @@ p.quantity,
 i.product,
 FROM production p
 LEFT JOIN inventory i
-    ON p p.prod_id = i.prod_id
+    ON p p.prod_id = i.prod_id // Can conviniently put in one array for ease access, EX: $row['1st table'], $row['second table']
+
+<?php
+// 1. Target the 'name' attribute from your HTML input ("forecastData")
+if (isset($_FILES['forecastData'])) {
+    
+    // 2. Get the secret temporary path where the actual file content lives
+    $temporaryFilePath = $_FILES['forecastData']['tmp_name'];
+    
+    // 3. Read the actual text inside that file
+    $fileContent = file_get_contents($temporaryFilePath);
+    
+    // 4. Output or use the data
+    echo "Here is your file content: " . $fileContent; 
+    // Example Output: 
+    
+    // 5. Turn it into a real PHP array to verify it worked
+    $array = json_decode($fileContent, true);
+    print_r($array);
