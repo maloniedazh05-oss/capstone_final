@@ -32,4 +32,4 @@ if not exist assets\node_modules (
     )
 )
 
-py_backend\forecasting.py
+call py_backend\forecasting.py

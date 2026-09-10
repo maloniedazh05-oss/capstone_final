@@ -49,12 +49,12 @@ requireRole(['admin']);
 
             // Build continuous 1096-day array (1095 days diff + today inclusive)
             // Append each day's total quantity; render empty day as 0
-            $cursor = $start_date;
-            while ($cursor <= $today) {
-                $qty = $qty_map[$cursor] ?? 0;
+            $start = $start_date;
+            while ($start <= $today) {
+                $qty = $qty_map[$start] ?? 0;
                 $data[] = $qty;
-                $data_assoc[$cursor] = $qty;
-                $cursor = date('Y-m-d', strtotime($cursor . ' +1 day'));
+                $data_assoc[$start] = $qty;
+                $start = date('Y-m-d', strtotime($start . ' +1 day'));
             }
 
             echo "<br>Total days: " . count($data) . " (expected 1096 including. today)";
@@ -90,7 +90,8 @@ requireRole(['admin']);
                 $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
                 curl_close($ch);
                 echo "Result: ";
-                echo "<pre>" . $result . "</pre>";
+                // JSON string
+                echo "<pre>" . $result. "</pre>";
             }
         }
             
