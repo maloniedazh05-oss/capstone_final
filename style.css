@@ -280,7 +280,7 @@ body.login-body {
     font-size: 12px;
 }
 
-/* Dialog Styling */
+/* Dialogs START */
 dialog#register-diag,
 dialog#message-diag {
     padding: 0;
@@ -339,7 +339,9 @@ dialog .dialog-actions {
     margin: 0 0 20px;
     font-weight: 500;
 }
-/*
+
+/* Dialogs END */
+
 /*
 Login Page END
 */
@@ -838,9 +840,9 @@ Responsive Media Queries
     .main-sidebar {
         width: 100%;
         height: auto;
-        position: relative;
-        top: auto;
-        left: auto;
+        position: sticky;
+        top: 0;
+        left: 0;
     }
 
     .main-sidebar .sidebar-brand {
