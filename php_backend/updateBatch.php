@@ -1,11 +1,11 @@
 <?php 
 require_once "db.php";
 
-if($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['id']) && isset($_POST['status'])) {
+if($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['status'])) {
     $status = $_POST['status'] ?? '';
     $id = $_POST['id'] ?? '';
 
-    $stmt = $pdo->prepare("UPDATE production SET status = :status WHERE id = :id");
+    $stmt = $pdo->prepare("UPDATE production SET status = :status WHERE production_id = :id");
     $stmt->bindValue(':status', $status);
     $stmt->bindValue(':id', $id);
 

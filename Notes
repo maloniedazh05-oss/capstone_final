@@ -70,6 +70,8 @@ Php POST request to Python for 1095 days forecasting to 30 days. backend DONE 6/
 
 Sidebar, Inventory, & Production UI Redesign - IMplementing frontend - 9/10/26
 
+Bug fixes and improvements in Updateuser, insertItem and feedback UX not working for login. UI Changes in <select> tag globally. Forecasting next step done, Historical sales import - 9/12/26
+
 ==============================================
 Potential React js
 

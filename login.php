@@ -10,9 +10,7 @@ if ((isset($_POST['rusername'])) && (isset($_POST['rpassword'])) && $_SERVER['RE
 
     # Check if role is valid
     if (!in_array($role, ['admin', 'staff', 'manager'])) {
-        echo "<script>message.textContent = 'Role is invalid'; feedbackdiag.showModal();</script>";
-        $stmt = null;
-         
+        header("Location: login.php?error=" . urlencode("Role is invalid"));
         exit;
     }
 
@@ -23,10 +21,7 @@ if ((isset($_POST['rusername'])) && (isset($_POST['rpassword'])) && $_SERVER['RE
         $result = $stmt->fetch();
         if($result) #if true.
         {
-            echo "<script>message.textContent = 'Only one admin is allowed!'; feedbackdiag.showModal();</script>";
-            $is_admin = null;
-            $stmt = null;
-             
+            header("Location: login.php?error=" . urlencode("Only one admin is allowed!"));
             exit;
         }
         $is_admin = true;
@@ -39,9 +34,7 @@ if ((isset($_POST['rusername'])) && (isset($_POST['rpassword'])) && $_SERVER['RE
     $count = $stmt->fetchColumn();
 
     if ($count > 0) {
-        echo "<script>message.textContent = 'Username already exists!'; feedbackdiag.showModal();</script>";
-        $stmt = null;
-         
+        header("Location: login.php?error=" . urlencode("Username already exists!"));
         exit;
     }
 
@@ -52,9 +45,7 @@ if ((isset($_POST['rusername'])) && (isset($_POST['rpassword'])) && $_SERVER['RE
     try {
         $stmt = $pdo->prepare("INSERT INTO accounts (role, user, pass, admin) VALUES (:roles, :username, :hashedpassword, :administ)");
     } catch (Throwable $e) {
-        echo "<script>message.textContent = '" . 'Something went wrong: ' . $e->getMessage() . "'; feedbackdiag.showModal();</script>";
-        $stmt = null;
-         
+        header("Location: login.php?error=" . urlencode("Something went wrong: " . $e->getMessage()));
         exit;
     }
     $stmt->bindValue(':roles', $role);
@@ -62,11 +53,8 @@ if ((isset($_POST['rusername'])) && (isset($_POST['rpassword'])) && $_SERVER['RE
     $stmt->bindValue(':hashedpassword', $hashedpassword);
     $stmt->bindValue(':administ', $is_admin);
     if ($stmt->execute()) {
-        echo "<script>message.textContent = 'Registered successfully!'; feedbackdiag.showModal();</script>";
-        sleep(1000);
-        header("Location:  login.php");
         $stmt = null;
-         
+        header("Location: login.php?registered=1");
         exit;
     }
 }
@@ -84,7 +72,7 @@ if ((isset($_POST['username'])) && (isset($_POST['password'])) && $_SERVER['REQU
     $stmt->execute([':username' => $user]);
     $count = $stmt->fetchColumn();
     if ($count !=1) {
-        echo "<script>message.textContent = 'Username not found!'; feedbackdiag.showModal();</script>";         
+        header("Location: login.php?error=" . urlencode("Username not found!"));
         exit;
     }
 
@@ -106,8 +94,7 @@ if ((isset($_POST['username'])) && (isset($_POST['password'])) && $_SERVER['REQU
         header("Location: index.php");         
         exit;
     } else {
-        $stmt = null;
-        echo "<script>message.textContent = 'Password is incorrect!'; feedbackdiag.showModal();</script>";
+        header("Location: login.php?error=" . urlencode("Password is incorrect!"));
         exit;
     }
 }
@@ -208,6 +195,7 @@ if ((isset($_POST['username'])) && (isset($_POST['password'])) && $_SERVER['REQU
             <div class="dialog-header">
                 <h2>Notice</h2>
             </div>
+            
             <div class="dialog-body">
                 <p id="message">Nothing to see here..</p>
                 <div class="dialog-actions" style="justify-content: center;">
@@ -232,6 +220,19 @@ if ((isset($_POST['username'])) && (isset($_POST['password'])) && $_SERVER['REQU
     }
     if (closeMsgBtn && feedbackdiag) {
         closeMsgBtn.addEventListener('click', () => feedbackdiag.close());
+    }
+
+    // Show "Registered successfully!" after the redirect from register
+    if (new URLSearchParams(window.location.search).has('registered')) {
+        message.textContent = 'Registered successfully! You can now login.';
+        feedbackdiag.showModal();
+    }
+
+    // Show login/register errors passed back via ?error=...
+    const urlError = new URLSearchParams(window.location.search).get('error');
+    if (urlError) {
+        message.textContent = urlError;
+        feedbackdiag.showModal();
     }
     </script>
 </body>

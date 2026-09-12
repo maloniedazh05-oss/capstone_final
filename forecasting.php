@@ -16,22 +16,17 @@ requireRole(['admin']);
     <div class="forecastingpage">
         <form method="POST">
             <input type="hidden" name="test1">
-            <button>View</button>
+            <button>Forecast Next 30 Days</button>
         </form>
 
         <?php 
-        // indexed array: [0 => oldest day quantity, 1095 => today quantity] - empty days = 0, May simplify system into KG or Sac -- Might be Sac since its fertilizer
-        $total = 0;
-        $count = 0;
-        $data = []; 
-        $data_assoc = []; // ['Y-m-d'=> qty] - to align date keys for Python forecasting 
+        // indexed array: [0 => oldest day quantity, 1095 => today quantity] - empty days = 0
         if($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['test1'])) {
             $today = date('Y-m-d');
             $start_date = date('Y-m-d', strtotime($today . ' -1095 days'));
-            
-            // Forecasting preparng - Fetch each day total quantity from 3 years ago to today
-            echo "Today: " . $today;
-            echo "<br>Start ( -1095 days ): " . $start_date;
+
+            echo "Today: " . htmlspecialchars($today);
+            echo "<br>Start ( -1095 days ): " . htmlspecialchars($start_date);
 
             $status = 'Completed';
             $start_datetime = $start_date . ' 00:00:00';
@@ -48,24 +43,16 @@ requireRole(['admin']);
             }
 
             // Build continuous 1096-day array (1095 days diff + today inclusive)
-            // Append each day's total quantity; render empty day as 0
+            // Missing days stay 0 so Holt-Winters sees the true pattern including idle days
+            $data = [];
             $start = $start_date;
             while ($start <= $today) {
-                $qty = $qty_map[$start] ?? 0;
-                $data[] = $qty;
-                $data_assoc[$start] = $qty;
+                $data[] = $qty_map[$start] ?? 0;
                 $start = date('Y-m-d', strtotime($start . ' +1 day'));
             }
 
-            echo "<br>Total days: " . count($data) . " (expected 1096 including. today)";
-            echo "<br><br><strong>Daily totals (oldest -> today):</strong><br>";
-            echo "<pre>" . (print_r($data, true)) . "</pre>";
-            echo "<pre>" .  (print_r($data_assoc, true)) . "</pre>";
-            // Ready for Python: json_encode the indexed array
-            echo "<br><strong>JSON for Python:</strong><br>";
-            echo "<pre>" .  (json_encode($data)) . "</pre>";
+            echo "<br>Total days: " . count($data) . " (expected 1096 including today)";
 
-            
             // Flask route is @app.route("/forecasting") on port 5000,
             // so POST to /forecasting (NOT /py_backend/forecasting.php)
             $url = "http://127.0.0.1:5000/forecasting";
@@ -82,38 +69,50 @@ requireRole(['admin']);
             // Receive python response:
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
-            
             $result = curl_exec($ch);
             if ($result === false) {
-                echo "Is Flask running? Start it with: <code>python py_backend/forecasting.py</code>";
+                echo "<br>Is Flask running? Start it with: <code>python py_backend/forecasting.py</code>";
             } else {
                 $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
                 curl_close($ch);
-                echo "Result: ";
-                // JSON string
-                echo "<pre>" . $result. "</pre>";
+
+                $decoded = json_decode($result, true);
+                if ($http_code != 200 || !isset($decoded['success']) || !$decoded['success'] || !isset($decoded['result'])) {
+                    echo "<br>Forecast failed: " . htmlspecialchars($decoded['error'] ?? $result);
+                } else {
+                    // Clamp small negatives to 0, round to whole sacks
+                    $forecast = array_map(function($v) { return max(0, (int)round($v)); }, $decoded['result']);
+                    $total = array_sum($forecast);
+                    $avg = $forecast ? round($total / count($forecast), 1) : 0;
+                    echo "<br><br><strong>Next 30 days prediction (Sack(s)/day):</strong>";
+                    echo "<br>Total predicted: " . htmlspecialchars($total) . " | Daily average: " . htmlspecialchars($avg);
+                ?>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Predicted Quantity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($forecast as $i => $qty): ?>
+                            <tr>
+                                <td><?= htmlspecialchars(date('Y-m-d', strtotime($today . ' +' . ($i + 1) . ' days'))) ?></td>
+                                <td><strong><?= htmlspecialchars($qty) ?></strong></td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+                <?php
+                    if (isset($_GET['debug'])) {
+                        echo "<br><strong>JSON sent to Python:</strong><br>";
+                        echo "<pre>" . htmlspecialchars($data_json) . "</pre>";
+                    }
+                }
             }
         }
-            
-            
-/*
-           while($current_day != $today) {
-            $previous_day = date('Y-m-d', strtotime($current_day. '-1 day')) . ' 00:00:00';
-            $current_day = date('Y-m-d', strtotime($current_day . '+1 day')) . ' 00:00:00';
-            $stmt_day = $pdo->prepare("SELECT quantity, status, updated_at FROM inventory WHERE updated_at >= :previous_day AND updated_at <= :current_day AND status = :status");
-            $stmt_day->execute([':status' => 'Completed', ':previous_day'=> $previous_day, ':current_day'=> $current_day]);
-            if($current_day ==$today) break;
-            while($day = $stmt_day->fetch(PDO::FETCH_ASSOC)) {
-                $test2 += $day['quantity'];
-            }
-            $data[] = $test2;
-            $test2 = 0;
-           }
-            if($today && $end_yr) {
-                $stmt = $pdo->prepare("SELECT prod_id, product, quantity, status, created_at FROM inventory WHERE status = :status AND created_at >= :start AND created_at <= :end");   
-                $stmt->execute([':status' => 'Completed', ':start' => $end_yr, ':end'=> $today]);  
-            }
-        }*/
         ?>
         
     </div> <!--Forecastingpage END-->

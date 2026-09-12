@@ -113,7 +113,7 @@ requireRole(['admin', 'staff']);
                     <i class="fa-solid fa-filter"></i>
                     <label for="prod-history-date-filter">Filter by Date:</label>
                     <select id="prod-history-date-filter">
-                        <option value="all">-- All Dates --</option>
+                        <option value="all">All Dates</option>
                     </select>
                 </div>
             </div>
@@ -172,14 +172,13 @@ requireRole(['admin', 'staff']);
             <form method="POST" action="php_backend/updateBatch.php">
                 <div class="form-group" style="margin-bottom: 16px;">
                     <label for="status_id">Status</label>
-                    <select id="status_id">
+                    <select id="status_id" name="status">
                         <option value="Recent">Recent</option>
                         <option value="Ongoing">Ongoing</option>
                         <option value="Completed">Completed</option>
                     </select>
                 </div>
                 <input type="hidden" name="id">
-                <input type="hidden" name="status">
                 <div class="dialog-actions">
                     <button type="button" class="btn-secondary" command="close" commandfor="status-diag">Cancel</button>
                     <button type="submit" class="btn-primary">Confirm</button>
@@ -211,7 +210,7 @@ requireRole(['admin', 'staff']);
                         document.getElementById('status-diag').showModal();
 
                         document.querySelector("input[type='hidden'][name='id']").value = p_id;
-                        document.querySelector("input[type='hidden'][name='status']").value = p_status;
+                       
                     });
                 });
 

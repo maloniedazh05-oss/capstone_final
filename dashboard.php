@@ -6,6 +6,7 @@ requireRole(['admin', 'staff']);
 // 50KG per 1Sac
 ?>
 
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -31,31 +32,32 @@ requireRole(['admin', 'staff']);
     <div class="dashboardpage">
         <p id="dashboard-notif">
         </p>
+        <script>let notif = document.getElementById('dashboard-notif');</script>
     <!-- Stock notficiation dashboard,  -->
             <?php if($current_vermicast > 20): ?>
                 <script>
-                    const notif = document.getElementById('dashboard-notif');
+                    notif = document.getElementById('dashboard-notif');
                     notif.style.color = 'green';
                     notif.innerHTML = "Stocks levels are healthy";
                 </script>
             <?php endif; ?>
             <?php if($current_vermicast < 10 && $current_vermicast < 5): ?>
                 <script>
-                    const notif = document.getElementById('dashboard-notif');
+                    notif = document.getElementById('dashboard-notif');
                     notif.style.color = 'brown';
                     notif.innerHTML = "Stocks levels are low";
                 </script>
             <?php endif; ?>
             <?php if($current_vermicast < 4 && $current_vermicast > 0): ?>
                 <script>
-                    const notif = document.getElementById('dashboard-notif');
+                    notif = document.getElementById('dashboard-notif');
                     notif.style.color = 'orange';
                     notif.innerHTML = "Stocks levels are critically low!";
                 </script>
             <?php endif; ?>
             <?php if($current_vermicast < 1): ?>
                 <script>
-                    const notif = document.getElementById('dashboard-notif');
+                    notif = document.getElementById('dashboard-notif');
                     notif.style.color = 'red';
                     notif.innerHTML = "No stocks!";
                 </script>

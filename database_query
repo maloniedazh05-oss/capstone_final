@@ -38,9 +38,6 @@ item varchar(15)
 ALTER TABLE production
 ADD receiver VARCHAR(50);
 
-
-NEW UPDATED DB:
-
 CREATE TABLE inventory (
     prod_id VARCHAR(15) PRIMARY KEY,
     product VARCHAR(30) NOT NULL,
@@ -63,7 +60,80 @@ CREATE TABLE production (
     receiver VARCHAR(50)
 );
 
+============================
+DONT USE:
+============================
 CREATE TABLE historical_sales (
-inventory id INT(11) PRIMARY KEY AUTO_INCREMENT
-stock_in 
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    prod_id VARCHAR(15) NOT NULL,
+    product VARCHAR(30) NOT NULL,
+    quantity INT UNSIGNED NOT NULL,
+    unit VARCHAR(10) NOT NULL,
+    type ENUM('stock_in', 'stock_out') NOT NULL,
+    reference_id VARCHAR(20),
+    notes TINYTEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    FOREIGN KEY (prod_id) REFERENCES inventory(prod_id) ON DELETE CASCADE
 );
+
+============================
+
+
+UPDATED TABLES ALIGNED TO SYSTEM (2026-09-12):
+============================
+CREATE DATABASE IF NOT EXISTS rural_urban;
+USE rural_urban;
+
+CREATE TABLE accounts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    role VARCHAR(30) UNIQUE,
+    user VARCHAR(50) UNIQUE NOT NULL,
+    pass VARCHAR(255),
+    admin BOOLEAN UNIQUE DEFAULT NULL,
+    status ENUM('active', 'disabled') NOT NULL DEFAULT 'active'
+);
+
+CREATE TABLE inventory (
+    prod_id VARCHAR(15) PRIMARY KEY,
+    product VARCHAR(30) NOT NULL,
+    quantity INT UNSIGNED NOT NULL DEFAULT 0,
+    unit VARCHAR(10) NOT NULL,
+    status VARCHAR(50) DEFAULT 'Recent',
+    description TINYTEXT,
+    stock_in DECIMAL(10,2),
+    stock_out DECIMAL(10,2),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL
+);
+
+CREATE TABLE production (
+    production_id INT PRIMARY KEY AUTO_INCREMENT,
+    batch_id VARCHAR(7) NOT NULL,
+    production_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    item VARCHAR(15),
+    quantity DECIMAL(10,2) NOT NULL,
+    unit VARCHAR(10) NOT NULL,
+    status VARCHAR(30) DEFAULT 'Recent',
+    receiver VARCHAR(50)
+);
+
+-- Indexes for the queries the system actually runs
+-- (forecasting/sales filter inventory by status + updated_at)
+CREATE INDEX idx_inventory_status ON inventory(status);
+CREATE INDEX idx_inventory_updated ON inventory(updated_at);
+CREATE INDEX idx_production_date ON production(production_date);
+CREATE INDEX idx_production_status ON production(status);
+CREATE INDEX idx_accounts_user ON accounts(user);
+
+-- MIGRATION for existing DBs (built before stock columns existed):
+-- Run this in phpMyAdmin if Add Item fatals with "Unknown column 'stock_in'".
+-- (Per Notes lines 111-117 + old inventory sketch: both columns live on inventory.)
+ALTER TABLE inventory
+ADD stock_in DECIMAL(10,2),
+ADD stock_out DECIMAL(10,2);
+
+-- NOTES (remaining code mismatches):
+-- 1. php_backend/updateBatch.php does `UPDATE production ... WHERE id`,
+--    but the PK is `production_id`. Change to `WHERE production_id`.
+-- 2. `accounts.role UNIQUE` allows only one staff / one manager total.
+--    If multi-user testing needs several staffs, drop that UNIQUE.

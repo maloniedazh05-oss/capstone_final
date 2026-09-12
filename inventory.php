@@ -42,7 +42,7 @@ if (isset($_GET['success'])) {
                     <label>Metric</label>
                     <select id="metrics" name="metrics" required>
                         <option value="">Type</option>
-                        <option value="Sacks">Sack</option>
+                        <option value="Sack">Sack(s)</option>
                     </select>
                 </div>
                 <div class="form-group" style="margin-bottom: 12px;">
@@ -88,7 +88,7 @@ if (isset($_GET['success'])) {
                 <div class="form-group" style="margin-bottom: 12px;">
                     <label>Metric</label>
                     <select name="metrics" id="edit_metric" required>
-                        <option value="Sacks">Sack</option>
+                        <option value="Sack">Sack(s)</option>
                     </select>
                 </div>
                 <div class="form-group" style="margin-bottom: 12px;">

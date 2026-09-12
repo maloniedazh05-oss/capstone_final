@@ -74,6 +74,68 @@ body {
 }
 
 /*
+Global Form Controls: Select & Option UI
+*/
+select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-color: var(--color-bg-card, #ffffff);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%2364748b'%3E%3Cpath fill-rule='evenodd' d='M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z' clip-rule='evenodd'/%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 10px center;
+    background-size: 16px 16px;
+    padding: 9px 34px 9px 12px;
+    border: 1px solid var(--color-border, #e2e8f0);
+    border-radius: var(--radius-md, 6px);
+    font-family: var(--font-family, inherit);
+    font-size: 0.9rem;
+    color: var(--color-text-main, #1e293b);
+    line-height: 1.4;
+    cursor: pointer;
+    box-sizing: border-box;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+select:hover {
+    border-color: #cbd5e1;
+}
+
+select:focus {
+    outline: none;
+    border-color: var(--color-primary, #2b7cbd);
+    box-shadow: 0 0 0 3px var(--color-primary-light, rgba(43, 124, 189, 0.12));
+}
+
+select:disabled {
+    background-color: #f1f5f9;
+    color: var(--color-text-light, #94a3b8);
+    cursor: not-allowed;
+    opacity: 0.75;
+}
+
+option {
+    background-color: #ffffff;
+    color: var(--color-text-main, #1e293b);
+    padding: 8px 12px;
+    font-family: var(--font-family, inherit);
+    font-size: 0.9rem;
+}
+
+option:checked,
+option:hover {
+    background-color: var(--color-primary-light, rgba(43, 124, 189, 0.12));
+    color: var(--color-primary, #2b7cbd);
+}
+
+optgroup {
+    font-weight: 700;
+    color: var(--color-text-muted, #64748b);
+    background-color: #f8fafc;
+    padding: 6px 10px;
+}
+
+/*
 Login Page START
 */
 body.login-body {
@@ -496,7 +558,7 @@ Main Sidebar END
 */
 
 /*
-Page Header & Cards Layout (Inventory & Production)
+Page Header & Cards Layout (Inventory & Production) START
 */
 .page-header {
     background: var(--color-bg-card);
@@ -563,10 +625,10 @@ Page Header & Cards Layout (Inventory & Production)
 }
 
 .card-filter select {
-    padding: 5px 12px;
+    padding: 6px 30px 6px 12px;
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
-    background: #ffffff;
+    background-color: #ffffff;
     font-size: 0.85rem;
     color: var(--color-text-main);
     cursor: pointer;
@@ -611,9 +673,13 @@ Page Header & Cards Layout (Inventory & Production)
     border-radius: var(--radius-md);
     font-size: 0.9rem;
     color: var(--color-text-main);
-    background: #ffffff;
+    background-color: #ffffff;
     box-sizing: border-box;
     transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.form-group select {
+    padding-right: 32px;
 }
 
 .form-group input:focus,
@@ -633,7 +699,10 @@ Page Header & Cards Layout (Inventory & Production)
 }
 
 .input-with-select select {
-    width: 90px;
+    width: 110px;
+    min-width: 100px;
+    padding: 9px 28px 9px 10px;
+    background-position: right 8px center !important;
 }
 
 /* Data Tables */
@@ -683,7 +752,7 @@ Page Header & Cards Layout (Inventory & Production)
 
 .badge-status {
     display: inline-block;
-    font-size: 0.75rem;
+    font-size: 0.75rem; 
     font-weight: 600;
     padding: 3px 8px;
     border-radius: var(--radius-pill);
@@ -701,7 +770,7 @@ Page Header & Cards Layout (Inventory & Production)
 
 .btn-table-action {
     background: #64748b;
-    color: #ffffff;
+    color: #ffffff; 
     border: none;
     border-radius: var(--radius-pill);
     padding: 5px 14px;
@@ -713,7 +782,7 @@ Page Header & Cards Layout (Inventory & Production)
 
 .btn-table-action:hover {
     background: #475569;
-}
+} 
 
 .btn-table-details {
     background: #e2e8f0;
@@ -721,7 +790,7 @@ Page Header & Cards Layout (Inventory & Production)
     border: none;
     border-radius: var(--radius-pill);
     padding: 5px 12px;
-    font-size: 0.78rem;
+    font-size: 0.78rem; 
     font-weight: 600;
     cursor: pointer;
     margin-left: 4px;
@@ -731,7 +800,7 @@ Page Header & Cards Layout (Inventory & Production)
 .btn-table-details:hover {
     background: #cbd5e1;
 }
-
+ 
 /* Details & Summary tags */
 details.dialog-details,
 details {
@@ -742,7 +811,7 @@ details {
     border-radius: var(--radius-md);
 }
 
-summary.summaries,
+summary.summaries, 
 summary {
     font-size: 0.85rem;
     font-weight: 600;
@@ -751,14 +820,14 @@ summary {
 }
 
 textarea.desc,
-textarea {
+textarea { 
     width: 100%;
     min-height: 85px;
     padding: 9px 12px;
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
     font-family: inherit;
-    font-size: 0.88rem;
+    font-size: 0.88rem; 
     box-sizing: border-box;
     resize: vertical;
     margin-top: 8px;
@@ -773,7 +842,7 @@ textarea:focus {
 /* Dialog Styling */
 dialog#item-diag,
 dialog#edit-diag,
-dialog#feedback-diag,
+dialog#feedback-diag, 
 dialog#status-diag {
     padding: 0;
     border: none;
