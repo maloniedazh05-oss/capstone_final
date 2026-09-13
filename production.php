@@ -95,7 +95,7 @@ requireRole(['admin', 'staff']);
                             <td><?= htmlspecialchars($row['production_date']); ?></td>
                             <td class="action-cell">
                                 <button type="button" class="btn-table-action" id="receiverButton" data-company="<?=htmlspecialchars($row['receiver'] ?? '');?>" data-viewstatus="<?=htmlspecialchars($row['status'] ?? '');?>">Details</button>
-                                <button type="button" class="btn-table-action" id="statusButton" data-productionid="<?=$row['production_id']?>" data-editstatus="<?=htmlspecialchars($row['status'] ?? '');?>">Status</button>
+                                <button type="button" class="btn-table-action" id="statusButton" data-productionid="<?=$row['production_id']?>" data-quantitystockin="<?=$row['quantity']?>" data-editstatus="<?=htmlspecialchars($row['status'] ?? '');?>"><?=$row['status']?></button>
                             </td>
                         </tr>
                         <?php endwhile;?>
@@ -179,6 +179,7 @@ requireRole(['admin', 'staff']);
                     </select>
                 </div>
                 <input type="hidden" name="id">
+                <input type="hidden" name="quantityIn">
                 <div class="dialog-actions">
                     <button type="button" class="btn-secondary" command="close" commandfor="status-diag">Cancel</button>
                     <button type="submit" class="btn-primary">Confirm</button>
@@ -205,11 +206,13 @@ requireRole(['admin', 'staff']);
                     button.addEventListener('click', (e) => {
                         const p_id = e.currentTarget.dataset.productionid;
                         const p_status = e.currentTarget.dataset.editstatus;
+                        const p_quantity = e.currentTarget.dataset.quantitystockin;
                         console.log(p_status);
                         document.getElementById("status_id").value = p_status;
                         document.getElementById('status-diag').showModal();
 
                         document.querySelector("input[type='hidden'][name='id']").value = p_id;
+                        document.querySelector("input[type='hidden'][name='quantityIn']").value = p_quantity;
                        
                     });
                 });

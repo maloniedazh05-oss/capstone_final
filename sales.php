@@ -28,7 +28,7 @@ requireRole(['admin']);
     <form method="POST" action="php_backend/import.php" enctype="multipart/form-data">
     <input type="file" accept=".json,.txt" name="historyFile" required>
     <label><input type="checkbox" name="confirm_overwrite" value="yes"> Overwrite previously imported rows in this date range</label>
-    <!--<p class="section-desc">Two formats: flat [23,4,0,26] (index 0 = today, one day per value, max 1096, zeros kept) or records [{"prod_id":"PRD002","product":"Vermicast","quantity":34,"unit":"Sack","created_at":"2023-09-06 16:44:37"}] (matched by prod_id in inventory, then marked Completed).</p>
+    <!--<p class="section-desc">Two formats: flat [23,4,0,26] (index 0 = today, one day per value, max 1096, zeros kept) or records [{"prod_id":"PRD002","product":"Vermicast","quantity":34,"unit":"Sac","created_at":"2023-09-06 16:44:37"}] (matched by prod_id in inventory, then marked Completed).</p>
     --><br><button type="submit">Import Historical Data</button>
     </form><br>
         <form method="GET">
@@ -70,7 +70,7 @@ requireRole(['admin']);
                 <h2>Sales for <?= htmlspecialchars(date('F Y', strtotime($month_start))) ?></h2>
             </div>
             <div class="card-body">
-                <p><strong>Total sold:</strong> <?= htmlspecialchars($total_row['total_qty']) ?> Sack(s) (<?= htmlspecialchars($total_row['rec_count']) ?> records)</p>
+                <p><strong>Total sold:</strong> <?= htmlspecialchars($total_row['total_qty']) ?> Sac (<?= htmlspecialchars($total_row['rec_count']) ?> records)</p>
                 <?php if (!$days): ?>
                     <p class="section-desc">No Completed records this month.</p>
                 <?php else: ?>

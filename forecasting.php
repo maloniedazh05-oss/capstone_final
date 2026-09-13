@@ -80,11 +80,11 @@ requireRole(['admin']);
                 if ($http_code != 200 || !isset($decoded['success']) || !$decoded['success'] || !isset($decoded['result'])) {
                     echo "<br>Forecast failed: " . htmlspecialchars($decoded['error'] ?? $result);
                 } else {
-                    // Clamp small negatives to 0, round to whole sacks
+                    // Clamp small negatives to 0, round to whole sacs
                     $forecast = array_map(function($v) { return max(0, (int)round($v)); }, $decoded['result']);
                     $total = array_sum($forecast);
                     $avg = $forecast ? round($total / count($forecast), 1) : 0;
-                    echo "<br><br><strong>Next 30 days prediction (Sack(s)/day):</strong>";
+                    echo "<br><br><strong>Next 30 days prediction (Sac/day):</strong>";
                     echo "<br>Total predicted: " . htmlspecialchars($total) . " | Daily average: " . htmlspecialchars($avg);
                 ?>
                 <div class="table-responsive">

@@ -72,7 +72,7 @@ function importFlat($pdo, $values) {
                 ':id' => $id_num,
                 ':prod' => 'Vermicast',
                 ':quan' => (int)$v,
-                ':unit' => 'Sack',
+                ':unit' => 'Sac',
                 ':status' => 'Completed',
                 ':desc' => 'Historical import',
                 ':created' => $ts,
@@ -91,7 +91,7 @@ function importFlat($pdo, $values) {
     }
 }
 
-// Records: [{"prod_id":"PRD002","product":"Vermicast","quantity":34,"unit":"Sack",
+// Records: [{"prod_id":"PRD002","product":"Vermicast","quantity":34,"unit":"Sac",
 // "reference_id":"SALE-2025-001","notes":"...","created_at":"2023-09-06 16:44:37"}]
 // Each record is queried in inventory by prod_id then marked Completed:
 // missing => INSERT, found but not Completed => UPDATE to Completed,
@@ -131,7 +131,7 @@ function importRecords($pdo, $values) {
             'prod_id' => $prod_id,
             'product' => trim($r['product'] ?? '') ?: 'Vermicast',
             'quantity' => (int)$qty,
-            'unit' => trim($r['unit'] ?? '') ?: 'Sack',
+            'unit' => trim($r['unit'] ?? '') ?: 'Sac',
             'desc' => trim($r['notes'] ?? '') ?: ('Historical import ' . trim($r['reference_id'] ?? '')),
             'ts' => $date,
             'day' => date('Y-m-d', $ts)

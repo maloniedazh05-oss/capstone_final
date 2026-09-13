@@ -40,10 +40,11 @@ if (isset($_GET['success'])) {
                 </div>
                 <div class="form-group" style="margin-bottom: 12px;">
                     <label>Metric</label>
-                    <select id="metrics" name="metrics" required>
-                        <option value="">Type</option>
-                        <option value="Sack">Sack(s)</option>
-                    </select>
+<select id="metrics" name="metrics" required>
+                <option value="">Type</option>
+                <option value="Sac">Sac</option>
+                <option value="KG">KG</option>
+            </select>
                 </div>
                 <div class="form-group" style="margin-bottom: 12px;">
                     <label>Status</label>
@@ -87,9 +88,10 @@ if (isset($_GET['success'])) {
                 </div>
                 <div class="form-group" style="margin-bottom: 12px;">
                     <label>Metric</label>
-                    <select name="metrics" id="edit_metric" required>
-                        <option value="Sack">Sack(s)</option>
-                    </select>
+<select name="metrics" id="edit_metric" required>
+                <option value="Sac">Sac</option>
+                <option value="KG">KG</option>
+            </select>
                 </div>
                 <div class="form-group" style="margin-bottom: 12px;">
                     <label>Status</label>
@@ -162,9 +164,9 @@ if (isset($_GET['success'])) {
                                 <tr>
                                     <th>Item ID</th>
                                     <th>Name</th>
-                                    <th>Type</th>
                                     <th>Stock Level</th>
                                     <th>Unit</th>
+                                    <th>Date Created</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
@@ -173,9 +175,9 @@ if (isset($_GET['success'])) {
                                 <tr>
                                     <td><?= htmlspecialchars($row['prod_id']) ?></td>
                                     <td><?= htmlspecialchars($row['product']) ?></td>
-                                    <td><span class="badge-type">PRODUCT</span></td>
                                     <td class="stock-level-cell"><strong><?= htmlspecialchars($row['quantity']) ?></strong></td>
                                     <td><?= htmlspecialchars($row['unit']) ?></td>
+                                    <td><?= htmlspecialchars($row['created_at'])?></td>
                                     <td class="action-cell">
                                         <button type="button" class="btn-table-action edit-btn" 
                                             data-id="<?=htmlspecialchars($row['prod_id'])?>"
@@ -184,7 +186,7 @@ if (isset($_GET['success'])) {
                                             data-metric="<?=htmlspecialchars($row['unit'])?>"
                                             data-status="<?=htmlspecialchars($row['status'])?>"
                                             data-description="<?=htmlspecialchars($row['description'] ?? '')?>">
-                                            Adjust
+                                            <?=$row['status']?>
                                         </button>
                                         <button type="button" class="btn-table-details details"
                                             data-detail="<?= htmlspecialchars($row['description'] ?? '') ?>"
