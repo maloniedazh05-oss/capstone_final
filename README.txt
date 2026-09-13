@@ -9,7 +9,13 @@ https://nodejs.org/en/download
 
 - Xampp: https://www.apachefriends.org/
 #Run as admin when opening the program.
-
+Step 1:
+Copy - "xampp path directory/php" folder.
+Step 2:
+Ctrl + R then enter: 
+rundll32.exe sysdm.cpl,EditEnvironmentVariables
+Step 3:
+- User variables - Path - Edit - New - Paste "xampp path directory/php" Path - Ok.
 
 =======================================
 ------------- DATABASE ----------------
