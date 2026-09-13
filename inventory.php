@@ -156,7 +156,8 @@ if (isset($_GET['success'])) {
                 <?php else: ?>
                     <?php 
                     $stmt = $pdo->prepare("SELECT * FROM inventory WHERE status != 'Completed'");
-                    $stmt->execute();            
+                    $stmt->execute();      
+
                     ?>
                     <div class="table-responsive">
                         <table class="data-table">
@@ -191,7 +192,7 @@ if (isset($_GET['success'])) {
                                         <button type="button" class="btn-table-details details"
                                             data-detail="<?= htmlspecialchars($row['description'] ?? '') ?>"
                                             data-type="<?=htmlspecialchars($row['unit'])?>">
-                                            Details
+                                            Details <!--Detail button in the actions, Action Details button-->
                                         </button>
                                     </td>
                                 </tr>
@@ -341,8 +342,9 @@ if (isset($_GET['success'])) {
             link.addEventListener("click", (e) => {
                 const detail = e.currentTarget.dataset.detail;
                 const type = e.currentTarget.dataset.type;
+                //console.log(company);
                 if(detail)
-                document.getElementById('message').innerHTML = "<h3>Notes: </h3>" + "<p>" + detail + "</p>";
+                document.getElementById('message').innerHTML = "<h3>Info: </h3>" + "<p>" + detail + "</p>";
                 else
                 document.getElementById('message').textContent = "No description";
 

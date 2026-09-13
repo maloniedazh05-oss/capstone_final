@@ -5,6 +5,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['status'])) {
     $status = $_POST['status'] ?? '';
     $id = $_POST['id'] ?? '';
     $quantity = $_POST['quantityIn'];
+    $receiver = "Receiver: ";
 
     // production
     $stmt = $pdo->prepare("UPDATE production SET status = :status WHERE production_id = :id");
@@ -23,15 +24,16 @@ if($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['status'])) {
     }
 
     if($status == "Completed") {
-    $stmt_fetch = $pdo->prepare("SELECT item, quantity, unit, status FROM production WHERE production_id = :id");
+    $stmt_fetch = $pdo->prepare("SELECT item, quantity, unit, status, receiver FROM production WHERE production_id = :id");
     $stmt_fetch->execute(["id"=>$id]);
     $row_fetch = $stmt_fetch->fetch(PDO::FETCH_ASSOC);
 
-        $stmt2 = $pdo->prepare("INSERT INTO inventory (prod_id, product, quantity, unit, stock_in, created_at) VALUES (:prod_id, :product, :quantity, :unit, :stock_in, NOW())");
+        $stmt2 = $pdo->prepare("INSERT INTO inventory (prod_id, product, quantity, unit, description, stock_in, created_at) VALUES (:prod_id, :product, :quantity, :unit, :description, :stock_in, NOW())");
         $stmt2->bindValue(":prod_id", $id_num);
         $stmt2->bindValue(":product", $row_fetch['item']);
         $stmt2->bindValue(":quantity", $quantity); // Stock In
         $stmt2->bindValue(":unit", $row_fetch['unit']);
+        $stmt2->bindValue(":description", $receiver . $row_fetch['receiver']);
         $stmt2->bindValue(':stock_in', $quantity);
         $stmt2->execute();
     }
