@@ -76,15 +76,13 @@ body {
 /*
 Global Form Controls: Select & Option UI
 */
+
 select {
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
     background-color: var(--color-bg-card, #ffffff);
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%2364748b'%3E%3Cpath fill-rule='evenodd' d='M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z' clip-rule='evenodd'/%3E%3C/svg%3E") !important;
-    background-repeat: no-repeat !important;
-    background-position: right 10px center;
-    background-size: 16px 16px;
+    /*background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiM2NDc0OGIiIHN0cm9rZS13aWR0aD0iMi4yIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwYXRoIGQ9Im02IDkgNiA2LTYiLz48L3N2Zz4=") !important;
+    */background-repeat: no-repeat !important;
+    background-position: right 10px center !important;
+    background-size: 16px 16px !important;
     padding: 9px 34px 9px 12px;
     border: 1px solid var(--color-border, #e2e8f0);
     border-radius: var(--radius-md, 6px);
@@ -236,7 +234,7 @@ body.login-body {
     color: #333333;
     box-sizing: border-box;
     transition: border-color 0.2s, box-shadow 0.2s;
-    background: #ffffff;
+    background-color: #ffffff;
 }
 
 .login-card-body .input-group input:focus,
