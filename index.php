@@ -10,7 +10,9 @@
     </head>
     <body>
     <?php require_once "main-sidebar.php"; ?>
-    <div class="homepage"></div>
+    <div class="homepage">
+        <h1>Welcome <?=$userName?></h1>
+    </div>
     <script>
     // Test document load to change title:
     /*document.addEventListener('DOMContentLoaded', () => {

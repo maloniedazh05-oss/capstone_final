@@ -7,7 +7,7 @@ $userName = $_SESSION['user_name'] ?? '';
     <div class="sidebar-brand">
         <div class="brand-title">
             <i class="fa-solid fa-leaf"></i>
-            <span>VERMICAST</span>
+            <span onclick="window.location.href='index.php'">VERMICAST</span>
         </div>
         <div class="brand-subtitle">ERP System</div>
         <button type="button" class="mobile-toggle-btn" id="sidebarToggle" aria-label="Toggle navigation">
@@ -62,6 +62,13 @@ $userName = $_SESSION['user_name'] ?? '';
             <li class="<?=$currentPage == 'users.php' ? 'active' : ''?>" data-page="users.php">
                 <i class="fa-solid fa-gear"></i>
                 <span>Users</span>
+            </li>
+        <?php endif; ?>
+
+        <?php if (in_array($userRole, ['admin', 'staff', 'manager'])): ?>
+            <li class="<?=$currentPage == 'settings.php' ? 'active' : ''?>" data-page="settings.php">
+                <i class="fa-solid fa-gear"></i>
+                <span>Settings</span>
             </li>
         <?php endif; ?>
     </ul>
