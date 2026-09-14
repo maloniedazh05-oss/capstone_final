@@ -58,6 +58,24 @@ userspage
     overflow-y: auto;
 }
 
+/*
+README
+: Summary
+- Global Body
+- Global Styles
+    - Select
+    - Option
+    - Dialog
+
+- Login Page
+    - btn
+    - form
+    - account
+- Main Sidebar
+- Dashboard
+- Global Cards
+*/
+
 body {
     display: grid;
     padding: 0;
@@ -132,6 +150,68 @@ optgroup {
     background-color: #f8fafc;
     padding: 6px 10px;
 }
+
+/* Dialogs START */
+dialog#register-diag,
+dialog#message-diag {
+    padding: 0;
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+    width: 100%;
+    max-width: 380px;
+    overflow: hidden;
+    background: #ffffff;
+}
+
+dialog::backdrop {
+    background: rgba(15, 23, 42, 0.65);
+    backdrop-filter: blur(3px);
+}
+
+dialog .dialog-header {
+    background: #23374b;
+    color: #ffffff;
+    padding: 20px;
+    text-align: center;
+}
+
+dialog .dialog-header h2 {
+    margin: 0 0 4px;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+dialog .dialog-header p {
+    margin: 0;
+    font-size: 12.5px;
+    color: #c0d1e1;
+}
+
+dialog .dialog-body {
+    padding: 20px 24px;
+}
+
+dialog .dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 18px;
+}
+
+#message-diag .dialog-body {
+    padding: 24px;
+    text-align: center;
+}
+
+#message-diag #message {
+    font-size: 15px;
+    color: #334155;
+    margin: 0 0 20px;
+    font-weight: 500;
+}
+
+/* Dialogs END */
 
 /*
 Login Page START
@@ -340,68 +420,6 @@ body.login-body {
     font-size: 12px;
 }
 
-/* Dialogs START */
-dialog#register-diag,
-dialog#message-diag {
-    padding: 0;
-    border: none;
-    border-radius: 12px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
-    width: 100%;
-    max-width: 380px;
-    overflow: hidden;
-    background: #ffffff;
-}
-
-dialog::backdrop {
-    background: rgba(15, 23, 42, 0.65);
-    backdrop-filter: blur(3px);
-}
-
-dialog .dialog-header {
-    background: #23374b;
-    color: #ffffff;
-    padding: 20px;
-    text-align: center;
-}
-
-dialog .dialog-header h2 {
-    margin: 0 0 4px;
-    font-size: 18px;
-    font-weight: 600;
-}
-
-dialog .dialog-header p {
-    margin: 0;
-    font-size: 12.5px;
-    color: #c0d1e1;
-}
-
-dialog .dialog-body {
-    padding: 20px 24px;
-}
-
-dialog .dialog-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    margin-top: 18px;
-}
-
-#message-diag .dialog-body {
-    padding: 24px;
-    text-align: center;
-}
-
-#message-diag #message {
-    font-size: 15px;
-    color: #334155;
-    margin: 0 0 20px;
-    font-weight: 500;
-}
-
-/* Dialogs END */
-
 /*
 Login Page END
 */
@@ -556,6 +574,64 @@ Main Sidebar END
 */
 
 /*
+Dashboard START
+*/
+.dashboardpage {
+    padding: 0 28px 40px;
+    background: var(--color-bg-page);
+    box-sizing: border-box;
+}
+.dashboardpage .info-cards {
+    display: grid;
+    grid-template-columns: .5fr .5fr .5fr;
+    gap: 30px;
+    padding: 5px;
+}
+.dashboardpage .stat-card {
+    text-align: center;
+    padding: 4%;
+    border: none;
+    border-radius: 5px;
+    box-shadow: 2px 2px 5px 2px rgb(201, 201, 201);
+}
+
+.dashboardpage h2{
+    font-size: 1.05rem; 
+    font-family: var(--font-family);
+}
+
+.dashboardpage #dashboard-notif {
+    background: whitesmoke;
+    border: 0 0 #721c24;
+    border-radius: 5px;
+    padding: 4px;
+    border: none;
+}
+
+.dashboardpage input{
+    width: 100%;
+    padding: 9px 12px;
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-size: 0.9rem;
+    color: var(--color-text-main);
+    background-color: #ffffff;
+    box-sizing: border-box;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.dashboardpage input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-light);
+}
+
+
+/*
+Dashboard END
+*/
+
+/*
 Page Header & Cards Layout (Inventory & Production) START
 */
 .page-header {
@@ -566,7 +642,7 @@ Page Header & Cards Layout (Inventory & Production) START
 }
 
 .page-header h1 {
-    font-size: 1.35rem;
+    font-size: 1.5rem;
     font-weight: 700;
     color: var(--color-text-main);
     margin: 0;
@@ -667,7 +743,7 @@ Page Header & Cards Layout (Inventory & Production) START
 .form-group select {
     width: 100%;
     padding: 9px 12px;
-    border: 1px solid var(--color-border);
+    border: 2px solid var(--color-border);
     border-radius: var(--radius-md);
     font-size: 0.9rem;
     color: var(--color-text-main);

@@ -30,6 +30,10 @@ requireRole(['admin', 'staff']);
     }
     ?>
     <div class="dashboardpage">
+        <div class="page-header">
+            <h1>Dashboard</h1>
+        </div>
+
         <p id="dashboard-notif">
         </p>
         <script>let notif = document.getElementById('dashboard-notif');</script>
@@ -63,25 +67,32 @@ requireRole(['admin', 'staff']);
                 </script>
             <?php endif; ?>
 
-Monthly Sales Target: <input type="number" min="0" id="salesInput" value="0">
+
         <div class="info-cards">
             <div class="stat-card">
                 <h2>Vermicast Stock</h2>
-
                 <p><?= $current_vermicast ?? 0 ?></p>
             </div>
-            <div class="stat-card">Next Period Stockout Prediction</div>
-            <div class="stat-card"><p id="goalText">Monthly sales Goal</p></div>
+            <div class="stat-card">
+                <h2>Next Period Stockout Prediction</h2>
+            </div>
+            <div class="stat-card"><h2 id="goalText">Monthly sales Goal</h2></div>
         </div><!-- info-cards END-->
+        
+        <h2>Monthly Sales Target</h2>
+        <input type="number" min="0" id="salesInput" value="0">
     </div> <!-- dashboardpage END-->
 <script>
     // Target Goal auto-fetch value ready for calculation
     const salesInput = document.getElementById('salesInput');
-    let fetchValue = salesInput.value;
-    salesInput.addEventListener("change", () => {
-    fetchValue = salesInput.value == '' ? 0 : salesInput.value;
-    document.getElementById("goalText").textContent = "Monthly sales Goal: " + salesInput.value;
-    console.log(fetchValue);
+
+    document.addEventListener("DOMContentLoaded", () => {
+        document.getElementById("goalText").innerHTML = "Monthly sales Goal<br><br>" + localStorage.getItem("salesGoal");
+
+        salesInput.addEventListener("change", () => {
+            document.getElementById("goalText").innerHTML = "Monthly sales Goal<br><br>" + salesInput.value;
+            localStorage.setItem("salesGoal", salesInput.value)
+        });
     });
 </script>
 </body>

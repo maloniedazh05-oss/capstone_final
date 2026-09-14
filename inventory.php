@@ -133,7 +133,7 @@ if (isset($_GET['success'])) {
 
     <div class="inventorypage">
         <div class="page-header">
-            <h1>Inventory Management</h1>
+            <h1 class="page-header">Inventory Management</h1>
         </div>
 
         <!-- Card 1: Current Stock Levels -->
