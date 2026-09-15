@@ -25,12 +25,16 @@ requireRole(['admin']);
     <?php if (isset($_GET['import_error'])): ?>
         <p class="feedback-error"><?= htmlspecialchars($_GET['import_error']) ?></p>
     <?php endif; ?>
-    <form method="POST" action="php_backend/import.php" enctype="multipart/form-data">
-    <input type="file" accept=".json,.txt" name="historyFile" required>
-    <label><input type="checkbox" name="confirm_overwrite" value="yes"> Overwrite previously imported rows in this date range</label>
-    <!--<p class="section-desc">Two formats: flat [23,4,0,26] (index 0 = today, one day per value, max 1096, zeros kept) or records [{"prod_id":"PRD002","product":"Vermicast","quantity":34,"unit":"Sac","created_at":"2023-09-06 16:44:37"}] (matched by prod_id in inventory, then marked Completed).</p>
-    --><br><button type="submit">Import Historical Data</button>
-    </form><br>
+    <div class="card-body">
+        <div class="content-card">
+            <form method="POST" action="php_backend/import.php" enctype="multipart/form-data">
+            <input type="file" accept=".json,.txt" name="historyFile" required>
+            <label><input type="checkbox" name="confirm_overwrite" value="yes"> Overwrite previously imported rows in this date range</label>
+            <!--<p class="section-desc">Two formats: flat [23,4,0,26] (index 0 = today, one day per value, max 1096, zeros kept) or records [{"prod_id":"PRD002","product":"Vermicast","quantity":34,"unit":"Sac","created_at":"2023-09-06 16:44:37"}] (matched by prod_id in inventory, then marked Completed).</p>
+            --><br><button type="submit">Import Historical Data</button>
+            </form>
+        </div>
+    </div>
         <form method="GET">
         <select id="months-select" name="month-selected">
             <?php

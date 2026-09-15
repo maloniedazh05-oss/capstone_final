@@ -40,7 +40,7 @@
     --radius-pill: 9999px;
 
     --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-    --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.08), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
+    --shadow-card: 0 1px 30px 0 rgba(0, 0, 0, 0.08), 0 1px 10px -1px rgba(0, 0, 0, 0.04);
     --shadow-modal: 0 20px 25px -5px rgba(0, 0, 0, 0.25), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
 }
 /*
@@ -592,7 +592,7 @@ Dashboard START
     padding: 4%;
     border: none;
     border-radius: 5px;
-    box-shadow: 2px 2px 5px 2px rgb(201, 201, 201);
+    box-shadow: var(--shadow-card);
 }
 
 .dashboardpage h2{
@@ -610,6 +610,7 @@ Dashboard START
 
 .dashboardpage input{
     width: 100%;
+    
     padding: 9px 12px;
     border: 2px solid var(--color-border);
     border-radius: var(--radius-md);

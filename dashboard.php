@@ -79,8 +79,13 @@ requireRole(['admin', 'staff']);
             <div class="stat-card"><h2 id="goalText">Monthly sales Goal</h2></div>
         </div><!-- info-cards END-->
         
-        <h2>Monthly Sales Target</h2>
-        <input type="number" min="0" id="salesInput" value="0">
+        <div class="content-card">
+            <div class="card-header">
+                <h2>Monthly Sales Target</h2>
+            <input type="number" min="0" id="salesInput" value="0">
+        </div>
+
+
     </div> <!-- dashboardpage END-->
 <script>
     // Target Goal auto-fetch value ready for calculation
