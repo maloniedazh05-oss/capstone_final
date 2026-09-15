@@ -73,6 +73,8 @@ README
     - account
 - Main Sidebar
 - Dashboard
+- Reports
+- User Page
 - Global Cards
 */
 
@@ -633,7 +635,7 @@ Dashboard END
 */
 
 /*
-Page Header & Cards Layout (Inventory & Production) START
+Page Header & Unified Page Container START
 */
 .page-header {
     background: var(--color-bg-card);
@@ -650,10 +652,105 @@ Page Header & Cards Layout (Inventory & Production) START
 }
 
 .inventorypage,
-.productionpage {
+.productionpage,
+.salespage,
+.reportspage,
+.userspage {
     padding: 0 28px 40px;
     background: var(--color-bg-page);
     box-sizing: border-box;
+}
+
+/* Feedback Notifications */
+.feedback-success,
+.feedback-error {
+    padding: 12px 18px;
+    border-radius: var(--radius-md);
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.feedback-success {
+    background: rgba(16, 185, 129, 0.12);
+    color: var(--color-success);
+    border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.feedback-error {
+    background: rgba(239, 68, 68, 0.12);
+    color: var(--color-danger);
+    border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+/* Sales Summary Bar */
+.sales-summary-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    margin-bottom: 18px;
+    padding: 14px 18px;
+    background: #f8fafc;
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-md);
+    font-size: 0.95rem;
+    align-items: center;
+}
+
+.sales-summary-bar .summary-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sales-summary-bar .summary-label {
+    color: var(--color-text-muted);
+    font-weight: 500;
+}
+
+.sales-summary-bar .summary-value {
+    color: var(--color-text-main);
+    font-size: 1.05rem;
+}
+
+/* Reports Grid & Stat Cards */
+.report-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 18px;
+}
+
+.report-cards .stat-card {
+    background: #ffffff;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.report-cards .stat-card:hover {
+    box-shadow: var(--shadow-card);
+    transform: translateY(-2px);
+}
+
+.report-cards .stat-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.report-cards .stat-value {
+    font-size: 1.7rem;
+    font-weight: 700;
+    color: var(--color-text-main);
 }
 
 .content-card {
@@ -836,6 +933,11 @@ Page Header & Cards Layout (Inventory & Production) START
 .badge-completed {
     background: rgba(16, 185, 129, 0.1);
     color: var(--color-success);
+}
+
+.badge-disabled {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--color-danger);
 }
 
 .stock-level-cell strong {
@@ -1029,7 +1131,10 @@ Responsive Media Queries
     }
 
     .inventorypage,
-    .productionpage {
+    .productionpage,
+    .salespage,
+    .reportspage,
+    .userspage {
         padding: 0 14px 28px;
     }
 
