@@ -73,6 +73,7 @@ README
     - account
 - Main Sidebar
 - Dashboard
+- Forecasting
 - Reports
 - User Page
 - Global Cards
@@ -590,11 +591,16 @@ Dashboard START
     padding: 5px;
 }
 .dashboardpage .stat-card {
+    margin: 5px;
     text-align: center;
     padding: 4%;
     border: none;
     border-radius: 5px;
     box-shadow: var(--shadow-card);
+}
+
+.dashboardpage .content-card {
+    margin-top: 10px;
 }
 
 .dashboardpage h2{
@@ -635,6 +641,71 @@ Dashboard END
 */
 
 /*
+Forecasting Page START
+*/
+.forecastingpage .forecast-summary-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    margin-bottom: 18px;
+    padding: 14px 18px;
+    background: #f8fafc;
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-md);
+    font-size: 0.95rem;
+    align-items: center;
+}
+
+.forecastingpage .forecast-summary-bar .summary-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.forecastingpage .forecast-summary-bar .summary-label {
+    color: var(--color-text-muted);
+    font-weight: 500;
+}
+
+.forecastingpage .forecast-summary-bar .summary-value {
+    color: var(--color-text-main);
+    font-size: 1.05rem;
+}
+
+.forecastingpage .forecast-meta-info {
+    margin-bottom: 16px;
+    padding: 10px 14px;
+    background: #f1f5f9;
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-md);
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.forecastingpage .forecast-debug-box {
+    margin-top: 20px;
+    padding: 14px;
+    background: #1e293b;
+    color: #f8fafc;
+    border-radius: var(--radius-md);
+    font-family: monospace;
+    font-size: 0.85rem;
+    overflow-x: auto;
+}
+
+.forecastingpage .forecast-debug-box pre {
+    margin: 8px 0 0;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+/*
+Forecasting Page END
+*/
+
+/*
 Page Header & Unified Page Container START
 */
 .page-header {
@@ -655,7 +726,8 @@ Page Header & Unified Page Container START
 .productionpage,
 .salespage,
 .reportspage,
-.userspage {
+.userspage,
+.forecastingpage {
     padding: 0 28px 40px;
     background: var(--color-bg-page);
     box-sizing: border-box;
@@ -1134,7 +1206,8 @@ Responsive Media Queries
     .productionpage,
     .salespage,
     .reportspage,
-    .userspage {
+    .userspage,
+    .forecastingpage {
         padding: 0 14px 28px;
     }
 
