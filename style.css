@@ -800,13 +800,7 @@ Page Header & Unified Page Container START
     border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
     padding: 20px;
-    box-shadow: var(--shadow-sm);
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-
-.report-cards .stat-card:hover {
-    box-shadow: var(--shadow-card);
-    transform: translateY(-2px);
+    box-shadow: var(--shadow-card); 
 }
 
 .report-cards .stat-label {

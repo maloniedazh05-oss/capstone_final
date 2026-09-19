@@ -100,7 +100,7 @@ requireRole(['admin']);
                     <?php
                 } else {
                     // Clamp small negatives to 0, round to whole sacs
-                    $forecast = array_map(function($v) { return max(0, (int)round($v)); }, $decoded['result']);
+                    $forecast = array_map(function($v) { return max(0, round($v, 1)); }, $decoded['result']);
                     $total = array_sum($forecast);
                     $avg = $forecast ? round($total / count($forecast), 1) : 0;
                     ?>

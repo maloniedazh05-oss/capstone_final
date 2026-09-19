@@ -92,17 +92,15 @@ Summary month date of production, in/out stock -Reports.
             $stock_in = 0;
             $stock_out = 0;
             while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                if($row['unit'] == 'Sac') {
-                    $total_sac += $row['quantity'];
-                }
-                if($row['unit'] == 'KG') {
-                    $total_kg += $row['quantity'];
-                }    
+                //if($row['unit'] == 'Sac') {
+                    //$total_sac += $row['quantity'];
+                //}
 
                 // Stock in - Fetch an item with no status completed.
                 if($row['status'] != 'Completed') {
-                    $stock_in += $row['quantity'];
+                    $stock_in += $row['quantity'];                    
                 }
+                $total_kg += $row['quantity'];
 
                 // Stock out - fetch item with completed status:
                 if($row['status'] == 'Completed') {
@@ -113,17 +111,17 @@ Summary month date of production, in/out stock -Reports.
 
         <div class="content-card">
             <div class="card-header">
-                <h2><i class="fa-solid fa-chart-pie"></i> Production & Stock Summary &mdash; <?= htmlspecialchars($readable_date) ?></h2>
+                <h2><i class="fa-solid fa-chart-pie"></i> Production & Stock Summary - <?= htmlspecialchars($readable_date) ?></h2>
             </div>
             <div class="card-body">
                 <div class="report-cards production-summary">
                     <div class="stat-card" id="card-1">
                         <div class="stat-label"><i class="fa-solid fa-cubes"></i> Total Production (Sac)</div>
-                        <div class="stat-value"><?= number_format($total_sac ?? 0) ?></div>
+                        <div class="stat-value"><?= ($total_kg / 50) ?? 0 ?></div>
                     </div>
                     <div class="stat-card" id="card-2">
                         <div class="stat-label"><i class="fa-solid fa-weight-scale"></i> Total Production (KG)</div>
-                        <div class="stat-value"><?= number_format($total_kg ?? 0) ?></div>
+                        <div class="stat-value"><?= $total_kg ?? 0 ?></div>
                     </div>
                     <div class="stat-card" id="card-3">
                         <div class="stat-label"><i class="fa-solid fa-arrow-down" style="color: var(--color-success);"></i> Total Stock In</div>
