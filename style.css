@@ -449,6 +449,8 @@ Login Page END
     border-bottom: 1px solid rgba(255, 255, 255, 0.07);
 }
 
+.sidebar-brand:hover {cursor:pointer;}
+
 .main-sidebar .brand-title {
     display: flex;
     align-items: center;

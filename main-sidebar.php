@@ -4,12 +4,12 @@ $userRole = $_SESSION['user_role'] ?? '';
 $userName = $_SESSION['user_name'] ?? '';
 ?>
 <div class="main-sidebar" id="mainSidebar">
-    <div class="sidebar-brand">
+    <div class="sidebar-brand" onclick="window.location.href='index.php'">
         <div class="brand-title">
             <i class="fa-solid fa-leaf"></i>
-            <span onclick="window.location.href='index.php'">VERMICAST</span>
+            <span >Mays Garden</span>
         </div>
-        <div class="brand-subtitle">ERP System</div>
+        <div class="brand-subtitle">Ecological & Agricultural</div>
         <button type="button" class="mobile-toggle-btn" id="sidebarToggle" aria-label="Toggle navigation">
             <i class="fa-solid fa-bars"></i>
         </button>

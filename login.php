@@ -104,7 +104,7 @@ if ((isset($_POST['username'])) && (isset($_POST['password'])) && $_SERVER['REQU
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vermicast ERP - Login</title>
+    <title>Mays Garden - Login</title>
     <link rel="stylesheet" href="assets/node_modules/@fortawesome/fontawesome-free/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
@@ -117,8 +117,8 @@ if ((isset($_POST['username'])) && (isset($_POST['password'])) && $_SERVER['REQU
                 <div class="header-logo">
                     <i class="fa-solid fa-leaf"></i>
                 </div>
-                <h1>Vermicast ERP</h1>
-                <p>Prototype System</p>
+                <h1>Mays Garden</h1>
+                <p>Login Page</p>
             </div>
 
             <!--Card Body-->
@@ -162,7 +162,7 @@ if ((isset($_POST['username'])) && (isset($_POST['password'])) && $_SERVER['REQU
             <div class="dialog-header">
                 <div style="font-size: 28px; margin-bottom: 6px;"><i class="fa-solid fa-leaf"></i></div>
                 <h2>Register Account</h2>
-                <p>Vermicast ERP System</p>
+                <p>Mays Garden</p>
             </div>
             <div class="dialog-body">
                 <form method="POST">
