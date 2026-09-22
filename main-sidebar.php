@@ -7,7 +7,7 @@ $userName = $_SESSION['user_name'] ?? '';
     <div class="sidebar-brand" onclick="window.location.href='index.php'">
         <div class="brand-title">
             <i class="fa-solid fa-leaf"></i>
-            <span >Mays Garden</span>
+            <span >EcoAgri</span>
         </div>
         <div class="brand-subtitle">Ecological & Agricultural</div>
         <button type="button" class="mobile-toggle-btn" id="sidebarToggle" aria-label="Toggle navigation">
@@ -16,8 +16,8 @@ $userName = $_SESSION['user_name'] ?? '';
     </div>
 
     <ul class="sidebar-nav">
-        <?php if (in_array($userRole, ['admin', 'staff'])): ?>
-            <li class="<?=$currentPage == 'dashboard.php' ? 'active' : ''?>" data-page="dashboard.php">
+        <?php if (in_array($userRole, ['admin', 'staff', 'manager'])): ?>
+            <li class="<?=$currentPage == 'index.php' ? 'active' : ''?>" data-page="index.php">
                 <i class="fa-solid fa-house"></i>
                 <span>Dashboard</span>
             </li>
@@ -62,6 +62,13 @@ $userName = $_SESSION['user_name'] ?? '';
             <li class="<?=$currentPage == 'users.php' ? 'active' : ''?>" data-page="users.php">
                 <i class="fa-solid fa-gear"></i>
                 <span>Users</span>
+            </li>
+        <?php endif; ?>
+
+        <?php if (in_array($userRole, ['admin', 'staff', 'manager'])): ?>
+            <li class="<?=$currentPage == 'history.php' ? 'active' : ''?>" data-page="history.php">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+                <span>History</span>
             </li>
         <?php endif; ?>
 

@@ -114,8 +114,43 @@ CREATE TABLE production (
     quantity DECIMAL(10,2) NOT NULL,
     unit VARCHAR(10) NOT NULL,
     status VARCHAR(30) DEFAULT 'Recent',
-    receiver VARCHAR(50)
+    receiver VARCHAR(50),
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL
 );
+
+-- System activity feed for the History tab (starts fresh, no backfill).
+-- Existing DBs: run just this CREATE once in phpMyAdmin.
+CREATE TABLE history (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user VARCHAR(50) NOT NULL,
+    action VARCHAR(30) NOT NULL,
+    ref_id VARCHAR(15),
+    product VARCHAR(50),
+    quantity DECIMAL(10,2),
+    unit VARCHAR(10),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+-- Forecast runs saved by forecasting.php (pure-PHP hybrid: Regression / Holt / HW-seasonal).
+-- Existing DBs: run just this CREATE once in phpMyAdmin.
+CREATE TABLE forecasting_history (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    product VARCHAR(50) NOT NULL,
+    period_days INT NOT NULL,
+    alpha DECIMAL(3,2) NOT NULL,
+    total_demand DECIMAL(10,2) NOT NULL,
+    daily_json MEDIUMTEXT,
+    method VARCHAR(50),
+    range_days INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+-- MIGRATION: record chosen method + input range per forecast run (2026-09-22):
+-- Run this in phpMyAdmin if forecasting_history lacks `method`/`range_days`.
+-- (New code retries without them, so old tables still save runs.)
+ALTER TABLE forecasting_history
+ADD method VARCHAR(50),
+ADD range_days INT;
 
 -- Indexes for the queries the system actually runs
 -- (forecasting/sales filter inventory by status + updated_at)
@@ -123,6 +158,9 @@ CREATE INDEX idx_inventory_status ON inventory(status);
 CREATE INDEX idx_inventory_updated ON inventory(updated_at);
 CREATE INDEX idx_production_date ON production(production_date);
 CREATE INDEX idx_production_status ON production(status);
+CREATE INDEX idx_production_updated ON production(updated_at);
+CREATE INDEX idx_history_created ON history(created_at);
+CREATE INDEX idx_forecasting_created ON forecasting_history(created_at);
 CREATE INDEX idx_accounts_user ON accounts(user);
 
 -- MIGRATION for existing DBs (built before stock columns existed):
@@ -132,8 +170,21 @@ ALTER TABLE inventory
 ADD stock_in DECIMAL(10,2),
 ADD stock_out DECIMAL(10,2);
 
+-- MIGRATION: normalize unit label Sac/Sack -> Sacks (2026-09-22):
+-- Run this in phpMyAdmin so old rows match the new dropdown value.
+UPDATE inventory SET unit = 'Sacks' WHERE unit IN ('Sac', 'Sack', 'Sacs');
+UPDATE production SET unit = 'Sacks' WHERE unit IN ('Sac', 'Sack', 'Sacs');
+
+-- MIGRATION: track last modification per production batch (2026-09-22):
+-- Run this in phpMyAdmin if production rows lack `updated_at`
+-- ("Unknown column 'updated_at'"). Auto-bumps on every UPDATE.
+ALTER TABLE production
+ADD updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL;
+
+-- MIGRATION: align accounts nullability with canonical DDL (2026-09-22):
+ALTER TABLE accounts MODIFY user VARCHAR(50) UNIQUE NOT NULL;
+
 -- NOTES (remaining code mismatches):
--- 1. php_backend/updateBatch.php does `UPDATE production ... WHERE id`,
---    but the PK is `production_id`. Change to `WHERE production_id`.
+-- 1. FIXED: php_backend/updateBatch.php now updates `WHERE production_id`.
 -- 2. `accounts.role UNIQUE` allows only one staff / one manager total.
 --    If multi-user testing needs several staffs, drop that UNIQUE.

@@ -18,6 +18,11 @@ requireRole(['admin']);
     require_once "php_backend/db.php";
 
     // Fetch status completed in inventory from selected month.
+    $searchSales = trim($_GET['search-sales'] ?? '');
+    $salesSort = $_GET['sales-sort'] ?? 'newest';
+    if (!in_array($salesSort, ['newest', 'oldest', 'highest', 'lowest'], true)) {
+        $salesSort = 'newest';
+    }
     ?>
     <div class="salespage">
         <div class="page-header">
@@ -102,11 +107,27 @@ requireRole(['admin']);
                     
                     $stmt_days->execute([':status' => 'Completed', ':start' => $month_start, ':end' => $month_end]);
                     $days = $stmt_days->fetchAll(PDO::FETCH_ASSOC);
+                    // In-table search (matches the date text) + sort.
+                    if ($searchSales !== '') {
+                        $days = array_values(array_filter($days, function ($d) use ($searchSales) {
+                            return stripos($d['day'], $searchSales) !== false;
+                        }));
+                    }
+                    usort($days, function ($a, $b) use ($salesSort) {
+                        if ($salesSort === 'oldest') {
+                            return strcmp($a['day'], $b['day']);
+                        } elseif ($salesSort === 'highest') {
+                            return $b['qty'] - $a['qty'];
+                        } elseif ($salesSort === 'lowest') {
+                            return $a['qty'] - $b['qty'];
+                        }
+                        return strcmp($b['day'], $a['day']);
+                    });
                 ?>
                     <div class="sales-summary-bar">
                         <div class="summary-item">
                             <span class="summary-label"><i class="fa-solid fa-basket-shopping"></i> Total Sold:</span>
-                            <span class="summary-value"><strong><?= htmlspecialchars($total_row['total_qty']) ?></strong> Sac</span>
+                            <span class="summary-value"><strong><?= htmlspecialchars($total_row['total_qty']) ?></strong> Sacks</span>
                         </div>
                         <div class="summary-item">
                             <span class="summary-label"><i class="fa-solid fa-receipt"></i> Completed Records:</span>
@@ -115,8 +136,26 @@ requireRole(['admin']);
                     </div>
 
                     <?php if (!$days): ?>
-                        <p class="section-desc">No Completed records this month.</p>
+                        <p class="section-desc"><?= $searchSales !== '' ? "No sales match '" . htmlspecialchars($searchSales) . "'." : "No Completed records this month." ?></p>
                     <?php else: ?>
+                    <div class="search-bar" style="margin-bottom: 12px;">
+                        <form method="GET" action="sales.php" id="sales-filter-form">
+                        <input type="hidden" name="month-selected" value="<?= htmlspecialchars($_GET['month-selected'] ?? '') ?>">
+                        <input type="text" id="search-box-sales" placeholder="Search date..." name="search-sales" value="<?= htmlspecialchars($searchSales) ?>"><!--Set the value of search bar for consistent memory-->
+                        <button type="submit" id="search-btn-sales"><i class="fa-solid fa-magnifying-glass"></i></button>
+                        <i class="fa-solid fa-filter"></i>
+                        <label for="sales-sort">Sort by:</label>
+                        <select id="sales-sort" name="sales-sort" onchange="document.getElementById('sales-filter-form').submit()">
+                            <option value="newest" <?= $salesSort === 'newest' ? 'selected' : '' ?>>Newest</option>
+                            <option value="oldest" <?= $salesSort === 'oldest' ? 'selected' : '' ?>>Oldest</option>
+                            <option value="highest" <?= $salesSort === 'highest' ? 'selected' : '' ?>>Highest quantity</option>
+                            <option value="lowest" <?= $salesSort === 'lowest' ? 'selected' : '' ?>>Lowest quantity</option>
+                        </select>
+                        <?php if ($searchSales !== '' || $salesSort !== 'newest'): ?>
+                        <a href="sales.php?month-selected=<?= urlencode($_GET['month-selected'] ?? '') ?>" class="btn-secondary" style="text-decoration:none;padding:6px 10px;">Clear</a>
+                        <?php endif; ?>
+                        </form>
+                    </div>
                     <div class="table-responsive">
                         <table class="data-table">
                             <thead>
@@ -130,7 +169,7 @@ requireRole(['admin']);
                                 <?php foreach ($days as $d): ?>
                                 <tr>
                                     <td><?= htmlspecialchars($d['day']) ?></td>
-                                    <td><strong><?= htmlspecialchars($d['qty']) ?> Sac</strong></td>
+                                    <td><strong><?= htmlspecialchars($d['qty']) ?> Sacks</strong></td>
                                     <td><?= htmlspecialchars($d['recs']) ?></td>
                                 </tr>
                                 <?php endforeach; ?>

@@ -32,7 +32,7 @@ if (is_array($first)) {
 exit;
 
 // Flat numbers: [23,4,0,26] — index 0 = today, going back one day per value.
-// Every value (including 0) becomes one Completed row so Holt-Winters sees idle days.
+// Every value (including 0) becomes one Completed row so the forecaster sees idle days.
 function importFlat($pdo, $values) {
     if (count($values) > 1096) {
         header("Location: ../sales.php?import_error=" . urlencode("Too many values! Max 1096 (today back to -1095 days). Got " . count($values) . "."));
@@ -72,7 +72,7 @@ function importFlat($pdo, $values) {
                 ':id' => $id_num,
                 ':prod' => 'Vermicast',
                 ':quan' => (int)$v,
-                ':unit' => 'Sac',
+                ':unit' => 'Sacks',
                 ':status' => 'Completed',
                 ':desc' => 'Historical import',
                 ':created' => $ts,
@@ -82,6 +82,8 @@ function importFlat($pdo, $values) {
         }
 
         $pdo->commit();
+        $hist = $pdo->prepare("INSERT INTO history (user, action, product, quantity, unit) VALUES (:user, :action, 'Vermicast', :quan, 'Sacks')");
+        $hist->execute([':user' => $_SESSION['user_name'] ?? '', ':action' => "Imported $inserted day(s)", ':quan' => array_sum($values)]);
         header("Location: ../sales.php?import_success=" . urlencode("Imported $inserted day(s): $oldest to $today."));
         exit;
     } catch (Throwable $e) {
@@ -91,7 +93,7 @@ function importFlat($pdo, $values) {
     }
 }
 
-// Records: [{"prod_id":"PRD002","product":"Vermicast","quantity":34,"unit":"Sac",
+// Records: [{"prod_id":"PRD002","product":"Vermicast","quantity":34,"unit":"Sacks",
 // "reference_id":"SALE-2025-001","notes":"...","created_at":"2023-09-06 16:44:37"}]
 // Each record is queried in inventory by prod_id then marked Completed:
 // missing => INSERT, found but not Completed => UPDATE to Completed,
@@ -131,7 +133,7 @@ function importRecords($pdo, $values) {
             'prod_id' => $prod_id,
             'product' => trim($r['product'] ?? '') ?: 'Vermicast',
             'quantity' => (int)$qty,
-            'unit' => trim($r['unit'] ?? '') ?: 'Sac',
+            'unit' => trim($r['unit'] ?? '') ?: 'Sacks',
             'desc' => trim($r['notes'] ?? '') ?: ('Historical import ' . trim($r['reference_id'] ?? '')),
             'ts' => $date,
             'day' => date('Y-m-d', $ts)
@@ -194,6 +196,8 @@ function importRecords($pdo, $values) {
 
 
         $pdo->commit();
+        $hist = $pdo->prepare("INSERT INTO history (user, action, product, quantity, unit) VALUES (:user, :action, 'Vermicast', :quan, 'Sacks')");
+        $hist->execute([':user' => $_SESSION['user_name'] ?? '', ':action' => 'Imported ' . count($rows) . ' record(s)', ':quan' => array_sum(array_column($rows, 'quantity'))]);
         header("Location: ../sales.php?import_success=" . urlencode("Imported " . count($rows) . " record(s): $inserted new, $marked marked Completed."));
         exit;
     } catch (Throwable $e) {

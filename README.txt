@@ -1,8 +1,5 @@
 REQUIREMENTS(Once download and installed - Works Completely offline/local): Windows >= 10
 
-- Python >= 3.11 version: https://www.python.org/downloads/windows/
-3.11.9: https://www.python.org/ftp/python/3.11.9/python-3.11.9-amd64.exe
-
 - Node JS:
 https://nodejs.org/en/download
 #Direct dl: https://nodejs.org/dist/v24.21.0/node-v24.21.0-x64.msi
@@ -20,7 +17,8 @@ Step 3:
 =======================================
 ------------- DATABASE ----------------
 =======================================
--- Latest DB:
+-- Latest DB (fresh install: run everything below in phpMyAdmin):
+-- Existing DB: run only the MIGRATION blocks in `database_query`.
 
 CREATE DATABASE IF NOT EXISTS rural_urban;
 USE rural_urban;
@@ -55,5 +53,29 @@ CREATE TABLE production (
     quantity DECIMAL(10,2) NOT NULL,
     unit VARCHAR(10) NOT NULL,
     status VARCHAR(30) DEFAULT 'Recent',
-    receiver VARCHAR(50)
+    receiver VARCHAR(50),
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL
+);
+
+CREATE TABLE history (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user VARCHAR(50) NOT NULL,
+    action VARCHAR(30) NOT NULL,
+    ref_id VARCHAR(15),
+    product VARCHAR(50),
+    quantity DECIMAL(10,2),
+    unit VARCHAR(10),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+CREATE TABLE forecasting_history (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    product VARCHAR(50) NOT NULL,
+    period_days INT NOT NULL,
+    alpha DECIMAL(3,2) NOT NULL,
+    total_demand DECIMAL(10,2) NOT NULL,
+    daily_json MEDIUMTEXT,
+    method VARCHAR(50),
+    range_days INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 );

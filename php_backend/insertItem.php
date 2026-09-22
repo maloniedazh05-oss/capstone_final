@@ -1,5 +1,6 @@
 <?php 
-require_once "db.php";
+require_once "session.php";
+requireRole(['admin', 'manager']);
 
 if($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['product_name']) && isset($_POST['quantity'])) {
     $product = trim($_POST['product_name']);
@@ -36,15 +37,20 @@ if($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['product_name']) && isse
         $id_num = substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 7);
     }
 
-    $stmt = $pdo->prepare("INSERT INTO inventory (prod_id, product, quantity, unit, description, stock_in) VALUES (:id, :prod, :quan, :unit, :description, :stock_in)");
+    $stmt = $pdo->prepare("INSERT INTO inventory (prod_id, product, quantity, unit, status, description, stock_in) VALUES (:id, :prod, :quan, :unit, :status, :description, :stock_in)");
     $stmt->bindValue(':id', $id_num);
     $stmt->bindValue(':prod', $product);
     $stmt->bindValue(':quan', $quantity);
     $stmt->bindValue(':unit', $metric);
+    $stmt->bindValue(':status', $status);
     $stmt->bindValue(':description', $description);
     $stmt->bindValue(':stock_in', $quantity);
 
     if($stmt->execute()) {
+        if ($status == 'Completed') {
+            $hist = $pdo->prepare("INSERT INTO history (user, action, ref_id, product, quantity, unit) VALUES (:user, 'Stock-Out Recorded', :ref, :prod, :quan, :unit)");
+            $hist->execute([':user' => $_SESSION['user_name'] ?? '', ':ref' => $id_num, ':prod' => $product, ':quan' => $quantity, ':unit' => $metric]);
+        }
         header("Location: ../inventory.php?success=1");
         exit;
     } else {

@@ -1,6 +1,7 @@
 <?php
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['item']) && isset($_POST['quantity'])) {
-    require_once "db.php";
+    require_once "session.php";
+    requireRole(['admin', 'staff']);
 
     $item = trim($_POST['item']);
     $quantity = $_POST['quantity'] ?? '';
@@ -27,6 +28,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['item']) && isset($_POS
 
 
     if ($stmt->execute()) {
+        $hist = $pdo->prepare("INSERT INTO history (user, action, ref_id, product, quantity, unit) VALUES (:user, 'Created Batch', :ref, :prod, :quan, :unit)");
+        $hist->execute([':user' => $_SESSION['user_name'] ?? '', ':ref' => $batch_id, ':prod' => $item, ':quan' => $quantity, ':unit' => $unit]);
         header("Location: ../production.php");
         exit;
     } else {echo "Cannot add into production.";}
@@ -35,7 +38,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['item']) && isset($_POS
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'GET' && isset($_GET['status_id'])) {
-    require_once "db.php";
+    require_once "session.php";
+    requireRole(['admin', 'staff']);
     $id = $_GET['id'];
     $batch = $_GET['batch'];
     $date = $_GET['date'];
@@ -68,10 +72,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET' && isset($_GET['status_id'])) {
         }
     }
 
-    $stmt_status = $pdo->prepare("UPDATE production SET status = :status WHERE batch_id = :batch_id");
+    $stmt_status = $pdo->prepare("UPDATE production SET status = :status, updated_at = NOW() WHERE batch_id = :batch_id");
     $stmt_status->bindValue(':batch_id', $_GET['batch']);
     $stmt_status->bindValue(':status', $status);
     $stmt_status->execute();
+
+    if ($status == 'Completed') {
+        $hist = $pdo->prepare("INSERT INTO history (user, action, ref_id, product, quantity, unit) VALUES (:user, 'Completed Batch', :ref, :prod, :quan, :unit)");
+        $hist->execute([':user' => $_SESSION['user_name'] ?? '', ':ref' => $_GET['batch'], ':prod' => $item, ':quan' => $quantity, ':unit' => $unit]);
+    }
 
     header("Location: ../production.php");
 }

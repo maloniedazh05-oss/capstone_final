@@ -1,5 +1,6 @@
 <?php 
-require_once "db.php";
+require_once "session.php";
+requireRole(['admin', 'staff']);
 
 if($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['status'])) {
     $status = $_POST['status'] ?? '';
@@ -8,7 +9,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['status'])) {
     $receiver = "Receiver: ";
 
     // production
-    $stmt = $pdo->prepare("UPDATE production SET status = :status WHERE production_id = :id");
+    $stmt = $pdo->prepare("UPDATE production SET status = :status, updated_at = NOW() WHERE production_id = :id");
     $stmt->bindValue(':status', $status);
     $stmt->bindValue(':id', $id);    
 
@@ -24,7 +25,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['status'])) {
     }
 
     if($status == "Completed") {
-    $stmt_fetch = $pdo->prepare("SELECT item, quantity, unit, status, receiver FROM production WHERE production_id = :id");
+    $stmt_fetch = $pdo->prepare("SELECT batch_id, item, quantity, unit, status, receiver FROM production WHERE production_id = :id");
     $stmt_fetch->execute(["id"=>$id]);
     $row_fetch = $stmt_fetch->fetch(PDO::FETCH_ASSOC);
 
@@ -36,6 +37,9 @@ if($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['status'])) {
         $stmt2->bindValue(":description", $receiver . $row_fetch['receiver']);
         $stmt2->bindValue(':stock_in', $quantity);
         $stmt2->execute();
+
+        $hist = $pdo->prepare("INSERT INTO history (user, action, ref_id, product, quantity, unit) VALUES (:user, 'Completed Batch', :ref, :prod, :quan, :unit)");
+        $hist->execute([':user' => $_SESSION['user_name'] ?? '', ':ref' => $row_fetch['batch_id'], ':prod' => $row_fetch['item'], ':quan' => $quantity, ':unit' => $row_fetch['unit']]);
     }
 
     if($stmt->execute()) {

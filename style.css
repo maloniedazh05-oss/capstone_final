@@ -5,28 +5,28 @@
     --main-container: 50%;
     --main-input: 1rem;
 
-    /* Theme & Brand Colors */
-    --color-primary: #2b7cbd;
-    --color-primary-hover: #2368a2;
-    --color-primary-light: rgba(43, 124, 189, 0.12);
+    /* Theme & Brand Colors - green and brown */
+    --color-primary: #2e7d32;
+    --color-primary-hover: #1b5e20;
+    --color-primary-light: rgba(46, 125, 50, 0.12);
 
-    --color-sidebar-bg: #203140;
-    --color-sidebar-text: #94a3b8;
-    --color-sidebar-hover: #283e54;
-    --color-sidebar-active: #2e4761;
-    --color-sidebar-active-text: #ffffff;
+    --color-sidebar-bg: #38291b;
+    --color-sidebar-text: #c9b797;
+    --color-sidebar-hover: #4a3826;
+    --color-sidebar-active: #5c4527;
+    --color-sidebar-active-text: #fff8e1;
 
-    --color-bg-page: #f8fafc;
-    --color-bg-card: #ffffff;
-    --color-border: #e2e8f0;
-    --color-border-subtle: #f1f5f9;
+    --color-bg-page: #f6f1e7;
+    --color-bg-card: #fffdf7;
+    --color-border: #e3d9c2;
+    --color-border-subtle: #efe7d3;
 
-    --color-text-main: #1e293b;
-    --color-text-muted: #64748b;
-    --color-text-light: #94a3b8;
+    --color-text-main: #3b332a;
+    --color-text-muted: #8a7a63;
+    --color-text-light: #b5a687;
     --color-text-white: #ffffff;
 
-    --color-badge-blue: #2563eb;
+    --color-badge-blue: #795548;
     --color-danger: #ef4444;
     --color-danger-hover: #dc2626;
     --color-success: #10b981;
@@ -66,6 +66,7 @@ README
     - Select
     - Option
     - Dialog
+    - Cards/Info & Stat
 
 - Login Page
     - btn
@@ -73,10 +74,12 @@ README
     - account
 - Main Sidebar
 - Dashboard
+- Inventory
 - Forecasting
 - Reports
 - User Page
 - Global Cards
+- General Notif
 */
 
 body {
@@ -173,7 +176,7 @@ dialog::backdrop {
 }
 
 dialog .dialog-header {
-    background: #23374b;
+    background: #4a3826;
     color: #ffffff;
     padding: 20px;
     text-align: center;
@@ -216,6 +219,32 @@ dialog .dialog-actions {
 
 /* Dialogs END */
 
+/*Cards - Info/Stat*/
+
+.info-cards {
+    display: grid;
+    grid-template-columns: .5fr .5fr .5fr;
+    gap: 30px;
+    padding: 5px;
+}
+.stat-card {
+    margin: 5px;
+    text-align: center;
+    padding: 4%;
+    border: none;
+    border-radius: 5px;
+    box-shadow: var(--shadow-card);
+}
+
+/*General notif*/
+.notif {
+    background: rgba(0, 128, 0, 0.1);
+    color: green;
+    border: 0 0 #721c24;
+    border-radius: 5px;
+    padding: 4px;
+}
+
 /*
 Login Page START
 */
@@ -228,8 +257,8 @@ body.login-body {
     margin: 0;
     padding: 20px;
     box-sizing: border-box;
-    background: #2b5278;
-    background: radial-gradient(circle at 50% 30%, #356088 0%, #224263 100%);
+    background: #43682e;
+    background: radial-gradient(circle at 50% 30%, #527a35 0%, #2f4420 100%);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     overflow-y: auto;
 }
@@ -253,7 +282,7 @@ body.login-body {
 }
 
 .login-card-header {
-    background: #23374b;
+    background: #4a3826;
     padding: 30px 24px 24px;
     text-align: center;
     color: #ffffff;
@@ -297,13 +326,13 @@ body.login-body {
     gap: 8px;
     font-size: 14px;
     font-weight: 700;
-    color: #2c3e50;
+    color: #4a3826;
     margin-bottom: 7px;
 }
 
 .login-card-body .input-group label i {
     font-size: 13px;
-    color: #2c3e50;
+    color: #4a3826;
     width: 14px;
 }
 
@@ -323,8 +352,8 @@ body.login-body {
 .login-card-body .input-group input:focus,
 .login-card-body .input-group select:focus {
     outline: none;
-    border-color: #2e86de;
-    box-shadow: 0 0 0 3px rgba(46, 134, 222, 0.15);
+    border-color: #2e7d32;
+    box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.15);
 }
 
 .login-card-body .input-group input::placeholder {
@@ -333,7 +362,7 @@ body.login-body {
 }
 
 .btn-primary {
-    background: #2b7cbd;
+    background: #2e7d32;
     color: #ffffff;
     border: none;
     border-radius: 6px;
@@ -348,7 +377,7 @@ body.login-body {
 }
 
 .btn-primary:hover {
-    background: #2368a2;
+    background: #1b5e20;
 }
 
 .btn-secondary {
@@ -389,7 +418,7 @@ body.login-body {
 .account-register-prompt .btn-link {
     background: none;
     border: none;
-    color: #2b7cbd;
+    color: #2e7d32;
     font-weight: 600;
     cursor: pointer;
     padding: 0;
@@ -398,7 +427,7 @@ body.login-body {
 }
 
 .account-register-prompt .btn-link:hover {
-    color: #1e5c8e;
+    color: #1b5e20;
 }
 
 .login-card-footer {
@@ -641,6 +670,19 @@ Dashboard START
 /*
 Dashboard END
 */
+
+/*
+Inventory START
+*/
+
+.inventorypage .stat-card {
+    padding: 0;
+}
+
+.inventorypage h2 {
+    text-align: center;
+    background: none;
+}
 
 /*
 Forecasting Page START

@@ -1,5 +1,6 @@
 <?php 
-require_once "db.php";
+require_once "session.php";
+requireRole(['admin', 'manager']);
 
 if($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['edit_id']) && isset($_POST['product_name']) && isset($_POST['quantity'])) {
     $id = trim($_POST['edit_id']);
@@ -31,6 +32,10 @@ if($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['edit_id']) && isset($_P
     $stmt->bindValue(':description', $description);
 
     if($stmt->execute()) {
+        if ($status == 'Completed') {
+            $hist = $pdo->prepare("INSERT INTO history (user, action, ref_id, product, quantity, unit) VALUES (:user, 'Stock-Out Recorded', :ref, :prod, :quan, :unit)");
+            $hist->execute([':user' => $_SESSION['user_name'] ?? '', ':ref' => $id, ':prod' => $product, ':quan' => $quantity, ':unit' => $metric]);
+        }
         header("Location: ../inventory.php?success=1");
         exit;
     } else {
