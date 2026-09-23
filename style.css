@@ -292,7 +292,8 @@ body.login-body {
     font-size: 42px;
     color: #ffffff;
     margin-bottom: 12px;
-    display: inline-block;
+    display: flex;
+    align-items: center;
 }
 
 .login-card-header h1 {
@@ -604,7 +605,8 @@ Login Page END
     display: none;
 }
 
-.main-sidebar #logo {
+/*Global Logo*/
+#logo {
     padding: 0;
     margin: 0;
     width: 55%;
@@ -1153,7 +1155,6 @@ dialog .dialog-header {
     background: var(--color-sidebar-bg);
     color: #ffffff;
     padding: 16px 20px;
-    text-align: left;
     display: flex;
     align-items: center;
     gap: 10px;

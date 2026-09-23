@@ -115,9 +115,9 @@ if ((isset($_POST['username'])) && (isset($_POST['password'])) && $_SERVER['REQU
             <!--Card Header-->
             <div class="login-card-header">
                 <div class="header-logo">
-                    <i class="fa-solid fa-leaf"></i>
+                    <!--<i class="fa-solid fa-leaf"></i>-->
                 </div>
-                <h1>EcoAgri</h1>
+                <img src="logo.png" id="logo">
                 <p>Login Page</p>
             </div>
 
@@ -160,9 +160,12 @@ if ((isset($_POST['username'])) && (isset($_POST['password'])) && $_SERVER['REQU
         <!--Register Form in a dialog container-->
         <dialog id="register-diag">
             <div class="dialog-header">
-                <div style="font-size: 28px; margin-bottom: 6px;"><i class="fa-solid fa-leaf"></i></div>
-                <h2>Register Account</h2>
-                <p>EcoAgri</p>
+
+                <div class="header-logo">
+                    <img src="logo.png" id="logo">
+                    <h2>Register Account</h2>
+                </div>
+                
             </div>
             <div class="dialog-body">
                 <form method="POST">
