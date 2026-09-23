@@ -115,9 +115,8 @@ if ($chGran === 'weekly') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inventory</title>
-    <link rel="stylesheet" href="assets/node_modules/@fortawesome/fontawesome-free/css/all.min.css">
     <link rel="stylesheet" href="style.css">
-    <script src="assets/node_modules/chart.js/dist/chart.umd.js"></script>
+    <?php $NEED_CHART = true; require_once "php_backend/head_assets.php"; ?>
 </head>
 <body>
     <?php require_once "main-sidebar.php"; ?>

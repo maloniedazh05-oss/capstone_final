@@ -78,9 +78,8 @@ if ($tab === 'forecast' && ($_GET['export'] ?? '') === 'csv') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reports</title>
-    <link rel="stylesheet" href="assets/node_modules/@fortawesome/fontawesome-free/css/all.min.css">
     <link rel="stylesheet" href="style.css">
-    <script src="assets/node_modules/chart.js/dist/chart.umd.js"></script>
+    <?php $NEED_CHART = true; require_once "php_backend/head_assets.php"; ?>
     <style>
     .report-tabs { display: flex; gap: 8px; margin: 12px 0 16px; flex-wrap: wrap; }
     .report-tabs a { text-decoration: none; padding: 8px 14px; border-radius: 6px; }

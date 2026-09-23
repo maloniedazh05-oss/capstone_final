@@ -49,7 +49,7 @@ if (!in_array($prodSort, ['newest', 'oldest', 'highest', 'lowest'], true)) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Production</title>
-    <link rel="stylesheet" href="assets/node_modules/@fortawesome/fontawesome-free/css/all.min.css">
+    <?php require_once "php_backend/head_assets.php"; ?>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>

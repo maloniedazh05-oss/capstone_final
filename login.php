@@ -105,7 +105,7 @@ if ((isset($_POST['username'])) && (isset($_POST['password'])) && $_SERVER['REQU
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EcoAgri - Login</title>
-    <link rel="stylesheet" href="assets/node_modules/@fortawesome/fontawesome-free/css/all.min.css">
+    <?php require_once "php_backend/head_assets.php"; ?>
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="login-body"> 
@@ -117,7 +117,7 @@ if ((isset($_POST['username'])) && (isset($_POST['password'])) && $_SERVER['REQU
                 <div class="header-logo">
                     <i class="fa-solid fa-leaf"></i>
                 </div>
-                <h1>Mays Garden</h1>
+                <h1>EcoAgri</h1>
                 <p>Login Page</p>
             </div>
 

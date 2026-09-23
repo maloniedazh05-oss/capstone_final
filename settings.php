@@ -9,6 +9,7 @@ requireRole(["admin", "staff", "manager"]);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Settings</title>
+    <?php require_once "php_backend/head_assets.php"; ?>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
