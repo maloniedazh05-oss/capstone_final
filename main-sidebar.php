@@ -6,10 +6,15 @@ $userName = $_SESSION['user_name'] ?? '';
 <div class="main-sidebar" id="mainSidebar">
     <div class="sidebar-brand">
         <div class="brand-title" onclick="window.location.href='index.php'">
-            <i class="fa-solid fa-leaf"></i>
-            <span>EcoAgri</span>
+            
+            <!--<span>EcoAgri</span>-->
         </div>
-        <div class="brand-subtitle">Ecological & Agricultural</div>
+        
+        <div class="brand-subtitle">
+            
+<img src="logo.png" id="logo">
+
+        </div>
         <button type="button" class="mobile-toggle-btn" id="sidebarToggle" aria-label="Toggle navigation">
             <i class="fa-solid fa-bars"></i>
         </button>

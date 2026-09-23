@@ -496,10 +496,10 @@ Login Page END
 }
 
 .main-sidebar .brand-subtitle {
+    text-align: center;
     font-size: 0.78rem;
     color: var(--color-sidebar-text);
     margin-top: 4px;
-    margin-left: 28px;
 }
 
 .main-sidebar .mobile-toggle-btn {
@@ -602,6 +602,14 @@ Login Page END
 
 .main-sidebar #navicon {
     display: none;
+}
+
+.main-sidebar #logo {
+    padding: 0;
+    margin: 0;
+    width: 55%;
+    height: 30%;
+    filter: drop-shadow(10px 10px 15px rgba(0,0,0,0.8));
 }
 /*
 Main Sidebar END
