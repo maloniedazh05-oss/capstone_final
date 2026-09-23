@@ -77,12 +77,12 @@ $userName = $_SESSION['user_name'] ?? '';
             </li>
         <?php endif; ?>
 
-        <?php if (in_array($userRole, ['admin', 'staff', 'manager'])): ?>
+        <!--Settings removed<?php if (in_array($userRole, ['admin', 'staff', 'manager'])): ?>
             <li class="<?=$currentPage == 'settings.php' ? 'active' : ''?>" data-page="settings.php">
                 <i class="fa-solid fa-gear"></i>
                 <span>Settings</span>
             </li>
-        <?php endif; ?>
+        <?php endif; ?>-->
     </ul>
 
     <div class="currentUser">
