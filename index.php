@@ -59,6 +59,7 @@ $goalData = array_fill(0, count($chartData), $salesGoal);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
+    <link rel="icon" href="assets/img/logo.png">
     <link rel="stylesheet" href='style.css'>
     <?php $NEED_CHART = true; require_once "php_backend/head_assets.php"; ?>
 </head>
@@ -79,50 +80,60 @@ $goalData = array_fill(0, count($chartData), $salesGoal);
         <div class="page-header">
             <h1>Dashboard</h1>
         </div>
-        <div style="border-bottom: 1px solid var(--color-border);">
+        <div class="dashboard-greeting">
             <?php 
             $day = date('A');
-            $greet = $day == 'AM' ? $greet = 'Morning' : $greet = 'Evening';            
+            $greet = $day == 'AM' ? 'Morning' : 'Evening';            
             ?>
             <h2>Good <?=$greet?>, <strong><?=htmlspecialchars($_SESSION['user_name'])?></strong></h2>
         </div>
-        <h2 id="dashboard-notif" >
-        <script>let notif = document.getElementById('dashboard-notif');</script>
-    <!-- Stock notficiation dashboard,  -->
-            <?php if($current_vermicast > 20): ?>
-                <script>
-                    notif = document.getElementById('dashboard-notif');
-                    notif.style.color = 'green';
-                    notif.innerHTML = "Stocks levels are healthy";
-                </script>
-            <?php endif; ?>
-            <?php if($current_vermicast < 10 && $current_vermicast < 5): ?>
-                <script>
-                    notif = document.getElementById('dashboard-notif');
+        <div id="dashboard-notif" class="notif">
+            <img src="assets/img/rutoplogos.png" alt="Logo">
+            <span id="dashboard-notif-text">Checking stock status...</span>
+        </div>
+        <script>
+            (function() {
+                const notif = document.getElementById('dashboard-notif');
+                const notifText = document.getElementById('dashboard-notif-text');
+                <?php if ($current_vermicast > 20): ?>
+                    notif.className = 'notif notif-green';
+                    notif.style.color = '#15803d';
+                    notifText.innerHTML = '<i class="fa-solid fa-circle-check"></i> Stock levels are healthy (<?= $current_vermicast ?> Sacks)';
+                <?php elseif ($current_vermicast >= 10): ?>
+                    notif.className = 'notif notif-good';
+                    notif.style.color = '#15803d';
+                    notifText.innerHTML = '<i class="fa-solid fa-circle-info"></i> Stock levels are adequate (<?= $current_vermicast ?> Sacks)';
+                <?php elseif ($current_vermicast >= 5): ?>
+                    notif.className = 'notif notif-low';
                     notif.style.color = 'brown';
-                    notif.innerHTML = "Stocks levels are low";
-                </script>
-            <?php endif; ?>
-            <?php if($current_vermicast < 4 && $current_vermicast > 0): ?>
-                <script>
-                    notif = document.getElementById('dashboard-notif');
+                    notifText.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Stock levels are low (<?= $current_vermicast ?> Sacks)';
+                <?php elseif ($current_vermicast > 0): ?>
+                    notif.className = 'notif notif-orange';
                     notif.style.color = 'orange';
-                    notif.innerHTML = "Stocks levels are critically low!";
-                </script>
-            <?php endif; ?>
-            <?php if($current_vermicast < 1): ?>
-                <script>
-                    notif = document.getElementById('dashboard-notif');
+                    notifText.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Stock levels are critically low! (<?= $current_vermicast ?> Sacks)';
+                <?php else: ?>
+                    notif.className = 'notif notif-red';
                     notif.style.color = 'red';
-                    notif.innerHTML = "No stocks!";
-                </script>
-            <?php endif; ?>
-            </h2>
+                    notifText.innerHTML = '<i class="fa-solid fa-circle-xmark"></i> No stocks available!';
+                <?php endif; ?>
+            })();
+        </script>
+
+        <?php if (isset($_GET['success'])): ?>
+            <div class="feedback-success">
+                <i class="fa-solid fa-circle-check"></i> Goal saved successfully!
+            </div>
+        <?php elseif (isset($_GET['error'])): ?>
+            <div class="feedback-error">
+                <i class="fa-solid fa-circle-exclamation"></i> Could not save the goal. Please try again.
+            </div>
+        <?php endif; ?>
+
 
         <div class="info-cards">
             <div class="stat-card">
                 <h2>Vermicast Stock</h2>
-                <h2><?= $current_vermicast ?? 0 ?> Sacks</h2>
+                <h3><?= $current_vermicast ?? 0 ?> Sacks</h3>
             </div>
             <div class="stat-card">
                 <h2>Active Batches</h2>
@@ -140,31 +151,35 @@ $goalData = array_fill(0, count($chartData), $salesGoal);
                 ?>
                 <h3><?= $count ?? 0 ?></h3>
             </div>
-            <div class="stat-card"><h2>Completed Today</h2>
-            <h3><?=(int)$prod_count ?? 0?> Sacks</h3>
+            <div class="stat-card">
+                <h2>Completed Today</h2>
+                <h3><?=(int)$prod_count ?? 0?> Sacks</h3>
             </div>
         </div><!-- info-cards END-->
 <!-- In dashboardpage, after info-cards -->
 <div class="info-cards">
-    <div class="stat-card">
-        <h2 id="salesGoal">Sales goal (Target Minimum Stock)</h2>
-        <h3><?= htmlspecialchars($salesGoal) ?> Sacks</h3>
-        <form method="POST" action="php_backend/setGoal.php">
-            <input type="number" id="sales_goal" name="sales_goal" min="0" max="1000000"
-                value="<?= htmlspecialchars($salesGoalInv) ?>" style="width:100px;">
-            <button type="submit" class="btn-primary">Save Goal</button>
-        </form>
+    <div class="stat-card sales-goal-card">
+        <div class="sales-goal-box">
+            <h2 id="salesGoal">Target Minimum Stock</h2>
+            <h3><?= htmlspecialchars($salesGoal) ?> Sacks</h3>
+            <form method="POST" action="php_backend/setGoal.php">
+                <input type="number" id="sales_goal" name="sales_goal" min="0" max="1000000" value="<?= htmlspecialchars($salesGoal) ?>" style="width:100px;">
+                <button type="submit" class="btn-primary">Save Goal</button>
+            </form>
+        </div>
     </div>
-    <div class="stat-card" style="grid-column: span 2; height: 320px;">
+    <div class="stat-card chart-stat-card">
         <div class="card-header card-header-flex">
-            <h2>Inventory Trend (<?= $trend === '30' ? '30 Days' : ($trend === '7' ? '7 Days' : 'Recent') ?>)</h2>
+            <h2><i class="fa-solid fa-chart-line"></i> Inventory Trend (<?= $trend === '30' ? '30 Days' : ($trend === '7' ? '7 Days' : 'Recent') ?>)</h2>
             <div class="card-filter">
                 <a href="index.php?trend=recent" class="btn-secondary" style="text-decoration:none;padding:6px 10px;<?= $trend === 'recent' ? 'font-weight:bold;' : '' ?>">Recent</a>
                 <a href="index.php?trend=7" class="btn-secondary" style="text-decoration:none;padding:6px 10px;<?= $trend === '7' ? 'font-weight:bold;' : '' ?>">Last 7</a>
                 <a href="index.php?trend=30" class="btn-secondary" style="text-decoration:none;padding:6px 10px;<?= $trend === '30' ? 'font-weight:bold;' : '' ?>">30 Days</a>
             </div>
         </div>
-        <canvas id="stockChart" height="200"></canvas>
+        <div style="flex: 1; width: 100%; min-height: 220px; position: relative;">
+            <canvas id="stockChart"></canvas>
+        </div>
     </div>
 </div>
 
