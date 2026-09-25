@@ -5,14 +5,15 @@ $userName = $_SESSION['user_name'] ?? '';
 ?>
 <div class="main-sidebar" id="mainSidebar">
     <div class="sidebar-brand">
-        <div class="brand-title" onclick="window.location.href='index.php'">
+        <div class="brand-title">
             
             <!--<span>EcoAgri</span>-->
         </div>
         
-        <div class="brand-subtitle">
+        <div class="brand-subtitle" onclick="window.location.href='index.php'">
             
-<img src="logo.png" id="logo">
+<img src="assets/img/logo.png" id="logo">
+
 
         </div>
         <button type="button" class="mobile-toggle-btn" id="sidebarToggle" aria-label="Toggle navigation">
@@ -100,7 +101,9 @@ $userName = $_SESSION['user_name'] ?? '';
             </form>
         <?php endif; ?>
     </div>
+<img src="assets/img/rutoplogos.png">
 </div>
+
 
 <script>
     // Sidebar navigation

@@ -240,21 +240,46 @@ if ($chGran === 'weekly') {
                 $stmt_stock->execute();
                 $total_current = $stmt_stock->fetchColumn();
                 ?>
-            <h3 class="notif">Status - None</h3>            
-                <script>
-                const notif = document.querySelector('.notif');
-                    <?php if($total_current >= 100):?>notif.textContent = "Status: Good";<?php endif; ?>
-                    <?php if($total_current >= 50 && $total_current < 100):?>notif.textContent = "Status: Sufficient";<?php endif; ?>
-                    <?php if($total_current < 50 && $total_current >= 20):?>notif.textContent = "Status: Ok";<?php endif; ?>
-                    <?php if($total_current < 20 && $total_current >= 8):?>notif.textContent = "Status: Low Stock"; notif.color = orange;<?php endif; ?>
-                    <?php if($total_current < 8):?>notif.textContent = "Status: Critically Low Stock!"; notif.color = red;<?php endif; ?>
-                    <?php if($total_current === 0):?>notif.textContent = "Status: No Stock!"; notif.color = red;<?php endif; ?>                
-                </script>
+        <div id="notif" class="notif">
+            <i class="fa-solid fa-circle-info"></i>
+            <span id="notif-text">Checking stock status...</span>
+        </div>
+        <script>
+            (function() {
+                const notif = document.getElementById('notif');
+                <?php if ($total_current >= 100): ?>
+                    notif.className = 'notif notif-green';
+                    notif.style.color = '#15803d';
+                    notif.innerHTML = '<i class="fa-solid fa-circle-check"></i> Status: Good (<?= (int)$total_current ?> Sacks Available)';
+                <?php elseif ($total_current >= 50): ?>
+                    notif.className = 'notif notif-good';
+                    notif.style.color = '#15803d';
+                    notif.innerHTML = '<i class="fa-solid fa-circle-info"></i> Status: Sufficient (<?= (int)$total_current ?> Sacks Available)';
+                <?php elseif ($total_current >= 20): ?>
+                    notif.className = 'notif notif-good';
+                    notif.style.color = '#15803d';
+                    notif.innerHTML = '<i class="fa-solid fa-circle-info"></i> Status: OK (<?= (int)$total_current ?> Sacks Available)';
+                <?php elseif ($total_current >= 8): ?>
+                    notif.className = 'notif notif-orange';
+                    notif.style.color = 'orange';
+                    notif.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Status: Low Stock (<?= (int)$total_current ?> Sacks Left)';
+                <?php elseif ($total_current > 0): ?>
+                    notif.className = 'notif notif-red';
+                    notif.style.color = 'red';
+                    notif.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Status: Critically Low Stock! (<?= (int)$total_current ?> Sacks Left)';
+                <?php else: ?>
+                    notif.className = 'notif notif-red';
+                    notif.style.color = 'red';
+                    notif.innerHTML = '<i class="fa-solid fa-circle-xmark"></i> Status: No Stock Available!';
+                <?php endif; ?>
+            })();
+        </script>
 <!--Inventory head Summary-->
+
         <div class="info-cards">
             <div class="stat-card">
                 <h2>Current Stock</h2>
-                <h3><?=htmlspecialchars($total_current) ?? 0?> Sacks</h3>
+                <h3><?=$total_current ?? 0?> Sacks</h3>
             </div>
 
             <div class="stat-card">
@@ -908,6 +933,12 @@ if ($chGran === 'weekly') {
 });
             }*/
         
+        // Show feedback dialog on redirect (?success=1 / ?error=1, e.g. after Save Goal):
+        <?php if ($feedbackMessage): ?>
+        document.getElementById('message').textContent = <?= json_encode($feedbackMessage) ?>;
+        document.getElementById('feedback-diag').showModal();
+        <?php endif; ?>
+
         // Show feedback dialog on Detail:
         const details = document.querySelectorAll('.details');
         details.forEach((link) => {

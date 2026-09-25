@@ -68,7 +68,6 @@ if (!in_array($userSort, ['newest', 'oldest'], true)) {
                         <div class="form-group">
                             <label for="role">Role</label>
                             <select id="role" name="role" required>
-                                <option value="admin">Admin</option>
                                 <option value="staff">Production Staff</option>
                                 <option value="manager">Inventory Manager</option>
                             </select>

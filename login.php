@@ -140,32 +140,26 @@ if ((isset($_POST['username'])) && (isset($_POST['password'])) && $_SERVER['REQU
                         </button>
                     </div>
 
-                    <div class="account-register-prompt">
-                        <span>Doesn't have an account?</span>
-                        <button type="button" class="btn-link" id="open-register-btn" command="show-modal" commandfor="register-diag">Create an account</button>
-                    </div>
+                    <!--<div class="account-register-prompt">
+
+
+                    </div>-->
                 </form>
             </div>
 
-            <!--Card Footer-->
+            <!--Card Footer
             <div class="login-card-footer">
                 <div class="demo-title">Register to get started</div>
-                <!-- For info desc
-                <div class="demo-cred">Admin: admin / password123</div>
-                <div class="demo-cred">Staff: staff1 / password123</div>
-                <div class="demo-cred">Manager: manager1 / password123</div>-->
+                <div class="demo-cred">/div>
             </div>
         </div>
+        -->
 
         <!--Register Form in a dialog container-->
         <dialog id="register-diag">
             <div class="dialog-header">
-
-                <div class="header-logo">
-                    <img src="logo.png" id="logo">
-                    <h2>Register Account</h2>
-                </div>
-                
+                    <img src="assets/img/logo.png" id="logo">
+                    <h2>Register Account</h2>                
             </div>
             <div class="dialog-body">
                 <form method="POST">

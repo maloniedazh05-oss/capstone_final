@@ -1,10 +1,4 @@
-<?php
-// Shared frontend assets with CDN fallback.
-// Usage in <head>: set $NEED_CHART = true on chart pages, then require_once this file.
-// Set $NEED_CHART = true only on pages that draw charts; icons load everywhere.
-// Local files first (offline-safe); the CDN is fetched only if the local
-// copy failed, so deploys missing assets/ still render charts and icons.
-?>
+<link rel="icon" href="assets/img/logo.png">
 <link rel="stylesheet" href="assets/node_modules/@fortawesome/fontawesome-free/css/all.min.css">
 <?php if (!empty($NEED_CHART)): ?>
 <script src="assets/node_modules/chart.js/dist/chart.umd.js"></script>
