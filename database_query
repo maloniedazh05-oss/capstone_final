@@ -86,7 +86,7 @@ USE rural_urban;
 
 CREATE TABLE accounts (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    role VARCHAR(30) UNIQUE,
+    role VARCHAR(30),
     user VARCHAR(50) UNIQUE NOT NULL,
     name VARCHAR(100),
     pass VARCHAR(255),
@@ -97,9 +97,9 @@ CREATE TABLE accounts (
 CREATE TABLE inventory (
     prod_id VARCHAR(15) PRIMARY KEY,
     product VARCHAR(30) NOT NULL,
-    quantity INT UNSIGNED NOT NULL DEFAULT 0,
+    quantity DECIMAL(10,2) NOT NULL DEFAULT 0.00,
     unit VARCHAR(10) NOT NULL,
-    status VARCHAR(50) DEFAULT 'Recent',
+    status VARCHAR(50) DEFAULT 'Ongoing',
     description TINYTEXT,
     stock_in DECIMAL(10,2),
     stock_out DECIMAL(10,2),
@@ -114,7 +114,7 @@ CREATE TABLE production (
     item VARCHAR(15),
     quantity DECIMAL(10,2) NOT NULL,
     unit VARCHAR(10) NOT NULL,
-    status VARCHAR(30) DEFAULT 'Recent',
+    status VARCHAR(30) DEFAULT 'Ongoing',
     receiver VARCHAR(50),
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL
 );
@@ -179,6 +179,16 @@ ADD updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP N
 -- MIGRATION: align accounts nullability with canonical DDL (2026-09-22):
 ALTER TABLE accounts MODIFY user VARCHAR(50) UNIQUE NOT NULL;
 
+-- MIGRATION: two-decimal quantities + Ongoing defaults (2026-09-30):
+-- Run this in phpMyAdmin if inventory.quantity is still INT or statuses
+-- still default to 'Recent'. (Fractional batch quantities used to round
+-- silently on INT columns.)
+ALTER TABLE inventory
+MODIFY quantity DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+MODIFY status VARCHAR(50) DEFAULT 'Ongoing';
+ALTER TABLE production
+MODIFY status VARCHAR(30) DEFAULT 'Ongoing';
+
 -- MIGRATION: full name of the user, shown in User Management (2026-09-28):
 -- Run this in phpMyAdmin if accounts lacks `name`.
 ALTER TABLE accounts
@@ -191,8 +201,9 @@ MODIFY total_stock DECIMAL(10,2) NOT NULL DEFAULT 0.00;
 
 -- NOTES (remaining code mismatches):
 -- 1. FIXED: php_backend/updateBatch.php now updates `WHERE production_id`.
--- 2. `accounts.role UNIQUE` allows only one staff / one manager total.
---    If multi-user testing needs several staffs, drop that UNIQUE.
+-- 2. `accounts.role` is NOT unique: several staff/manager accounts allowed
+--    (only `admin` is single via its UNIQUE flag). Older sketches that marked
+--    role UNIQUE are superseded.
 
 -- Single-row ledger for Total Stock (production adds on Completed batches,
 -- inventory deducts via Update/Edit Total Stock; dashboard + inventory read it).

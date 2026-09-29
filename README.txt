@@ -40,7 +40,7 @@ CREATE TABLE total (
 CREATE TABLE inventory (
     prod_id VARCHAR(15) PRIMARY KEY,
     product VARCHAR(30) NOT NULL,
-    quantity INT UNSIGNED NOT NULL DEFAULT 0,
+    quantity DECIMAL(10,2) NOT NULL DEFAULT 0.00,
     unit VARCHAR(10) NOT NULL,
     status VARCHAR(50) DEFAULT 'Ongoing',
     description TINYTEXT,
@@ -83,3 +83,13 @@ CREATE TABLE forecasting_monthly (
     monthly_json MEDIUMTEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
+
+-- Indexes for the queries the system actually runs:
+CREATE INDEX idx_inventory_status ON inventory(status);
+CREATE INDEX idx_inventory_updated ON inventory(updated_at);
+CREATE INDEX idx_production_date ON production(production_date);
+CREATE INDEX idx_production_status ON production(status);
+CREATE INDEX idx_production_updated ON production(updated_at);
+CREATE INDEX idx_history_created ON history(created_at);
+CREATE INDEX idx_forecasting_monthly_created ON forecasting_monthly(created_at);
+CREATE INDEX idx_accounts_user ON accounts(user);

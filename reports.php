@@ -204,7 +204,7 @@ if ($tab === 'forecast' && ($_GET['export'] ?? '') === 'csv') {
                             <option value="Ongoing" <?= $repStatus === 'Ongoing' ? 'selected' : '' ?>>Ongoing</option>
                             <option value="Completed" <?= $repStatus === 'Completed' ? 'selected' : '' ?>>Completed</option>
                         </select>
-                        <button type="submit" class="btn-primary" style="padding:7px 16px;">Apply</button>
+                        <button type="submit" class="btn-primary">Apply</button>
                     </form>
                 </div>
             </div>
@@ -272,11 +272,11 @@ if ($tab === 'forecast' && ($_GET['export'] ?? '') === 'csv') {
                             <option value="lowest" <?= $recSort === 'lowest' ? 'selected' : '' ?>>Lowest quantity</option>
                         </select>
                         <?php if ($searchRec !== '' || $recSort !== 'newest'): ?>
-                        <a href="reports.php?tab=production&date-from=<?= urlencode($repFrom) ?>&date-to=<?= urlencode($repTo) ?>&status=<?= urlencode($repStatus) ?>" class="btn-secondary" style="text-decoration:none;padding:6px 10px;">Clear</a>
+                        <a href="reports.php?tab=production&date-from=<?= urlencode($repFrom) ?>&date-to=<?= urlencode($repTo) ?>&status=<?= urlencode($repStatus) ?>" class="btn-secondary" style="text-decoration:none;">Clear</a>
                         <?php endif; ?>
                         </form>
                     </div>
-                    <a href="php_backend/report_pdf.php?branch=production&date-from=<?= urlencode($repFrom) ?>&date-to=<?= urlencode($repTo) ?>&status=<?= urlencode($repStatus) ?>&search-rec=<?= urlencode($searchRec) ?>&rec-sort=<?= urlencode($recSort) ?>" class="btn-secondary" style="text-decoration:none;padding:6px 10px;"><i class="fa-solid fa-file-pdf"></i> Save as PDF</a>
+                    <a href="php_backend/report_pdf.php?branch=production&date-from=<?= urlencode($repFrom) ?>&date-to=<?= urlencode($repTo) ?>&status=<?= urlencode($repStatus) ?>&search-rec=<?= urlencode($searchRec) ?>&rec-sort=<?= urlencode($recSort) ?>" class="btn-secondary" style="text-decoration:none;"><i class="fa-solid fa-file-pdf"></i> Save as PDF</a>
                 </div>
             </div>
             <div class="card-body">
@@ -449,7 +449,7 @@ if ($tab === 'forecast' && ($_GET['export'] ?? '') === 'csv') {
                             <option value="<?= htmlspecialchars($p) ?>" <?= $invProd === $p ? 'selected' : '' ?>><?= htmlspecialchars($p) ?></option>
                             <?php endforeach; ?>
                         </select>
-                        <button type="submit" class="btn-primary" style="padding:7px 16px;">Apply</button>
+                        <button type="submit" class="btn-primary">Apply</button>
                     </form>
                 </div>
             </div>
@@ -524,7 +524,7 @@ if ($tab === 'forecast' && ($_GET['export'] ?? '') === 'csv') {
                             <option value="lowest" <?= $moveSort === 'lowest' ? 'selected' : '' ?>>Lowest quantity</option>
                         </select>
                         <?php if ($searchMove !== '' || $moveSort !== 'newest'): ?>
-                        <a href="reports.php?tab=inventory&inv-from=<?= urlencode($invFrom) ?>&inv-to=<?= urlencode($invTo) ?>&inv-product=<?= urlencode($invProd) ?>" class="btn-secondary" style="text-decoration:none;padding:6px 10px;">Clear</a>
+                        <a href="reports.php?tab=inventory&inv-from=<?= urlencode($invFrom) ?>&inv-to=<?= urlencode($invTo) ?>&inv-product=<?= urlencode($invProd) ?>" class="btn-secondary" style="text-decoration:none;">Clear</a>
                         <?php endif; ?>
                         </form>
                     </div>
@@ -666,7 +666,7 @@ if ($tab === 'forecast' && ($_GET['export'] ?? '') === 'csv') {
                             <option value="<?= htmlspecialchars($p) ?>" <?= $soProd === $p ? 'selected' : '' ?>><?= htmlspecialchars($p) ?></option>
                             <?php endforeach; ?>
                         </select>
-                        <button type="submit" class="btn-primary" style="padding:7px 16px;">Apply</button>
+                        <button type="submit" class="btn-primary">Apply</button>
                     </form>
                 </div>
             </div>
@@ -737,11 +737,11 @@ if ($tab === 'forecast' && ($_GET['export'] ?? '') === 'csv') {
                             <option value="lowest" <?= $soRecSort === 'lowest' ? 'selected' : '' ?>>Lowest quantity</option>
                         </select>
                         <?php if ($searchSo !== '' || $soRecSort !== 'newest'): ?>
-                        <a href="reports.php?tab=stockout&so-from=<?= urlencode($soFrom) ?>&so-to=<?= urlencode($soTo) ?>&so-product=<?= urlencode($soProd) ?>" class="btn-secondary" style="text-decoration:none;padding:6px 10px;">Clear</a>
+                        <a href="reports.php?tab=stockout&so-from=<?= urlencode($soFrom) ?>&so-to=<?= urlencode($soTo) ?>&so-product=<?= urlencode($soProd) ?>" class="btn-secondary" style="text-decoration:none;">Clear</a>
                         <?php endif; ?>
                         </form>
                     </div>
-                    <a href="php_backend/report_pdf.php?branch=stockout&so-from=<?= urlencode($soFrom) ?>&so-to=<?= urlencode($soTo) ?>&so-product=<?= urlencode($soProd) ?>&search-so=<?= urlencode($searchSo) ?>&so-sort=<?= urlencode($soRecSort) ?>" class="btn-secondary" style="text-decoration:none;padding:6px 10px;"><i class="fa-solid fa-file-pdf"></i> Save as PDF</a>
+                    <a href="php_backend/report_pdf.php?branch=stockout&so-from=<?= urlencode($soFrom) ?>&so-to=<?= urlencode($soTo) ?>&so-product=<?= urlencode($soProd) ?>&search-so=<?= urlencode($searchSo) ?>&so-sort=<?= urlencode($soRecSort) ?>" class="btn-secondary" style="text-decoration:none;"><i class="fa-solid fa-file-pdf"></i> Save as PDF</a>
                 </div>
             </div>
             <div class="card-body">
@@ -827,7 +827,7 @@ if ($tab === 'forecast' && ($_GET['export'] ?? '') === 'csv') {
                         <span class="section-desc" style="margin:0;">Historical: <strong><?= htmlspecialchars($fcRangeLabel) ?></strong></span>
                         <span class="section-desc" style="margin:0;">SES (monthly) · Next 1 Month · Needs 12+ complete months history</span>
                         <input type="hidden" name="fc-generate" value="1">
-                        <button type="submit" class="btn-primary" style="padding:7px 16px;">Generate</button>
+                        <button type="submit" class="btn-primary">Generate</button>
                     </form>
                 </div>
             </div>
@@ -896,8 +896,8 @@ if ($tab === 'forecast' && ($_GET['export'] ?? '') === 'csv') {
             <div class="card-header card-header-flex">
                 <h2><i class="fa-solid fa-calendar-days"></i> Forecast Results</h2>
                 <div class="card-filter">
-                    <a href="php_backend/report_pdf.php?branch=forecast&fc-product=<?= urlencode($fcProd) ?>" class="btn-secondary" style="text-decoration:none;padding:6px 10px;"><i class="fa-solid fa-file-pdf"></i> Save as PDF</a>
-                    <a href="reports.php?tab=forecast&export=csv&fc-product=<?= urlencode($fcProd) ?>" class="btn-secondary" style="text-decoration:none;padding:6px 10px;"><i class="fa-solid fa-file-excel"></i> Export Excel</a>
+                    <a href="php_backend/report_pdf.php?branch=forecast&fc-product=<?= urlencode($fcProd) ?>" class="btn-secondary" style="text-decoration:none;"><i class="fa-solid fa-file-pdf"></i> Save as PDF</a>
+                    <a href="reports.php?tab=forecast&export=csv&fc-product=<?= urlencode($fcProd) ?>" class="btn-secondary" style="text-decoration:none;"><i class="fa-solid fa-file-excel"></i> Export Excel</a>
                 </div>
             </div>
             <div class="card-body">

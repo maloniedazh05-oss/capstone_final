@@ -96,7 +96,7 @@ requireRole(['admin']);
                             }
                             ?>
                         </select>
-                        <button type="submit" class="btn-primary" style="padding: 7px 16px;">View Month Sales</button>
+                        <button type="submit" class="btn-primary">View Month Sales</button>
                     </form>
                 </div>
             </div>
@@ -160,7 +160,7 @@ requireRole(['admin']);
                             <option value="lowest" <?= $salesSort === 'lowest' ? 'selected' : '' ?>>Lowest quantity</option>
                         </select>
                         <?php if ($searchSales !== '' || $salesSort !== 'newest'): ?>
-                        <a href="sales.php?month-selected=<?= urlencode($_GET['month-selected'] ?? '') ?>" class="btn-secondary" style="text-decoration:none;padding:6px 10px;">Clear</a>
+                        <a href="sales.php?month-selected=<?= urlencode($_GET['month-selected'] ?? '') ?>" class="btn-secondary" style="text-decoration:none;">Clear</a>
                         <?php endif; ?>
                         </form>
                     </div>
