@@ -208,18 +208,19 @@ every .search-bar form (inventory, production, sales, users, history, reports).
 }
 
 .search-bar button[id^="search-btn"] {
-    padding: 10px 16px;
-    font-size: 1.05rem;
-    border: 1px solid var(--color-primary, #2b7cbd);
-    border-radius: var(--radius-md, 6px);
-    background: var(--color-primary, #2b7cbd);
+    padding: 10px 18px;
+    font-size: 1rem;
+    border: 1.5px solid #2e7d32;
+    border-radius: 8px;
+    background: #2e7d32;
     color: var(--color-text-white, #ffffff);
     cursor: pointer;
     transition: background-color 0.15s ease;
 }
 
 .search-bar button[id^="search-btn"]:hover {
-    background: var(--color-primary-hover, #1b5e20);
+    background: #1b5e20;
+    border-color: #1b5e20;
 }
 
 /* Dialogs START */
@@ -646,39 +647,51 @@ input[type="password"]::-ms-reveal {
     display: none;
 }
 
+/* Unified button system: one size, green theme.
+   Primary (solid green) = main actions: Search, Filter, Apply, Save, Add,
+   Generate, Confirm, Login. Secondary (green outline) = Clear, Cancel, tabs,
+   exports. rem sizing grows automatically on PC (min-width: 1024px root). */
 .btn-primary {
     background: #2e7d32;
     color: #ffffff;
-    border: none;
-    border-radius: 6px;
-    padding: 8px 18px;
-    font-size: 14px;
+    border: 1.5px solid #2e7d32;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 0.95rem;
     font-weight: 600;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
+    text-decoration: none;
     transition: background-color 0.15s ease;
 }
 
 .btn-primary:hover {
     background: #1b5e20;
+    border-color: #1b5e20;
 }
 
 .btn-secondary {
-    background: #e2e8f0;
-    color: #4a5568;
-    border: none;
-    border-radius: 6px;
-    padding: 8px 16px;
-    font-size: 14px;
-    font-weight: 500;
+    background: #ffffff;
+    color: #2e7d32;
+    border: 1.5px solid #2e7d32;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 0.95rem;
+    font-weight: 600;
     cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-decoration: none;
     transition: background-color 0.15s ease;
 }
 
 .btn-secondary:hover {
-    background: #cbd5e1;
+    background: rgba(46, 125, 50, 0.12);
 }
 
 .form-actions {
@@ -1436,8 +1449,8 @@ Page Header & Unified Page Container START
     color: #ffffff; 
     border: none;
     border-radius: var(--radius-pill);
-    padding: 5px 14px;
-    font-size: 0.78rem;
+    padding: 7px 16px;
+    font-size: 0.85rem;
     font-weight: 600;
     cursor: pointer;
     transition: background 0.15s ease;
@@ -1448,12 +1461,12 @@ Page Header & Unified Page Container START
 } 
 
 .btn-table-details {
-    background: #e2e8f0;
-    color: #475569;
-    border: none;
+    background: #ffffff;
+    color: #2e7d32;
+    border: 1.5px solid #2e7d32;
     border-radius: var(--radius-pill);
-    padding: 5px 12px;
-    font-size: 0.78rem; 
+    padding: 7px 16px;
+    font-size: 0.85rem; 
     font-weight: 600;
     cursor: pointer;
     margin-left: 4px;
@@ -1461,7 +1474,7 @@ Page Header & Unified Page Container START
 }
 
 .btn-table-details:hover {
-    background: #cbd5e1;
+    background: rgba(46, 125, 50, 0.12);
 }
  
 /* Details & Summary tags */

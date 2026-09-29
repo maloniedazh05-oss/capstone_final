@@ -112,7 +112,7 @@ if (!in_array($userSort, ['newest', 'oldest'], true)) {
                             <option value="oldest" <?= $userSort === 'oldest' ? 'selected' : '' ?>>Oldest</option>
                         </select>
                         <?php if ($searchUser !== '' || $filterRole !== 'all' || $filterStatus !== 'all' || $userSort !== 'newest'): ?>
-                        <a href="users.php" class="btn-secondary" style="text-decoration:none;padding:6px 10px;">Clear</a>
+                        <a href="users.php" class="btn-secondary" style="text-decoration:none;">Clear</a>
                         <?php endif; ?>
                         </form>
                     </div>

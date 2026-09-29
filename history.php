@@ -104,7 +104,7 @@ if (!in_array($filterSort, ['newest', 'oldest', 'highest', 'lowest'], true)) {
                             <option value="lowest" <?= $filterSort === 'lowest' ? 'selected' : '' ?>>Lowest quantity</option>
                         </select>
                         <?php if ($searchHist !== '' || $filterUser !== 'all' || $filterAction !== 'all' || $filterDate !== 'all' || $filterMonth !== 'all' || $filterYear !== 'all' || $filterSort !== 'newest'): ?>
-                        <a href="history.php" class="btn-secondary" style="text-decoration:none;padding:6px 10px;">Clear</a>
+                        <a href="history.php" class="btn-secondary" style="text-decoration:none;">Clear</a>
                         <?php endif; ?>
                     </form>
                 </div>

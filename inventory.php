@@ -512,7 +512,7 @@ function updateDeductLimit(unit) {
                             <input type="date" id="chart-to" name="ch-to"
                                 value="<?= $chGran === 'custom' ? htmlspecialchars($chRangeEnd) : '' ?>"
                                 style="padding:9px 10px;font-size:0.95rem;min-width:170px;">
-                            <button type="submit" class="btn-secondary" style="padding:6px 10px;">Apply</button>
+                            <button type="submit" class="btn-primary">Apply</button>
                         </form>
                     </div>
                 </div>
@@ -661,7 +661,7 @@ function updateDeductLimit(unit) {
                             </select>
                             <?php if ($searchInv !== '' || $currentDate !== 'all' || $currentMonth !== 'all' || $currentYear !== 'all' || $currentSort !== 'newest'): ?>
                                 <a href="inventory.php<?= ($searchHistory !== '' || $historyDate !== 'all') ? '?search-history=' . urlencode($searchHistory) . '&history-date=' . urlencode($historyDate) : '' ?>"
-                                    class="btn-secondary" style="text-decoration:none;padding:6px 10px;">Clear</a>
+                                    class="btn-secondary" style="text-decoration:none;">Clear</a>
                             <?php endif; ?>
                         </form>
                     </div>

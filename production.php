@@ -199,10 +199,10 @@ if (!in_array($prodSort, ['newest', 'oldest', 'highest', 'lowest'], true)) {
                                 <option value="lowest" <?= $activeSort === 'lowest' ? 'selected' : '' ?>>Lowest quantity
                                 </option>
                             </select>
-                            <button type="submit" class="btn-secondary" style="padding:6px 10px;">Filter</button>
+                            <button type="submit" class="btn-primary">Filter</button>
                             <?php if ($searchBatch !== '' || $activeStatus !== 'all' || $activeDate !== 'all' || $activeMonth !== 'all' || $activeYear !== 'all' || $activeSort !== 'newest'): ?>
                             <a href="production.php" class="btn-secondary"
-                                style="text-decoration:none;padding:6px 10px;">Clear</a>
+                                style="text-decoration:none;">Clear</a>
                             <?php endif; ?>
                         </form>
                     </div>
@@ -360,7 +360,7 @@ if (!in_array($prodSort, ['newest', 'oldest', 'highest', 'lowest'], true)) {
                             </select>
                             <?php if ($searchProd !== '' || $prodDate !== 'all' || $prodMonth !== 'all' || $prodYear !== 'all' || $prodSort !== 'newest'): ?>
                             <a href="production.php" class="btn-secondary"
-                                style="text-decoration:none;padding:6px 10px;">Clear</a>
+                                style="text-decoration:none;">Clear</a>
                             <?php endif; ?>
                         </form>
                     </div>
