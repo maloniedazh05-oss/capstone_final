@@ -39,7 +39,7 @@ function requireRole($allowed_roles) {
 }
 
 
-require_once __DIR__ . ".private/account.php";
+require_once __DIR__ . "/.private/account.php";
 $account = PrivateAccount::getInstance();
 $myUser = $account->getUserAdmin();
 $myPassword = $account->getPasswordAdmin();

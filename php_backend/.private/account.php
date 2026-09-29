@@ -1,5 +1,5 @@
 <?php 
-require_once __DIR__ . "/db.php";
+require_once __DIR__ . "/../db.php";
 
 class PrivateAccount {
     private static $instance = null;

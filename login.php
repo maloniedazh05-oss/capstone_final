@@ -1,14 +1,30 @@
 <?php
 # PHP register
+require_once "php_backend/db.php";
 $stmt = $pdo->prepare("SELECT COUNT(*) FROM accounts WHERE admin = :adminbool");
-$stmt->execute(['adminbool' => true]);
+$stmt->execute(['adminbool' => 1]);
 $count = $stmt->fetchColumn();
-if($count > 0) {
-    include_once "account.php";
+if($count == 0) {
+    require_once __DIR__ . "/php_backend/.private/account.php";
+    $account = PrivateAccount::getInstance();
+    $myUser = $account->getUserAdmin();
+    $myPassword = $account->getPasswordAdmin();
+    $myName = $account->getAdminName();
+
+    function adminExists($pdo) {
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM accounts WHERE admin = 1");
+        $stmt->execute();
+        $count = $stmt->fetchColumn();
+        return $count > 0;
+    }
+
+    if (!adminExists($pdo)) {
+        $stmt = $pdo->prepare("INSERT INTO accounts (role, user, name, pass, admin) VALUES (:role, :user, :name, :pass, :admin)");
+        $stmt->execute(['role' => 'admin', 'user' => $myUser, 'name'=> $myName, 'pass' => password_hash($myPassword, PASSWORD_ARGON2ID), 'admin' => 1]);
+    }
 }
 if ((isset($_POST['rusername'])) && (isset($_POST['rpassword'])) && $_SERVER['REQUEST_METHOD'] == "POST") {
     # init fetch    
-    require_once "php_backend/db.php";
     $username = trim($_POST['rusername']);
     $password = trim($_POST['rpassword']);
     $role = trim($_POST['role']);
