@@ -157,10 +157,11 @@ if ((isset($_POST['username'])) && (isset($_POST['password'])) && $_SERVER['REQU
 
                     <div class="input-group">
                         <label for="password"><i class="fa-solid fa-lock"></i> Password</label>
-
+                        <div class="password-wrap">
                             <input type="password" id="password" name="password" placeholder="Enter password"
                                 autocomplete="off" autocorrect="off" required>
-
+                            <button type="button" class="toggle-password" id="toggle-password" aria-label="Show password"><i class="fa-solid fa-eye"></i></button>
+                        </div>
                     </div>
 
                     <div class="form-actions">
@@ -237,6 +238,23 @@ if ((isset($_POST['username'])) && (isset($_POST['password'])) && $_SERVER['REQU
         </div>
         <!--Login page END-->
         <script>
+        // Show/hide password toggle (always present; Edge's native eye is hidden in CSS).
+        const pwInput = document.getElementById('password');
+        const pwToggle = document.getElementById('toggle-password');
+        if (pwInput && pwToggle) {
+            pwToggle.addEventListener('click', () => {
+                const icon = pwToggle.querySelector('i');
+                if (pwInput.type === 'password') {
+                    pwInput.type = 'text';
+                    if (icon) icon.className = 'fa-solid fa-eye-slash';
+                    pwToggle.setAttribute('aria-label', 'Hide password');
+                } else {
+                    pwInput.type = 'password';
+                    if (icon) icon.className = 'fa-solid fa-eye';
+                    pwToggle.setAttribute('aria-label', 'Show password');
+                }
+            });
+        }
         const message = document.getElementById('message');
         const feedbackdiag = document.getElementById('message-diag');
         const registerdiag = document.getElementById('register-diag');

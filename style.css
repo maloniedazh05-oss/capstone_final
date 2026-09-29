@@ -611,6 +611,41 @@ body.login-body {
     font-size: 13.5px;
 }
 
+/* Password field with always-present show/hide toggle.
+   The ::-ms-reveal rule hides Edge's own native eye so only ours shows. */
+.password-wrap {
+    position: relative;
+}
+
+.password-wrap input[type="password"],
+.password-wrap input[type="text"] {
+    width: 100%;
+    padding-right: 44px;
+    box-sizing: border-box;
+}
+
+.password-wrap .toggle-password {
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--color-text-muted, #6e6151);
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 8px;
+    line-height: 1;
+}
+
+.password-wrap .toggle-password:hover {
+    color: var(--color-text-main, #3b332a);
+}
+
+input[type="password"]::-ms-reveal {
+    display: none;
+}
+
 .btn-primary {
     background: #2e7d32;
     color: #ffffff;
@@ -1557,6 +1592,10 @@ Responsive Media Queries
         padding: 14px 16px;
         font-size: 1.05rem;
         border-radius: 8px;
+    }
+    .login-card-body .password-wrap input[type="password"],
+    .login-card-body .password-wrap input[type="text"] {
+        padding-right: 52px;
     }
     .login-card-body .input-group input::placeholder {
         font-size: 1rem;
