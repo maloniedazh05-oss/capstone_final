@@ -10,14 +10,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['item'])) {
     }
     $receiver = trim($_POST['company'] ?? $_POST['receiver'] ?? '');
 
-    $batch_id = substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 7);
+    $batch_id = substr(str_shuffle("0123456789"), 0, 7);
     # Check for duplicate ID (very unlikely but safety check)
     $stmt = $pdo->prepare("SELECT batch_id FROM production WHERE batch_id = :id");
     $stmt->bindValue(':id', $batch_id);
     $stmt->execute();
     if ($stmt->fetchColumn()) {
         // Retry with new ID
-        $batch_id = substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 7);
+        $batch_id = substr(str_shuffle("0123456789"), 0, 7);
     }
 
     # INsert into Production db
@@ -58,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET' && isset($_GET['status_id'])) {
         $stmt_inventory->bindValue(':quantity', $quantity);
         $stmt_inventory->bindValue(':unit', $unit);
         
-        $id_num = substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 7);
+        $id_num = substr(str_shuffle("0123456789"), 0, 7);
         $stmt_id = $pdo->prepare(
             "SELECT prod_id FROM inventory WHERE prod_id = :id"
         );
@@ -66,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET' && isset($_GET['status_id'])) {
         $stmt_id->execute();
         if ($stmt_id->fetchColumn()) {
             // Retry with new ID
-            $id_num = substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 7);
+            $id_num = substr(str_shuffle("0123456789"), 0, 7);
             $stmt = null;
         }
         if ($stmt_inventory->execute()) {

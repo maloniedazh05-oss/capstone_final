@@ -31,7 +31,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['status'])) {
         if ($dup->fetchColumn()) {
             // Should not happen (guarded above), but never fatal on a PK clash:
             // keep the batch traceable with a suffixed record id.
-            $inv_id = substr($inv_id . substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 3), 0, 15);
+            $inv_id = substr($inv_id . substr(str_shuffle("0123456789"), 0, 3), 0, 15);
         }
         // Stamp the produced amount on the batch so Production History shows it
         // (batches are created with quantity 0 until completed).

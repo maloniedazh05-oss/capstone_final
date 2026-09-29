@@ -64,7 +64,7 @@ function importFlat($pdo, $values) {
             $ts = $day . ' 12:00:00';
 
             do {
-                $id_num = substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 7);
+                $id_num = substr(str_shuffle("0123456789"), 0, 7);
                 $stmt_id->execute([':id' => $id_num]);
             } while ($stmt_id->fetchColumn());
 
@@ -180,7 +180,7 @@ function importRecords($pdo, $values) {
                 
             } else {
                 // Already Completed: new row so daily history is not collapsed
-                $new_id = $r['prod_id'] . '-' . substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 7);
+                $new_id = $r['prod_id'] . '-' . substr(str_shuffle("0123456789"), 0, 7);
                 $stmt_ins->execute([
                     ':id' => substr($new_id, 0, 15),
                     ':prod' => $r['product'],
