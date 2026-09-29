@@ -91,20 +91,26 @@ if (!in_array($prodSort, ['newest', 'oldest', 'highest', 'lowest'], true)) {
                     </div>
                 </form>
                 <?php
-                // Recommended production amount from the latest monthly forecast:
-                // next-month demand minus current total stock, floored at 0.
+                // Recommended production for this month:
+                // forecasted stock-out minus Total Produced this month.
                 $recText = 'No forecast yet - generate one in Forecasting to get a recommendation.';
                 try {
-                    $recFc = $pdo->prepare("SELECT forecast_qty, forecast_month, product, created_at FROM forecasting_monthly ORDER BY id DESC LIMIT 1");
+                    $recFc = $pdo->prepare("SELECT forecast_qty FROM forecasting_monthly ORDER BY id DESC LIMIT 1");
                     $recFc->execute();
                     $recRow = $recFc->fetch(PDO::FETCH_ASSOC);
                     if ($recRow) {
-                        $recStock = $pdo->prepare("SELECT total_stock FROM total LIMIT 1");
-                        $recStock->execute();
-                        $recAvail = round((float) ($recStock->fetchColumn() ?? 0), 2);
-                        $recQty = max(0, round((float) $recRow['forecast_qty'] - $recAvail, 2));
+                        $recProd = $pdo->prepare("SELECT COALESCE(SUM(quantity), 0) FROM production WHERE status = 'Completed' AND YEAR(updated_at) = YEAR(CURDATE()) AND MONTH(updated_at) = MONTH(CURDATE())");
+                        $recProd->execute();
+                        $recMade = round((float)($recProd->fetchColumn() ?? 0), 2);
+                        $recGap = round((float)$recRow['forecast_qty'] - $recMade, 2);
                         $recFmt = function ($v) { return rtrim(rtrim(number_format((float) $v, 2, '.', ''), '0'), '.'); };
-                        $recText = 'Recommended: <strong>' . $recFmt($recQty) . ' Sacks</strong> of ' . htmlspecialchars($recRow['product']) . ' for ' . htmlspecialchars(date('M Y', strtotime($recRow['forecast_month'] . '-01'))) . ' (forecast ' . $recFmt($recRow['forecast_qty']) . ' &minus; stock ' . $recFmt($recAvail) . ', as of ' . htmlspecialchars(date('M d, Y', strtotime($recRow['created_at']))) . ').';
+                        if ($recGap > 0) {
+                            $recText = 'Recommended: <strong>' . $recFmt($recGap) . ' Sacks to produce this month.</strong>';
+                        } elseif ($recGap == 0) {
+                            $recText = '<strong>Sufficient.</strong>';
+                        } else {
+                            $recText = '<strong>Surplus: ' . $recFmt(abs($recGap)) . ' Sacks.</strong>';
+                        }
                     }
                 } catch (Exception $e) {
                     $recText = 'Recommendation unavailable (forecast data missing).';
