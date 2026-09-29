@@ -83,9 +83,9 @@ function runForecast($pdo, $product, $selMethod = null) {
     list($levels, ) = fitSES($data, $alpha);
     $forecastQty = round(end($levels), 2);
 
-    // Next calendar month after the last fitted month.
-    $lastKey = end($months)['key'];
-    $nextMonth = date('Y-m', strtotime($lastKey . '-01 +1 month'));
+    // Target is always the next full month (the current partial month can
+    // never be the answer). E.g. any day in September -> October.
+    $nextMonth = date('Y-m', strtotime('first day of next month'));
 
     $average = round(array_sum($data) / count($data), 1);
     return [

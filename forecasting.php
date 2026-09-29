@@ -180,7 +180,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['generate'])) {
                 labels: fcLabels,
                 datasets: [
                     { type: 'bar', label: 'Actual (monthly)', data: fcActual.concat([null]), backgroundColor: 'rgba(34,197,94,0.6)' },
-                    { type: 'line', label: 'Forecast', data: fcNulls.concat([fcQty]), borderColor: '#3b82f6', backgroundColor: '#3b82f6', pointRadius: 5, tension: 0 }
+                    { type: 'bar', label: 'Forecast', data: fcNulls.concat([fcQty]), backgroundColor: 'rgba(59,130,246,0.85)' }
                 ]
             },
             options: {

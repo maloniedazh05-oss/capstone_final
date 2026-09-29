@@ -879,7 +879,7 @@ if ($tab === 'forecast' && ($_GET['export'] ?? '') === 'csv') {
                 labels: <?= json_encode($fcHistLabels) ?>,
                 datasets: [
                     { type: 'bar', label: 'Actual (monthly)', data: <?= json_encode(array_merge($fcHistVals, [null])) ?>, backgroundColor: 'rgba(34,197,94,0.6)' },
-                    { type: 'line', label: 'Forecast', data: <?= json_encode(array_merge(array_fill(0, count($fcHistVals), null), [$fcQty])) ?>, borderColor: '#3b82f6', backgroundColor: '#3b82f6', pointRadius: 5, tension: 0 }
+                    { type: 'bar', label: 'Forecast', data: <?= json_encode(array_merge(array_fill(0, count($fcHistVals), null), [$fcQty])) ?>, backgroundColor: 'rgba(59,130,246,0.85)' }
                 ]
             },
             options: {
