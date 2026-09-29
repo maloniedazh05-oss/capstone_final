@@ -2,6 +2,7 @@
 $currentPage = strtolower(basename($_SERVER['PHP_SELF']));
 $userRole = $_SESSION['user_role'] ?? '';
 $userName = $_SESSION['user_name'] ?? '';
+
 ?>
 <div class="main-sidebar" id="mainSidebar">
     <div class="sidebar-brand">
@@ -90,7 +91,7 @@ $userName = $_SESSION['user_name'] ?? '';
     <div class="currentUser">
         <div class="user-info">
             <i class="fa-solid fa-circle-user"></i>
-            <span><?=htmlspecialchars($userName)?></span>
+            <span><?=htmlspecialchars($userFullName)?></span>
         </div>
         <div class="user-role-badge"><?=ucfirst(strtolower($userRole))?></div>
         <?php if (!empty($_SESSION['user_id']) || (isset($id) && $id)): ?>
