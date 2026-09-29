@@ -129,7 +129,7 @@ if ((isset($_POST['username'])) && (isset($_POST['password'])) && $_SERVER['REQU
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EcoAgri - Login</title>
     <?php require_once "php_backend/head_assets.php"; ?>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=<?= filemtime('style.css') ?>">
 </head>
 
 <body class="login-body">

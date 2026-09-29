@@ -60,7 +60,7 @@ $goalData = array_fill(0, count($chartData), $salesGoal);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
 
-    <link rel="stylesheet" href='style.css'>
+    <link rel="stylesheet" href="style.css?v=<?= filemtime('style.css') ?>">
     <?php $NEED_CHART = true;
     require_once "php_backend/head_assets.php"; ?>
 </head>
@@ -154,7 +154,7 @@ $goalData = array_fill(0, count($chartData), $salesGoal);
                 <h2>Completed Today</h2>
                 <h3><?= (int) $prod_count ?? 0 ?> Sacks</h3>
             </div>
-        </div><!-- info-cards END-->
+        </div><!-- info-cards END -->
         <!-- In dashboardpage, after info-cards -->
         <div class="info-cards">
             <div class="stat-card" style="display: flex; align-items: center; justify-content: center;">
@@ -174,12 +174,12 @@ $goalData = array_fill(0, count($chartData), $salesGoal);
                     </h2>
                     <div class="card-filter">
                         <a href="index.php?trend=recent" class="btn-secondary"
-                            style="text-decoration:none;padding:6px 10px;<?= $trend === 'recent' ? 'font-weight:bold;' : '' ?>">Recent</a>
+                            style="text-decoration:none;padding:2px 10px; font-size: 20px; <?= $trend === 'recent' ? 'font-weight:bold;' : '' ?>">Recent</a>
                         <a href="index.php?trend=7" class="btn-secondary"
-                            style="text-decoration:none;padding:6px 10px;<?= $trend === '7' ? 'font-weight:bold;' : '' ?>">Last
+                            style="text-decoration:none;padding:2px 10px; font-size: 20px;<?= $trend === '7' ? 'font-weight:bold;' : '' ?>">Last
                             7</a>
                         <a href="index.php?trend=30" class="btn-secondary"
-                            style="text-decoration:none;padding:6px 10px;<?= $trend === '30' ? 'font-weight:bold;' : '' ?>">30
+                            style="text-decoration:none;padding:2px 10px; font-size: 20px;<?= $trend === '30' ? 'font-weight:bold;' : '' ?>">30
                             Days</a>
                     </div>
                 </div>
@@ -205,6 +205,8 @@ $goalData = array_fill(0, count($chartData), $salesGoal);
                         fill: true,
                         tension: 0.3,
                         pointRadius: 3
+
+
                     }, {
                         label: 'Target Minimum Stock',
                         data: goalData,
@@ -224,6 +226,14 @@ $goalData = array_fill(0, count($chartData), $salesGoal);
                         }
                     },
                     scales: {
+                        x: {
+                            ticks: {
+                                maxRotation: 0,
+                                minRotation: 0,
+                                autoSkip: true,
+                                maxTicksLimit: 10
+                            }
+                        },
                         y: {
                             beginAtZero: true,
                             title: {

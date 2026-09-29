@@ -61,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['generate'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Forecasting</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=<?= filemtime('style.css') ?>">
     <?php $NEED_CHART = true; require_once "php_backend/head_assets.php"; ?>
 </head>
 <body>
@@ -89,12 +89,12 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['generate'])) {
                     </div>
                     <div class="form-group" style="margin-bottom: 12px;">
                         <label>Historical Data</label>
-                        <div><strong><?= htmlspecialchars($rangeLabel) ?></strong> (last 12-36 complete months evaluated)</div>
+                        <div><strong><?= htmlspecialchars($rangeLabel) ?></strong> (12 - 36 Months)</div>
                     </div>
                     <div class="form-group" style="margin-bottom: 16px;">
-                        <label>Method</label>
+                        <!-- For DEBUGGING<label>Method</label>
                         <div>Simple Exponential Smoothing (monthly): next month predicts the smoothed level of monthly demand, with &alpha; tuned per run (0.05-0.95). Needs 12+ complete months of history.</div>
-                    </div>
+                    </div>-->
                     <input type="hidden" name="generate" value="1">
 
                     <button type="submit" class="btn-primary"><i class="fa-solid fa-wand-magic-sparkles"></i> Generate Forecast</button>

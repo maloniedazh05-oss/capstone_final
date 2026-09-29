@@ -10,7 +10,7 @@ requireRole(['admin']);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sales</title>
     <?php require_once "php_backend/head_assets.php"; ?>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=<?= filemtime('style.css') ?>">
 </head>
 <body>
     <?php require_once "main-sidebar.php";?>
@@ -55,8 +55,9 @@ requireRole(['admin']);
                         <div class="form-group">
                             <label for="interval">Each value covers</label>
                             <select id="interval" name="interval" required>
-                                <option value="day">One day (index 0 = today, going back)</option>
                                 <option value="month">One month (index 0 = last complete month, going back)</option>
+                                <option value="day">One day (index 0 = today, going back)</option>
+
                             </select>
                         </div>
                         <div class="form-group" style="justify-content: center; padding-top: 18px;">

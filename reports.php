@@ -57,11 +57,11 @@ if ($tab === 'forecast' && ($_GET['export'] ?? '') === 'csv') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reports</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=<?= filemtime('style.css') ?>">
     <?php $NEED_CHART = true; require_once "php_backend/head_assets.php"; ?>
     <style>
-    .report-tabs { display: flex; gap: 8px; margin: 12px 0 16px; flex-wrap: wrap; }
-    .report-tabs a { text-decoration: none; padding: 8px 14px; border-radius: 6px; }
+    .report-tabs { display: flex; gap: 10px; margin: 12px 0 18px; flex-wrap: wrap; }
+    .report-tabs a { text-decoration: none; padding: 12px 22px; border-radius: 8px; font-size: 1rem; font-weight: 600; }
     @media print {
         .main-sidebar, .card-filter, .report-tabs, #print-btn { display: none !important; }
         body { background: #fff; }
@@ -194,9 +194,9 @@ if ($tab === 'forecast' && ($_GET['export'] ?? '') === 'csv') {
                     <form method="GET" action="reports.php" id="report-filter-form">
                         <input type="hidden" name="tab" value="production">
                         <label for="date-from">Date From:</label>
-                        <input type="date" id="date-from" name="date-from" value="<?= htmlspecialchars($repFrom) ?>">
+                        <input type="date" id="date-from" name="date-from" value="<?= htmlspecialchars($repFrom) ?>" style="font-size: 0.95rem;">
                         <label for="date-to">Date To:</label>
-                        <input type="date" id="date-to" name="date-to" value="<?= htmlspecialchars($repTo) ?>">
+                        <input type="date" id="date-to" name="date-to" value="<?= htmlspecialchars($repTo) ?>" style="font-size: 0.95rem;">
                         <label for="rep-status">Status:</label>
                         <select id="rep-status" name="status">
                             <option value="all" <?= $repStatus === 'all' ? 'selected' : '' ?>>All Statuses</option>
@@ -439,9 +439,9 @@ if ($tab === 'forecast' && ($_GET['export'] ?? '') === 'csv') {
                     <form method="GET" action="reports.php" id="inv-report-filter-form">
                         <input type="hidden" name="tab" value="inventory">
                         <label for="inv-date-from">Date From:</label>
-                        <input type="date" id="inv-date-from" name="inv-from" value="<?= htmlspecialchars($invFrom) ?>">
+                        <input type="date" id="inv-date-from" name="inv-from" value="<?= htmlspecialchars($invFrom) ?>" style="font-size: 0.95rem;">
                         <label for="inv-date-to">Date To:</label>
-                        <input type="date" id="inv-date-to" name="inv-to" value="<?= htmlspecialchars($invTo) ?>">
+                        <input type="date" id="inv-date-to" name="inv-to" value="<?= htmlspecialchars($invTo) ?>" style="font-size: 0.95rem;">
                         <label for="inv-product">Fertilizer:</label>
                         <select id="inv-product" name="inv-product">
                             <option value="all" <?= $invProd === 'all' ? 'selected' : '' ?>>All</option>
@@ -656,9 +656,9 @@ if ($tab === 'forecast' && ($_GET['export'] ?? '') === 'csv') {
                     <form method="GET" action="reports.php" id="so-report-filter-form">
                         <input type="hidden" name="tab" value="stockout">
                         <label for="so-date-from">Date From:</label>
-                        <input type="date" id="so-date-from" name="so-from" value="<?= htmlspecialchars($soFrom) ?>">
+                        <input type="date" id="so-date-from" name="so-from" value="<?= htmlspecialchars($soFrom) ?>" style="font-size: 0.95rem;">
                         <label for="so-date-to">Date To:</label>
-                        <input type="date" id="so-date-to" name="so-to" value="<?= htmlspecialchars($soTo) ?>">
+                        <input type="date" id="so-date-to" name="so-to" value="<?= htmlspecialchars($soTo) ?>" style="font-size: 0.95rem;">
                         <label for="so-product">Fertilizer Type:</label>
                         <select id="so-product" name="so-product">
                             <option value="all" <?= $soProd === 'all' ? 'selected' : '' ?>>All</option>

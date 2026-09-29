@@ -33,7 +33,7 @@ if (!in_array($userSort, ['newest', 'oldest'], true)) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Users</title>
     <?php require_once "php_backend/head_assets.php"; ?>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=<?= filemtime('style.css') ?>">
 </head>
 <body>
     <?php require_once "main-sidebar.php";?>

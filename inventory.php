@@ -112,7 +112,7 @@ if ($chGran === 'weekly') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inventory</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=<?= filemtime('style.css') ?>">
     <?php $NEED_CHART = true;
     require_once "php_backend/head_assets.php"; ?>
 </head>
@@ -300,7 +300,7 @@ function updateDeductLimit(unit) {
         <div class="page-header">
             <h1>Inventory Management</h1>
         </div>
-        <!--
+       
         <?php  // TOTAL CURRENT
         //require_once "php_backend/db.php";
 
@@ -348,14 +348,13 @@ function updateDeductLimit(unit) {
                 <?php endif; ?>
             })();
         </script>
-        <!--Inventory head Summary-->
 
+       <!--Inventory head Summary-->
         <div class="info-cards">
             <div class="stat-card stat-card-green">
                 <h2>Current Stock</h2>
                 <h3><?= $totalFmt ?> Sacks</h3>
                 <div class="stat-sub">Available now</div>
-                <div class="stat-desc">Real-time inventory balance</div>
             </div>
 
             <div class="stat-card stat-card-blue">
@@ -391,7 +390,6 @@ function updateDeductLimit(unit) {
                 <h2>Production Today</h2>
                 <h3><?= rtrim(rtrim(number_format((float) ($total_today ?? 0), 2, '.', ''), '0'), '.') ?> Sacks</h3>
                 <div class="stat-sub">Today</div>
-                <div class="stat-desc">Today's production output</div>
             </div>
         </div>
         <!--Inventory head Summary END-->
@@ -504,13 +502,16 @@ function updateDeductLimit(unit) {
                             </select>
                             <label for="chart-n">Last:</label>
                             <input type="number" id="chart-n" name="ch-n" min="1" max="93"
-                                value="<?= htmlspecialchars($chN) ?>" style="width:64px;">
+                                value="<?= htmlspecialchars($chN) ?>"
+                                style="width:96px;padding:9px 10px;font-size:0.95rem;">
                             <label for="chart-from">From:</label>
                             <input type="date" id="chart-from" name="ch-from"
-                                value="<?= $chGran === 'custom' ? htmlspecialchars($chRangeStart) : '' ?>">
+                                value="<?= $chGran === 'custom' ? htmlspecialchars($chRangeStart) : '' ?>"
+                                style="padding:9px 10px;font-size:0.95rem;min-width:170px;">
                             <label for="chart-to">To:</label>
                             <input type="date" id="chart-to" name="ch-to"
-                                value="<?= $chGran === 'custom' ? htmlspecialchars($chRangeEnd) : '' ?>">
+                                value="<?= $chGran === 'custom' ? htmlspecialchars($chRangeEnd) : '' ?>"
+                                style="padding:9px 10px;font-size:0.95rem;min-width:170px;">
                             <button type="submit" class="btn-secondary" style="padding:6px 10px;">Apply</button>
                         </form>
                     </div>
@@ -762,7 +763,7 @@ function updateDeductLimit(unit) {
                 </div>
             </div>
         <?php endif; ?>
-       <!-- <div class="content-card">
+       <div class="content-card">
             <div class="card-header">
                 <h2><i class="fa-solid fa-arrow"></i> Recent Inventory Movements</h2>
             </div>
@@ -824,9 +825,9 @@ function updateDeductLimit(unit) {
             </div>
         </div>
 
-        <!-- Card 3: History START -->
-        <div class="card-body"> -->
-        <!--
+        <!-- Card 3: History START-->
+        <div class="card-body"> 
+        
 <thead>
     <tr>
         <th>Transaction</th>
@@ -875,7 +876,7 @@ function updateDeductLimit(unit) {
     <?php endforeach; ?>
 
 <?php endif; ?>
--->
+
 </tbody>
     <?php
     require_once "php_backend/db.php";

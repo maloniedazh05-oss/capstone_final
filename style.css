@@ -163,6 +163,65 @@ optgroup {
     padding: 6px 10px;
 }
 
+/*
+Date inputs: the calendar popup itself is drawn by the browser/OS and no
+website can resize it. What the page CAN control is the input box and the
+calendar icon - both are enlarged here for easier tapping.
+*/
+input[type="date"]::-webkit-calendar-picker-indicator {
+    width: 24px;
+    height: 24px;
+    padding: 4px;
+    margin-left: 6px;
+    cursor: pointer;
+    opacity: 0.75;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+}
+
+/*
+Search bars: roomy input + large tap-friendly magnifier button, shared by
+every .search-bar form (inventory, production, sales, users, history, reports).
+*/
+.search-bar input[type="text"] {
+    padding: 10px 14px;
+    font-size: 1rem;
+    min-width: 220px;
+    border: 1px solid var(--color-border, #e2e8f0);
+    border-radius: var(--radius-md, 6px);
+    font-family: var(--font-family, inherit);
+    color: var(--color-text-main, #1e293b);
+    background-color: var(--color-bg-card, #ffffff);
+    box-sizing: border-box;
+}
+
+.search-bar input[type="text"]::placeholder {
+    color: var(--color-text-light, #94a3b8);
+}
+
+.search-bar input[type="text"]:focus {
+    outline: none;
+    border-color: var(--color-primary, #2b7cbd);
+    box-shadow: 0 0 0 3px var(--color-primary-light, rgba(43, 124, 189, 0.12));
+}
+
+.search-bar button[id^="search-btn"] {
+    padding: 10px 16px;
+    font-size: 1.05rem;
+    border: 1px solid var(--color-primary, #2b7cbd);
+    border-radius: var(--radius-md, 6px);
+    background: var(--color-primary, #2b7cbd);
+    color: var(--color-text-white, #ffffff);
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.search-bar button[id^="search-btn"]:hover {
+    background: var(--color-primary-hover, #1b5e20);
+}
+
 /* Dialogs START */
 dialog#register-diag,
 dialog#message-diag,
@@ -706,8 +765,8 @@ Login Page END
 
 .main-sidebar .sidebar-nav {
     list-style: none;
-    margin: 16px 0;
-    padding: 0 10px;
+    margin: 5px 0;
+    padding: 0 5px;
     flex: 1;
     overflow-y: auto;
 }
@@ -1110,6 +1169,7 @@ Page Header & Unified Page Container START
 }
 
 /* Reports Grid & Stat Cards */
+
 .report-cards {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -1147,7 +1207,7 @@ Page Header & Unified Page Container START
     box-shadow: var(--shadow-card);
     margin-bottom: 24px;
     overflow: hidden;
-    min-height: 280px;
+    min-height: 80px;
 }
 
 .card-header {
@@ -1458,10 +1518,56 @@ dialog .dialog-actions {
 /*
 Responsive Media Queries
 */
-/* PC view: bigger base text — every rem-sized font scales up with this one number. */
+/* PC view: bigger base text -every rem-sized font scales up with this one number. */
 @media (min-width: 1024px) {
     :root {
         font-size: 22px;
+    }
+
+    #logo {
+        width: 80%;
+    }
+
+    /* Login card: larger container, type and controls on desktop. */
+    .login-card {
+        max-width: 520px;
+        border-radius: 16px;
+    }
+    .login-card-header {
+        padding: 40px 32px 32px;
+    }
+    .login-card-header img#logo {
+        max-width: 180px;
+    }
+    .login-card-header p {
+        font-size: 1.1rem;
+    }
+    .login-card-body {
+        padding: 36px 38px 28px;
+    }
+    .login-card-body .input-group {
+        margin-bottom: 24px;
+    }
+    .login-card-body .input-group label {
+        font-size: 1.05rem;
+        margin-bottom: 10px;
+    }
+    .login-card-body .input-group input,
+    .login-card-body .input-group select {
+        padding: 14px 16px;
+        font-size: 1.05rem;
+        border-radius: 8px;
+    }
+    .login-card-body .input-group input::placeholder {
+        font-size: 1rem;
+    }
+    .login-card-body .form-actions .btn-primary {
+        padding: 12px 34px;
+        font-size: 1.1rem;
+        border-radius: 8px;
+    }
+    .login-card-body .password-wrap .toggle-password {
+        font-size: 1.1rem;
     }
 }
 

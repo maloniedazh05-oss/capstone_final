@@ -31,7 +31,7 @@ if (!in_array($filterSort, ['newest', 'oldest', 'highest', 'lowest'], true)) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>History</title>
     <?php require_once "php_backend/head_assets.php"; ?>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=<?= filemtime('style.css') ?>">
 </head>
 <body>
     <?php require_once "main-sidebar.php"; ?>
