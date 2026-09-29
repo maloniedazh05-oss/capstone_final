@@ -157,10 +157,10 @@ if ((isset($_POST['username'])) && (isset($_POST['password'])) && $_SERVER['REQU
 
                     <div class="input-group">
                         <label for="password"><i class="fa-solid fa-lock"></i> Password</label>
-                        <div class="password-wrap">
+
                             <input type="password" id="password" name="password" placeholder="Enter password"
                                 autocomplete="off" autocorrect="off" required>
-                        </div>
+
                     </div>
 
                     <div class="form-actions">

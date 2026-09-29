@@ -1203,40 +1203,6 @@ if (deductUnit && deductQuantity) {
     });
 
 }
-</script> 
-<!-- added script -->
-        document.addEventListener('DOMContentLoaded', () => {
-            /* Dropdown change for edit dialog - Custom Value removed
-                        const stat = document.getElementById('stat');
-                        if (stat) {
-                            stat.addEventListener("change", (e) => {
-                                const customInput = document.getElementById('status-custom');
-                                if (e.target.value === 'custom') {
-                                    customInput.style.display = 'inline-block';
-                                    customInput.focus();
-                                } else {
-                                    customInput.style.display = 'none';
-                                    customInput.value = '';
-                                }
-                            });
-                        }
-                       
-                        
-                        // dropdown change for insert dialog
-                        const statInsert = document.getElementById('stat-insert');
-                        if (statInsert) {
-                            statInsert.addEventListener('change', (e) => {
-                                const customInput = document.getElementById('status-custom-insert');
-                                if (e.target.value === 'custom') {
-                                    customInput.style.display = 'inline-block';
-                                    customInput.focus();
-                                } else {
-                                    customInput.style.display = 'none';
-                                    customInput.value = '';
-                                }
-            });
-                        }*/
-
             // Show feedback dialog on redirect (?success=1 / ?error=1, e.g. after Save Goal):
             <?php if ($feedbackMessage): ?>
                 document.getElementById('message').textContent = <?= json_encode($feedbackMessage) ?>;

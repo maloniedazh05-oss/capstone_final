@@ -184,9 +184,16 @@ if (!in_array($userSort, ['newest', 'oldest'], true)) {
                                 <form method="POST" action="php_backend/editUsers.php" style="display: inline;">
                                     <input type="hidden" name="enable_id" value="<?=$user['id']?>">
                                     <button type="submit" class="btn-table-action" style="background: var(--color-success);">Activate</button>
-                                </form>
+                                </form>                                
                                 <?php endif; ?>
+                                <button type="button" class="btn-table-details user-details-btn"
+                                    data-id="<?=$user['id']?>"
+                                    data-username="<?=htmlspecialchars($user['user'])?>"
+                                    data-name="<?=htmlspecialchars($user['name'] ?? '')?>"
+                                    data-role="<?=htmlspecialchars(ucfirst($user['role']))?>"
+                                    data-status="<?=htmlspecialchars(ucfirst($user['status']))?>">Details</button>
                             </td>
+                                
                         </tr>
                         <?php
                         }
@@ -199,6 +206,75 @@ if (!in_array($userSort, ['newest', 'oldest'], true)) {
                 </div>
             </div>
         </div> <!-- System users END-->
+
+        <!-- User Details + password reset dialog -->
+        <dialog id="user-diag">
+            <div class="dialog-header">
+                <h3><i class="fa-solid fa-circle-user"></i> User Details</h3>
+            </div>
+            <div class="dialog-body">
+                <div class="form-group" style="margin-bottom: 8px;">
+                    <label>Username</label>
+                    <div><strong id="ud-username">—</strong></div>
+                </div>
+                <div class="form-group" style="margin-bottom: 8px;">
+                    <label>Name</label>
+                    <div id="ud-name">—</div>
+                </div>
+                <div class="form-group" style="margin-bottom: 8px;">
+                    <label>Role</label>
+                    <div id="ud-role">—</div>
+                </div>
+                <div class="form-group" style="margin-bottom: 12px;">
+                    <label>Status</label>
+                    <div id="ud-status">—</div>
+                </div>
+                <form method="POST" action="php_backend/editUsers.php">
+                    <input type="hidden" name="reset_id" id="ud-id">
+                    <div class="form-group" style="margin-bottom: 12px;">
+                        <label for="ud-password">Change password</label>
+                        <div class="password-wrap" style="display:flex;align-items:center;gap:8px;">
+                            <input type="password" id="ud-password" name="new_password" placeholder="Enter new password" minlength="4" required style="flex:1;">
+                            <button type="button" class="btn-secondary" id="ud-toggle" style="padding:8px 12px;" aria-label="Show password"><i class="fa-solid fa-eye"></i></button>
+                        </div>
+                    </div>
+                    <div class="dialog-actions">
+                        <button type="button" class="btn-secondary" command="close" commandfor="user-diag">Cancel</button>
+                        <button type="submit" class="btn-primary"><i class="fa-solid fa-key"></i> Reset Password</button>
+                    </div>
+                </form>
+            </div>
+        </dialog>
     </div> <!-- Userspage END-->
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const diag = document.getElementById('user-diag');
+        document.querySelectorAll('.user-details-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.getElementById('ud-id').value = btn.dataset.id;
+                document.getElementById('ud-username').textContent = btn.dataset.username;
+                document.getElementById('ud-name').textContent = btn.dataset.name || '—';
+                document.getElementById('ud-role').textContent = btn.dataset.role;
+                document.getElementById('ud-status').textContent = btn.dataset.status;
+                const pw = document.getElementById('ud-password');
+                pw.value = '';
+                pw.type = 'password';
+                document.querySelector('#ud-toggle i').className = 'fa-solid fa-eye';
+                diag.showModal();
+            });
+        });
+        document.getElementById('ud-toggle').addEventListener('click', () => {
+            const pw = document.getElementById('ud-password');
+            const icon = document.querySelector('#ud-toggle i');
+            if (pw.type === 'password') {
+                pw.type = 'text';
+                icon.className = 'fa-solid fa-eye-slash';
+            } else {
+                pw.type = 'password';
+                icon.className = 'fa-solid fa-eye';
+            }
+        });
+    });
+    </script>
 </body>
 </html>
