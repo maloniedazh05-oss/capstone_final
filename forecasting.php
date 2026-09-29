@@ -3,10 +3,8 @@ require_once "php_backend/session.php";
 
 requireRole(['admin']);
 
-// Moving Average forecaster lives in php_backend/forecast_lib.php (shared with reports.php).
+// Monthly SES forecaster lives in php_backend/forecast_lib.php (shared with reports.php).
 require_once "php_backend/forecast_lib.php";
-
-// Shared seasonal lib (90 days in, 7 days out).
 
 // Fertilizer types available for forecasting.
 $prodOpts = $pdo->query("SELECT DISTINCT product FROM inventory ORDER BY product")->fetchAll(PDO::FETCH_COLUMN);
@@ -15,9 +13,6 @@ $selProduct = $_POST['product'] ?? ($prodOpts[0] ?? 'Vermicast');
 if (!in_array($selProduct, $prodOpts, true)) {
     $selProduct = $prodOpts[0] ?? 'Vermicast';
 }
-// Fixed setup: last 90 days in, next 7 days out (seasonal weekday average).
-$rangeDays = 90;
-$steps = 7;
 
 // Available history range label for the selected product.
 $rangeStmt = $pdo->prepare("SELECT MIN(updated_at) AS mn, MAX(updated_at) AS mx FROM inventory WHERE status = 'Completed' AND product = :prod");
@@ -32,32 +27,31 @@ $currentStock = round((float)($curStmt->fetchColumn() ?? 0), 2);
 
 $forecast = null;
 $method = '';
+$fcAlpha = 0;
+$fcMonths = 0;
+$fcNextMonth = '';
+$fcSeries = [];
 $histWarn = false;
 $thinNotice = false;
 if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['generate'])) {
-    $today = date('Y-m-d');
-
     $res = runForecast($pdo, $selProduct);
     $forecast = $res['forecast'];
     $method = $res['method'];
     $thinNotice = $res['thin'];
-    $total = array_sum($forecast);
+    $fcAlpha = $res['alpha'] ?? 0;
+    $fcMonths = $res['months'] ?? 0;
+    $fcNextMonth = $res['nextMonth'] ?? '';
+    $fcSeries = $res['series'] ?? [];
 
     // Record the run. The table may not exist on old DBs yet - never fatal a forecast.
-    // Older tables lack method/range_days - retry without them so old DBs still save.
     // Thin-history refusals save nothing - there is no forecast to record.
     if (!$thinNotice) {
-    try {
-        $hist = $pdo->prepare("INSERT INTO forecasting_history (product, period_days, alpha, total_demand, daily_json, method, range_days) VALUES (:prod, :days, :alpha, :total, :daily, :method, :range)");
-        $hist->execute([':prod' => $selProduct, ':days' => $steps, ':alpha' => 0, ':total' => $total, ':daily' => json_encode($forecast), ':method' => $method, ':range' => $rangeDays]);
-    } catch (Exception $e) {
         try {
-            $hist = $pdo->prepare("INSERT INTO forecasting_history (product, period_days, alpha, total_demand, daily_json) VALUES (:prod, :days, :alpha, :total, :daily)");
-            $hist->execute([':prod' => $selProduct, ':days' => $steps, ':alpha' => 0, ':total' => $total, ':daily' => json_encode($forecast)]);
-        } catch (Exception $e2) {
+            $hist = $pdo->prepare("INSERT INTO forecasting_monthly (product, months_used, alpha, forecast_qty, forecast_month, monthly_json) VALUES (:prod, :months, :alpha, :qty, :fmonth, :monthly)");
+            $hist->execute([':prod' => $selProduct, ':months' => $fcMonths, ':alpha' => $fcAlpha, ':qty' => $forecast[0], ':fmonth' => $fcNextMonth, ':monthly' => json_encode($fcSeries)]);
+        } catch (Exception $e) {
             $histWarn = true;
         }
-    }
     }
 }
 ?>
@@ -95,11 +89,11 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['generate'])) {
                     </div>
                     <div class="form-group" style="margin-bottom: 12px;">
                         <label>Historical Data</label>
-                        <div><strong><?= htmlspecialchars($rangeLabel) ?></strong> (last 90 days evaluated)</div>
+                        <div><strong><?= htmlspecialchars($rangeLabel) ?></strong> (last 12-36 complete months evaluated)</div>
                     </div>
                     <div class="form-group" style="margin-bottom: 16px;">
                         <label>Method</label>
-                        <div>Seasonal Moving Average (weekday, 90-day): each of the next 7 days predicts its weekday's average (e.g. Monday = average of the last ~13 Mondays), so the weekly rise/reduce rhythm shows. Needs 90+ days of history.</div>
+                        <div>Simple Exponential Smoothing (monthly): next month predicts the smoothed level of monthly demand, with &alpha; tuned per run (0.05-0.95). Needs 12+ complete months of history.</div>
                     </div>
                     <input type="hidden" name="generate" value="1">
 
@@ -111,36 +105,23 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['generate'])) {
         <?php if ($thinNotice): ?>
         <div class="content-card">
             <div class="card-body">
-                <p class="section-desc">Not enough history yet - forecasts need 90+ days of sales for this product.</p>
+                <p class="section-desc">Not enough history yet - forecasts need 12+ complete months of sales for this product (found <?= (int)$fcMonths ?>).</p>
             </div>
         </div>
         <?php endif; ?>
         <?php if ($forecast !== null && !$thinNotice): ?>
         <?php
-        $total = array_sum($forecast);
-        $avg = $forecast ? round($total / count($forecast), 1) : 0;
-        $diff = $currentStock - $total;
-        // Chart: last 30 history days actuals + 7-day forecast.
-        $tailStmt = $pdo->prepare("SELECT DATE(updated_at) AS day, SUM(quantity) AS total_qty FROM inventory WHERE status = 'Completed' AND product = :prod AND updated_at >= :start GROUP BY DATE(updated_at)");
-        $tailStmt->execute([':prod' => $selProduct, ':start' => date('Y-m-d', strtotime($today . ' -29 days')) . ' 00:00:00']);
-        $tailMap = [];
-        while ($tailRow = $tailStmt->fetch(PDO::FETCH_ASSOC)) {
-            $tailMap[$tailRow['day']] = (int)$tailRow['total_qty'];
+        $fcQty = round((float)$forecast[0], 2);
+        $fcShort = max(0, round($fcQty - $currentStock, 2));
+        $fcNextLabel = $fcNextMonth !== '' ? date('M Y', strtotime($fcNextMonth . '-01')) : '';
+        $fmtQty = function ($v) { return rtrim(rtrim(number_format((float)$v, 2, '.', ''), '0'), '.'); };
+        $chLabels = [];
+        $chActual = [];
+        foreach ($fcSeries as $pt) {
+            $chLabels[] = date('M Y', strtotime($pt['key'] . '-01'));
+            $chActual[] = $pt['qty'];
         }
-        $histLabels = [];
-        $histVals = [];
-        $td = date('Y-m-d', strtotime($today . ' -29 days'));
-        while ($td <= $today) {
-            $histLabels[] = date('M d', strtotime($td));
-            $histVals[] = $tailMap[$td] ?? 0;
-            $td = date('Y-m-d', strtotime($td . ' +1 day'));
-        }
-        $fcLabels = [];
-        $fd = $today;
-        for ($i = 1; $i <= $steps; $i++) {
-            $fd = date('Y-m-d', strtotime($fd . ' +1 day'));
-            $fcLabels[] = date('M d', strtotime($fd));
-        }
+        $chLabels[] = $fcNextLabel . ' (fc)';
         ?>
         <!-- Forecast Result -->
         <div class="content-card">
@@ -151,30 +132,30 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['generate'])) {
                 <?php if ($histWarn): ?>
                 <div class="feedback-error">
                     <i class="fa-solid fa-triangle-exclamation"></i>
-                    <span>Run computed but not saved (forecasting_history table missing - run its CREATE from database_query).</span>
+                    <span>Run computed but not saved (forecasting_monthly table missing - run its CREATE from database_query).</span>
                 </div>
                 <?php endif; ?>
                 <h3 style="margin: 0 0 14px; font-size: 1.05rem;">Demand Forecast Overview</h3>
                 <div class="info-cards">
                     <div class="stat-card stat-card-green">
                         <h2>Predicted Demand</h2>
-                        <h3><?= rtrim(rtrim(number_format((float) $total, 2, '.', ''), '0'), '.') ?> Sacks</h3>
-                        <div class="stat-sub">Next 7 days</div>
+                        <h3><?= $fmtQty($fcQty) ?> Sacks</h3>
+                        <div class="stat-sub"><?= htmlspecialchars($fcNextLabel) ?></div>
                     </div>
                     <div class="stat-card stat-card-blue">
                         <h2>Available Stock</h2>
-                        <h3><?= rtrim(rtrim(number_format((float) $currentStock, 2, '.', ''), '0'), '.') ?> Sacks</h3>
+                        <h3><?= $fmtQty($currentStock) ?> Sacks</h3>
                         <div class="stat-sub">Current inventory</div>
                     </div>
                     <div class="stat-card stat-card-amber">
                         <h2>Estimated Shortfall</h2>
-                        <h3><?= rtrim(rtrim(number_format((float) max(0, $total - $currentStock), 2, '.', ''), '0'), '.') ?> Sacks</h3>
+                        <h3><?= $fmtQty($fcShort) ?> Sacks</h3>
                         <div class="stat-sub">Illustrative planning estimate</div>
                     </div>
                     <div class="stat-card stat-card-purple">
                         <h2>Forecast Period</h2>
-                        <h3>7 Days</h3>
-                        <div class="stat-sub"><?= htmlspecialchars(date('M d', strtotime($today . ' +1 day')) . ' - ' . date('M d', strtotime($today . ' +7 days'))) ?></div>
+                        <h3>1 Month</h3>
+                        <div class="stat-sub"><?= htmlspecialchars($fcNextLabel) ?> (&alpha; = <?= htmlspecialchars($fcAlpha) ?>, <?= (int)$fcMonths ?> months)</div>
                     </div>
                 </div>
             </div>
@@ -190,17 +171,16 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['generate'])) {
             </div>
         </div>
         <script>
-        const fcHistLabels = <?= json_encode($histLabels) ?>;
-        const fcHistVals = <?= json_encode($histVals) ?>;
-        const fcLabels = <?= json_encode($fcLabels) ?>;
-        const fcVals = <?= json_encode($forecast) ?>;
-        const fcNulls = new Array(fcHistVals.length).fill(null);
+        const fcLabels = <?= json_encode($chLabels) ?>;
+        const fcActual = <?= json_encode($chActual) ?>;
+        const fcQty = <?= json_encode($fcQty) ?>;
+        const fcNulls = new Array(fcActual.length).fill(null);
         new Chart(document.getElementById('forecastChart'), {
             data: {
-                labels: fcHistLabels.concat(fcLabels),
+                labels: fcLabels,
                 datasets: [
-                    { type: 'line', label: 'Actual', data: fcHistVals.concat(new Array(fcVals.length).fill(null)), borderColor: '#22c55e', tension: 0.3, pointRadius: 2, spanGaps: false },
-                    { type: 'line', label: 'Forecast', data: fcNulls.concat(fcVals), borderColor: '#3b82f6', borderDash: [6, 4], tension: 0.3, pointRadius: 2, spanGaps: false }
+                    { type: 'bar', label: 'Actual (monthly)', data: fcActual.concat([null]), backgroundColor: 'rgba(34,197,94,0.6)' },
+                    { type: 'line', label: 'Forecast', data: fcNulls.concat([fcQty]), borderColor: '#3b82f6', backgroundColor: '#3b82f6', pointRadius: 5, tension: 0 }
                 ]
             },
             options: {
@@ -215,26 +195,31 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['generate'])) {
         <!-- Forecasted Demand -->
         <div class="content-card">
             <div class="card-header">
-                <h2><i class="fa-solid fa-calendar-days"></i> Forecasted Demand (<?= htmlspecialchars($method) ?>, daily avg <?= htmlspecialchars($avg) ?> Sacks)</h2>
+                <h2><i class="fa-solid fa-calendar-days"></i> Forecasted Demand (<?= htmlspecialchars($method) ?>, &alpha; = <?= htmlspecialchars($fcAlpha) ?>)</h2>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <th>Date</th>
+                                <th>Month</th>
+                                <th>Actual</th>
                                 <th>Forecast</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <?php $fd = $today; ?>
-                            <?php foreach ($forecast as $qty): ?>
-                            <?php $fd = date('Y-m-d', strtotime($fd . ' +1 day')); ?>
+                            <?php foreach ($fcSeries as $pt): ?>
                             <tr>
-                                <td><?= htmlspecialchars(date('M d', strtotime($fd))) ?></td>
-                                <td><strong><?= htmlspecialchars($qty) ?> Sacks</strong></td>
+                                <td><?= htmlspecialchars(date('M Y', strtotime($pt['key'] . '-01'))) ?></td>
+                                <td><strong><?= $fmtQty($pt['qty']) ?> Sacks</strong></td>
+                                <td>-</td>
                             </tr>
                             <?php endforeach; ?>
+                            <tr>
+                                <td><strong><?= htmlspecialchars($fcNextLabel) ?></strong></td>
+                                <td>-</td>
+                                <td><strong><?= $fmtQty($fcQty) ?> Sacks</strong></td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>

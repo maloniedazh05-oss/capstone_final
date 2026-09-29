@@ -73,14 +73,13 @@ CREATE TABLE history (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
-CREATE TABLE forecasting_history (
+CREATE TABLE forecasting_monthly (
     id INT AUTO_INCREMENT PRIMARY KEY,
     product VARCHAR(50) NOT NULL,
-    period_days INT NOT NULL,
-    alpha DECIMAL(3,2) NOT NULL,
-    total_demand DECIMAL(10,2) NOT NULL,
-    daily_json MEDIUMTEXT,
-    method VARCHAR(50),
-    range_days INT,
+    months_used INT NOT NULL,
+    alpha DECIMAL(4,2) NOT NULL,
+    forecast_qty DECIMAL(10,2) NOT NULL,
+    forecast_month CHAR(7) NOT NULL,
+    monthly_json MEDIUMTEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 );

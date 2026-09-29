@@ -52,6 +52,13 @@ requireRole(['admin']);
                             <label for="historyFile">Upload Sales Data (.json, .txt)</label>
                             <input type="file" id="historyFile" accept=".json,.txt" name="historyFile" required>
                         </div>
+                        <div class="form-group">
+                            <label for="interval">Each value covers</label>
+                            <select id="interval" name="interval" required>
+                                <option value="day">One day (index 0 = today, going back)</option>
+                                <option value="month">One month (index 0 = last complete month, going back)</option>
+                            </select>
+                        </div>
                         <div class="form-group" style="justify-content: center; padding-top: 18px;">
                             <label style="display: flex; align-items: center; gap: 8px; font-weight: normal; cursor: pointer; color: var(--color-text-main);">
                                 <input type="checkbox" name="confirm_overwrite" value="yes" style="width: auto; margin: 0;">

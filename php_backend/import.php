@@ -27,15 +27,24 @@ $first = reset($values);
 if (is_array($first)) {
     importRecords($pdo, $values);
 } else {
-    importFlat($pdo, $values);
+    $interval = $_POST['interval'] ?? 'day';
+    if (!in_array($interval, ['day', 'month'], true)) {
+        $interval = 'day';
+    }
+    importFlat($pdo, $values, $interval);
 }
 exit;
 
 // Flat numbers: [23,4,0,26] — index 0 = today, going back one day per value.
 // Every value (including 0) becomes one Completed row so the forecaster sees idle days.
-function importFlat($pdo, $values) {
-    if (count($values) > 1096) {
-        header("Location: ../sales.php?import_error=" . urlencode("Too many values! Max 1096 (today back to -1095 days). Got " . count($values) . "."));
+// Monthly mode: index 0 = last complete month, going back one month per value
+// (mid-month stamp so rows always land inside their month).
+function importFlat($pdo, $values, $interval = 'day') {
+    $isMonth = ($interval === 'month');
+    $maxVals = $isMonth ? 60 : 1096;
+    $unitWord = $isMonth ? 'month(s)' : 'day(s)';
+    if (count($values) > $maxVals) {
+        header("Location: ../sales.php?import_error=" . urlencode("Too many values! Max $maxVals ($unitWord). Got " . count($values) . "."));
         exit;
     }
 
@@ -48,7 +57,12 @@ function importFlat($pdo, $values) {
 
     $today = date('Y-m-d');
     $count = count($values);
-    $oldest = date('Y-m-d', strtotime($today . ' -' . ($count - 1) . ' days'));
+    if ($isMonth) {
+        $newest = date('Y-m', strtotime($today . ' -1 month'));
+        $oldest = date('Y-m', strtotime($newest . ' -' . ($count - 1) . ' months'));
+    } else {
+        $oldest = date('Y-m-d', strtotime($today . ' -' . ($count - 1) . ' days'));
+    }
 
     guardRange($pdo, $oldest, $today);
 
@@ -60,8 +74,13 @@ function importFlat($pdo, $values) {
 
         $inserted = 0;
         foreach ($values as $i => $v) {
-            $day = date('Y-m-d', strtotime($today . ' -' . $i . ' days'));
-            $ts = $day . ' 12:00:00';
+            if ($isMonth) {
+                $mkey = date('Y-m', strtotime($newest . ' -' . $i . ' months'));
+                $ts = $mkey . '-15 12:00:00';
+            } else {
+                $day = date('Y-m-d', strtotime($today . ' -' . $i . ' days'));
+                $ts = $day . ' 12:00:00';
+            }
 
             do {
                 $id_num = substr(str_shuffle("0123456789"), 0, 7);
@@ -83,8 +102,9 @@ function importFlat($pdo, $values) {
 
         $pdo->commit();
         $hist = $pdo->prepare("INSERT INTO history (user, action, product, quantity, unit) VALUES (:user, :action, 'Vermicast', :quan, 'Sacks')");
-        $hist->execute([':user' => $_SESSION['user_name'] ?? '', ':action' => "Imported $inserted day(s)", ':quan' => array_sum($values)]);
-        header("Location: ../sales.php?import_success=" . urlencode("Imported $inserted day(s): $oldest to $today."));
+        $hist->execute([':user' => $_SESSION['user_name'] ?? '', ':action' => "Imported $inserted $unitWord", ':quan' => array_sum($values)]);
+        $rangeText = $isMonth ? "$oldest to $newest" : "$oldest to $today";
+        header("Location: ../sales.php?import_success=" . urlencode("Imported $inserted $unitWord: $rangeText."));
         exit;
     } catch (Throwable $e) {
         if ($pdo->inTransaction()) $pdo->rollBack();

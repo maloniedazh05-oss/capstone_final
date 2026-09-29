@@ -29,7 +29,7 @@ if (!in_array($repStatus, ['all', 'Recent', 'Ongoing', 'Completed'], true)) {
 }
 
 // Forecast CSV export must stream before any HTML output (headers).
-// Seasonal weekday forecast: last 90 days in, next 7 days out.
+// Monthly SES: last 12-36 complete months in, next month out.
 if ($tab === 'forecast' && ($_GET['export'] ?? '') === 'csv') {
     require_once "php_backend/db.php";
     require_once "php_backend/forecast_lib.php";
@@ -38,33 +38,15 @@ if ($tab === 'forecast' && ($_GET['export'] ?? '') === 'csv') {
     if (!in_array($csvProd, $csvProdOpts, true)) {
         $csvProd = $csvProdOpts[0] ?? 'Vermicast';
     }
-    $csvSteps = 7;
-    $csvToday = date('Y-m-d');
-    $csvTailStmt = $pdo->prepare("SELECT DATE(updated_at) AS day, SUM(quantity) AS q FROM inventory WHERE status = 'Completed' AND product = :prod AND updated_at >= :start GROUP BY DATE(updated_at)");
-    $csvTailStmt->execute([':prod' => $csvProd, ':start' => date('Y-m-d', strtotime($csvToday . ' -6 days')) . ' 00:00:00']);
-    $csvTailMap = [];
-    while ($csvTailRow = $csvTailStmt->fetch(PDO::FETCH_ASSOC)) {
-        $csvTailMap[$csvTailRow['day']] = (int)$csvTailRow['q'];
-    }
-    $csvTailDays = [];
-    $ctd = date('Y-m-d', strtotime($csvToday . ' -6 days'));
-    while ($ctd <= $csvToday) {
-        $csvTailDays[] = $ctd;
-        $ctd = date('Y-m-d', strtotime($ctd . ' +1 day'));
-    }
     $csvRes = runForecast($pdo, $csvProd);
     header('Content-Type: text/csv');
-    header('Content-Disposition: attachment; filename="forecast-' . $csvProd . '-' . $csvSteps . 'd.csv"');
-    echo "Date,Actual Stock-Out,Forecast\n";
-    foreach ($csvTailDays as $cd) {
-        echo date('M d', strtotime($cd)) . ',' . ($csvTailMap[$cd] ?? 0) . ",\n";
+    header('Content-Disposition: attachment; filename="forecast-' . $csvProd . '-monthly.csv"');
+    echo "Month,Actual,Forecast\n";
+    foreach (($csvRes['series'] ?? []) as $pt) {
+        echo date('M Y', strtotime($pt['key'] . '-01')) . ',' . $pt['qty'] . ",\n";
     }
     if (!$csvRes['thin']) {
-        $cd = $csvToday;
-        foreach ($csvRes['forecast'] as $cq) {
-            $cd = date('Y-m-d', strtotime($cd . ' +1 day'));
-            echo date('M d', strtotime($cd)) . ',,' . $cq . "\n";
-        }
+        echo date('M Y', strtotime($csvRes['nextMonth'] . '-01')) . ',,' . $csvRes['forecast'][0] . "\n";
     }
     exit;
 }
@@ -802,45 +784,25 @@ if ($tab === 'forecast' && ($_GET['export'] ?? '') === 'csv') {
         if (!in_array($fcProd, $fcProdOpts, true)) {
             $fcProd = $fcProdOpts[0] ?? 'Vermicast';
         }
-        $fcSteps = 7;
         // Historical availability label for the selected product.
         $fcRangeStmt = $pdo->prepare("SELECT MIN(updated_at) AS mn, MAX(updated_at) AS mx FROM inventory WHERE status = 'Completed' AND product = :prod");
         $fcRangeStmt->execute([':prod' => $fcProd]);
         $fcRangeRow = $fcRangeStmt->fetch(PDO::FETCH_ASSOC);
         $fcRangeLabel = ($fcRangeRow && $fcRangeRow['mn']) ? date('F Y', strtotime($fcRangeRow['mn'])) . ' - ' . date('F Y', strtotime($fcRangeRow['mx'])) : 'No completed data';
-        // Current inventory of the selected product.
-        $fcCurStmt = $pdo->prepare("SELECT COALESCE(SUM(quantity), 0) FROM inventory WHERE status != 'Completed' AND product = :prod");
-        $fcCurStmt->execute([':prod' => $fcProd]);
-        $fcCurrent = (int)$fcCurStmt->fetchColumn();
-        // Last 7 actual days for the table and CSV.
-        $fcToday = date('Y-m-d');
-        $fcTailStmt = $pdo->prepare("SELECT DATE(updated_at) AS day, SUM(quantity) AS q FROM inventory WHERE status = 'Completed' AND product = :prod AND updated_at >= :start GROUP BY DATE(updated_at)");
-        $fcTailStmt->execute([':prod' => $fcProd, ':start' => date('Y-m-d', strtotime($fcToday . ' -6 days')) . ' 00:00:00']);
-        $fcTailMap = [];
-        while ($fcTailRow = $fcTailStmt->fetch(PDO::FETCH_ASSOC)) {
-            $fcTailMap[$fcTailRow['day']] = (int)$fcTailRow['q'];
-        }
-        $fcTailDays = [];
-        $td = date('Y-m-d', strtotime($fcToday . ' -6 days'));
-        while ($td <= $fcToday) {
-            $fcTailDays[] = $td;
-            $td = date('Y-m-d', strtotime($td . ' +1 day'));
-        }
+        // Current inventory (single-row total ledger).
+        $fcCurStmt = $pdo->prepare("SELECT total_stock FROM total LIMIT 1");
+        $fcCurStmt->execute();
+        $fcCurrent = round((float)($fcCurStmt->fetchColumn() ?? 0), 2);
         $fcResult = null;
         $fcHistWarn = false;
         if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['fc-generate'])) {
             $fcResult = runForecast($pdo, $fcProd);
             if (!$fcResult['thin']) {
                 try {
-                    $fcHist = $pdo->prepare("INSERT INTO forecasting_history (product, period_days, alpha, total_demand, daily_json, method, range_days) VALUES (:prod, :days, :alpha, :total, :daily, :method, :range)");
-                    $fcHist->execute([':prod' => $fcProd, ':days' => $fcSteps, ':alpha' => 0, ':total' => array_sum($fcResult['forecast']), ':daily' => json_encode($fcResult['forecast']), ':method' => $fcResult['method'], ':range' => 90]);
+                    $fcHist = $pdo->prepare("INSERT INTO forecasting_monthly (product, months_used, alpha, forecast_qty, forecast_month, monthly_json) VALUES (:prod, :months, :alpha, :qty, :fmonth, :monthly)");
+                    $fcHist->execute([':prod' => $fcProd, ':months' => $fcResult['months'], ':alpha' => $fcResult['alpha'], ':qty' => $fcResult['forecast'][0], ':fmonth' => $fcResult['nextMonth'], ':monthly' => json_encode($fcResult['series'])]);
                 } catch (Exception $e) {
-                    try {
-                        $fcHist = $pdo->prepare("INSERT INTO forecasting_history (product, period_days, alpha, total_demand, daily_json) VALUES (:prod, :days, :alpha, :total, :daily)");
-                        $fcHist->execute([':prod' => $fcProd, ':days' => $fcSteps, ':alpha' => 0, ':total' => array_sum($fcResult['forecast']), ':daily' => json_encode($fcResult['forecast'])]);
-                    } catch (Exception $e2) {
-                        $fcHistWarn = true;
-                    }
+                    $fcHistWarn = true;
                 }
             }
         }
@@ -863,7 +825,7 @@ if ($tab === 'forecast' && ($_GET['export'] ?? '') === 'csv') {
                             <?php endforeach; ?>
                         </select>
                         <span class="section-desc" style="margin:0;">Historical: <strong><?= htmlspecialchars($fcRangeLabel) ?></strong></span>
-                        <span class="section-desc" style="margin:0;">Seasonal Moving Average (weekday, 90-day) · Next 7 Days · Needs 90+ days history</span>
+                        <span class="section-desc" style="margin:0;">SES (monthly) · Next 1 Month · Needs 12+ complete months history</span>
                         <input type="hidden" name="fc-generate" value="1">
                         <button type="submit" class="btn-primary" style="padding:7px 16px;">Generate</button>
                     </form>
@@ -873,43 +835,31 @@ if ($tab === 'forecast' && ($_GET['export'] ?? '') === 'csv') {
 
         <?php if ($fcResult !== null && !$fcResult['thin']): ?>
         <?php
-        $fcTotal = array_sum($fcResult['forecast']);
-        $fcDiff = $fcCurrent - $fcTotal;
-        // Chart history tail: last 30 days actuals.
-        $fcHistStmt = $pdo->prepare("SELECT DATE(updated_at) AS day, SUM(quantity) AS q FROM inventory WHERE status = 'Completed' AND product = :prod AND updated_at >= :start GROUP BY DATE(updated_at)");
-        $fcHistStmt->execute([':prod' => $fcProd, ':start' => date('Y-m-d', strtotime($fcToday . ' -29 days')) . ' 00:00:00']);
-        $fcHistMap = [];
-        while ($fcHistRow = $fcHistStmt->fetch(PDO::FETCH_ASSOC)) {
-            $fcHistMap[$fcHistRow['day']] = (int)$fcHistRow['q'];
-        }
+        $fcQty = round((float)$fcResult['forecast'][0], 2);
+        $fcDiff = round($fcCurrent - $fcQty, 2);
+        $fcNextLabel = date('M Y', strtotime($fcResult['nextMonth'] . '-01'));
+        $fcFmt = function ($v) { return rtrim(rtrim(number_format((float)$v, 2, '.', ''), '0'), '.'); };
         $fcHistLabels = [];
         $fcHistVals = [];
-        $hd = date('Y-m-d', strtotime($fcToday . ' -29 days'));
-        while ($hd <= $fcToday) {
-            $fcHistLabels[] = date('M d', strtotime($hd));
-            $fcHistVals[] = $fcHistMap[$hd] ?? 0;
-            $hd = date('Y-m-d', strtotime($hd . ' +1 day'));
+        foreach (($fcResult['series'] ?? []) as $pt) {
+            $fcHistLabels[] = date('M Y', strtotime($pt['key'] . '-01'));
+            $fcHistVals[] = $pt['qty'];
         }
-        $fcLabels = [];
-        $fd = $fcToday;
-        for ($i = 1; $i <= $fcSteps; $i++) {
-            $fd = date('Y-m-d', strtotime($fd . ' +1 day'));
-            $fcLabels[] = date('M d', strtotime($fd));
-        }
+        $fcHistLabels[] = $fcNextLabel . ' (fc)';
         ?>
         <!-- Summary cards -->
         <div class="info-cards">
             <div class="stat-card">
                 <h2>Current Inventory</h2>
-                <h3><?= number_format($fcCurrent) ?> Sacks</h3>
+                <h3><?= $fcFmt($fcCurrent) ?> Sacks</h3>
             </div>
             <div class="stat-card">
-                <h2>Forecasted Demand</h2>
-                <h3><?= number_format($fcTotal) ?> Sacks</h3>
+                <h2>Forecasted Demand (<?= htmlspecialchars($fcNextLabel) ?>)</h2>
+                <h3><?= $fcFmt($fcQty) ?> Sacks</h3>
             </div>
             <div class="stat-card">
                 <h2>Difference</h2>
-                <h3><?= ($fcDiff >= 0 ? '+' : '') . number_format($fcDiff) ?> Sacks</h3>
+                <h3><?= ($fcDiff >= 0 ? '+' : '') . $fcFmt($fcDiff) ?> Sacks</h3>
             </div>
         </div>
 
@@ -919,17 +869,17 @@ if ($tab === 'forecast' && ($_GET['export'] ?? '') === 'csv') {
                 <h2><i class="fa-solid fa-chart-line"></i> Forecast Overview</h2>
             </div>
             <div class="card-body">
-                <p class="section-desc">Method: <?= htmlspecialchars($fcResult['method']) ?></p>
+                <p class="section-desc">Method: <?= htmlspecialchars($fcResult['method']) ?> (&alpha; = <?= htmlspecialchars($fcResult['alpha']) ?>, <?= (int)$fcResult['months'] ?> months)</p>
                 <div style="height: 320px;"><canvas id="fcChart"></canvas></div>
             </div>
         </div>
         <script>
         new Chart(document.getElementById('fcChart'), {
             data: {
-                labels: <?= json_encode(array_merge($fcHistLabels, $fcLabels)) ?>,
+                labels: <?= json_encode($fcHistLabels) ?>,
                 datasets: [
-                    { type: 'line', label: 'Actual', data: <?= json_encode(array_merge($fcHistVals, array_fill(0, $fcSteps, null))) ?>, borderColor: '#22c55e', tension: 0.3, pointRadius: 2, spanGaps: false },
-                    { type: 'line', label: 'Forecast', data: <?= json_encode(array_merge(array_fill(0, count($fcHistVals), null), $fcResult['forecast'])) ?>, borderColor: '#3b82f6', borderDash: [6, 4], tension: 0.3, pointRadius: 2, spanGaps: false }
+                    { type: 'bar', label: 'Actual (monthly)', data: <?= json_encode(array_merge($fcHistVals, [null])) ?>, backgroundColor: 'rgba(34,197,94,0.6)' },
+                    { type: 'line', label: 'Forecast', data: <?= json_encode(array_merge(array_fill(0, count($fcHistVals), null), [$fcQty])) ?>, borderColor: '#3b82f6', backgroundColor: '#3b82f6', pointRadius: 5, tension: 0 }
                 ]
             },
             options: {
@@ -951,7 +901,7 @@ if ($tab === 'forecast' && ($_GET['export'] ?? '') === 'csv') {
                 </div>
             </div>
             <div class="card-body">
-                <?php if ($fcTotal > $fcCurrent): ?>
+                <?php if ($fcQty > $fcCurrent): ?>
                 <div class="feedback-error">
                     <i class="fa-solid fa-triangle-exclamation"></i>
                     <span>Forecasted demand may exceed current inventory.</span>
@@ -961,28 +911,24 @@ if ($tab === 'forecast' && ($_GET['export'] ?? '') === 'csv') {
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <th>Date</th>
+                                <th>Month</th>
                                 <th>Actual Stock-Out</th>
                                 <th>Forecast</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($fcTailDays as $tday): ?>
+                            <?php foreach (($fcResult['series'] ?? []) as $pt): ?>
                             <tr>
-                                <td><?= htmlspecialchars(date('M d', strtotime($tday))) ?></td>
-                                <td><?= htmlspecialchars($fcTailMap[$tday] ?? 0) ?></td>
+                                <td><?= htmlspecialchars(date('M Y', strtotime($pt['key'] . '-01'))) ?></td>
+                                <td><?= $fcFmt($pt['qty']) ?></td>
                                 <td>—</td>
                             </tr>
                             <?php endforeach; ?>
-                            <?php $fd = $fcToday; ?>
-                            <?php foreach ($fcResult['forecast'] as $fq): ?>
-                            <?php $fd = date('Y-m-d', strtotime($fd . ' +1 day')); ?>
                             <tr>
-                                <td><?= htmlspecialchars(date('M d', strtotime($fd))) ?></td>
+                                <td><strong><?= htmlspecialchars($fcNextLabel) ?></strong></td>
                                 <td>—</td>
-                                <td><strong><?= htmlspecialchars($fq) ?> Sacks</strong></td>
+                                <td><strong><?= $fcFmt($fcQty) ?> Sacks</strong></td>
                             </tr>
-                            <?php endforeach; ?>
                         </tbody>
                     </table>
                 </div>
@@ -991,7 +937,7 @@ if ($tab === 'forecast' && ($_GET['export'] ?? '') === 'csv') {
         <?php elseif ($fcResult !== null && $fcResult['thin']): ?>
         <div class="content-card">
             <div class="card-body">
-                <p class="section-desc">Not enough history yet - forecasts need 90+ days of sales for this product.</p>
+                <p class="section-desc">Not enough history yet - forecasts need 12+ complete months of sales for this product.</p>
             </div>
         </div>
         <?php endif; ?>

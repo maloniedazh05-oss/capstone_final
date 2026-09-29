@@ -132,26 +132,20 @@ CREATE TABLE history (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
--- Forecast runs saved by forecasting.php (pure-PHP hybrid: Regression / Holt / HW-seasonal).
--- Existing DBs: run just this CREATE once in phpMyAdmin.
-CREATE TABLE forecasting_history (
+-- Forecast runs saved by forecasting.php (monthly SES: 12-36 complete months
+-- in, 1 month out). Existing DBs: run just this CREATE once in phpMyAdmin.
+-- (forecasting_history is RETIRED: the old daily method no longer writes to
+-- it and no reader queries it. Drop it only if you are sure.)
+CREATE TABLE forecasting_monthly (
     id INT AUTO_INCREMENT PRIMARY KEY,
     product VARCHAR(50) NOT NULL,
-    period_days INT NOT NULL,
-    alpha DECIMAL(3,2) NOT NULL,
-    total_demand DECIMAL(10,2) NOT NULL,
-    daily_json MEDIUMTEXT,
-    method VARCHAR(50),
-    range_days INT,
+    months_used INT NOT NULL,
+    alpha DECIMAL(4,2) NOT NULL,
+    forecast_qty DECIMAL(10,2) NOT NULL,
+    forecast_month CHAR(7) NOT NULL,
+    monthly_json MEDIUMTEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
-
--- MIGRATION: record chosen method + input range per forecast run (2026-09-22):
--- Run this in phpMyAdmin if forecasting_history lacks `method`/`range_days`.
--- (New code retries without them, so old tables still save runs.)
-ALTER TABLE forecasting_history
-ADD method VARCHAR(50),
-ADD range_days INT;
 
 -- Indexes for the queries the system actually runs
 -- (forecasting/sales filter inventory by status + updated_at)
@@ -161,7 +155,7 @@ CREATE INDEX idx_production_date ON production(production_date);
 CREATE INDEX idx_production_status ON production(status);
 CREATE INDEX idx_production_updated ON production(updated_at);
 CREATE INDEX idx_history_created ON history(created_at);
-CREATE INDEX idx_forecasting_created ON forecasting_history(created_at);
+CREATE INDEX idx_forecasting_monthly_created ON forecasting_monthly(created_at);
 CREATE INDEX idx_accounts_user ON accounts(user);
 
 -- MIGRATION for existing DBs (built before stock columns existed):

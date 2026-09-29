@@ -135,31 +135,13 @@ if ($branch === 'production') {
     if (!in_array($fcProd, $fcProdOpts, true)) {
         $fcProd = $fcProdOpts[0] ?? 'Vermicast';
     }
-    $fcPeriod = '7';
-    $fcToday = date('Y-m-d');
-    $fcTailStmt = $pdo->prepare("SELECT DATE(updated_at) AS day, SUM(quantity) AS q FROM inventory WHERE status = 'Completed' AND product = :prod AND updated_at >= :start GROUP BY DATE(updated_at)");
-    $fcTailStmt->execute([':prod' => $fcProd, ':start' => date('Y-m-d', strtotime($fcToday . ' -6 days')) . ' 00:00:00']);
-    $fcTailMap = [];
-    while ($fcTailRow = $fcTailStmt->fetch(PDO::FETCH_ASSOC)) {
-        $fcTailMap[$fcTailRow['day']] = (int)$fcTailRow['q'];
-    }
-    $fcTailDays = [];
-    $ctd = date('Y-m-d', strtotime($fcToday . ' -6 days'));
-    while ($ctd <= $fcToday) {
-        $fcTailDays[] = $ctd;
-        $ctd = date('Y-m-d', strtotime($ctd . ' +1 day'));
-    }
     $fcRes = runForecast($pdo, $fcProd);
     $rows = [];
-    foreach ($fcTailDays as $cd) {
-        $rows[] = [date('M d', strtotime($cd)), (string)($fcTailMap[$cd] ?? 0), '-'];
+    foreach (($fcRes['series'] ?? []) as $pt) {
+        $rows[] = [date('M Y', strtotime($pt['key'] . '-01')), (string)$pt['qty'], '-'];
     }
     if (!$fcRes['thin']) {
-        $cd = $fcToday;
-        foreach ($fcRes['forecast'] as $cq) {
-            $cd = date('Y-m-d', strtotime($cd . ' +1 day'));
-            $rows[] = [date('M d', strtotime($cd)), '-', (string)$cq];
-        }
+        $rows[] = [date('M Y', strtotime($fcRes['nextMonth'] . '-01')), '-', (string)$fcRes['forecast'][0]];
     }
-    pdf_table('Forecast Report (' . $fcRes['method'] . ')', "Product: $fcProd | Next $fcPeriod days", ['Date', 'Actual', 'Forecast'], [60, 60, 60], $rows, "forecast-report-$fcProd-$fcPeriod" . "d.pdf");
+    pdf_table('Forecast Report (' . $fcRes['method'] . ')', "Product: $fcProd | Next 1 month", ['Month', 'Actual', 'Forecast'], [60, 60, 60], $rows, "forecast-report-$fcProd-monthly.pdf");
 }
