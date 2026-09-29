@@ -1258,7 +1258,7 @@ if (deductUnit && deductQuantity) {
                     document.getElementById('feedback-diag').showModal();
                 });
             });
-        }); // DOMContentLoaded - date filter is server-side (history-date GET param), no JS filtering needed
+        }); //
     </script>
 </body>
 
