@@ -3,7 +3,7 @@ USE rural_urban;
 
 CREATE TABLE accounts (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    role VARCHAR(30) UNIQUE,
+    role VARCHAR(30),
     user VARCHAR(50) UNIQUE NOT NULL,
     pass VARCHAR(255),
     #email VARCHAR(255) UNIQUE

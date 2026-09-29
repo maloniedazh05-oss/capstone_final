@@ -25,7 +25,7 @@ USE rural_urban;
 
 CREATE TABLE accounts (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    role VARCHAR(30) UNIQUE,
+    role VARCHAR(30),
     user VARCHAR(50) UNIQUE NOT NULL,
     name VARCHAR(100),
     pass VARCHAR(255),
