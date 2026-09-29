@@ -121,46 +121,167 @@ if ($chGran === 'weekly') {
     <?php require_once "main-sidebar.php"; ?>
 
     <!-- Update/Edit Total Stock Dialog START -->
-    <dialog id="item-diag">
-        <div class="dialog-header">
-            <h3><i class="fa-solid fa-pen-to-square"></i>Update/Edit Total Stock</h3>
-        </div>
+<dialog id="item-diag">
 
+    <div class="dialog-header">
+        <h3>
+            <i class="fa-solid fa-pen-to-square"></i>
+            Update/Edit Total Stock
+        </h3>
+    </div>
 
-        <?php
-        $totalStmt = $pdo->prepare("SELECT total_stock FROM total LIMIT 1");
-        $totalStmt->execute();
-        $dialogTotal = round((float)($totalStmt->fetchColumn() ?? 0), 2);
-        ?>
-        <div class="dialog-body">
-            <form method="POST" action="php_backend/insertItem.php">
-                <div class="form-group" style="margin-bottom: 12px;">
-                    <div style="margin-bottom: 8px;">Total Stock: <strong><?= $dialogTotal ?> Sacks</strong></div>
-                    <label>Amount to Deduct: </label>
-                    <input type="number" name="quantity" min="0.01" step="0.01" max="<?= $dialogTotal ?>" required>
-                    <select name="unit" required>
-                        <option value="">Select Unit</option>
-                        <option value="KG">KG</option>
-                        <option value="Sacks">Sacks</option>
-                    </select>
-                    <div style="margin-top: 4px; font-size: 0.85rem; color: #666;">Amount to remove (Sacks).
-                        Cannot exceed the current total stock.</div>
-                </div>
-                <details class="dialog-details">
-                    <summary class="summaries">Receiver Name</summary>
-                    <div class="form-group" style="margin-top: 8px;">
-                        <label>Receipt</label>
-                        <textarea placeholder="Enter Company/Client" name="description" class="desc"></textarea>
-                    </div>
-                </details>
-                <div class="dialog-actions">
-                    <button type="button" class="btn-secondary" command="close" commandfor="item-diag">Cancel</button>
-                    <button type="submit" class="btn-primary"><i class="fa-solid fa-minus"></i> Deduct Stock</button>
+    <?php
+    $totalStmt = $pdo->prepare("SELECT total_stock FROM total LIMIT 1");
+    $totalStmt->execute();
+    $dialogTotal = (float) ($totalStmt->fetchColumn() ?? 0);
+
+    // 1 sack = 50 kilograms
+    $KG_PER_SACK = 50;
+    ?>
+
+    <div class="dialog-body">
+
+        <form method="POST" action="php_backend/insertItem.php">
+
+            <div class="form-group" style="margin-bottom: 12px;">
+
+                <!-- Current stock -->
+                <div style="margin-bottom: 8px;">
+                    Total Stock:
+                    <strong><?= $dialogTotal ?> Sacks</strong>
+                    <small>
+                        (<?= number_format($dialogTotal * $KG_PER_SACK, 0) ?> KG)
+                    </small>
                 </div>
 
-            </form>
-        </div>
-    </dialog> <!-- Update/Edit Total Stock Dialog END -->
+                <!-- Amount -->
+                <label for="deduct-quantity">
+                    Amount to Deduct:
+                </label>
+
+                <input
+    type="number"
+    id="deduct-quantity"
+    name="quantity"
+    min="1"
+    step="1"
+    required
+>
+
+                <!-- Unit -->
+                <label for="deduct-unit" style="margin-top: 8px;">
+                    Unit:
+                </label>
+
+                <select
+    id="deduct-unit"
+    name="unit"
+    required
+    onchange="updateDeductLimit(this.value)"
+>
+    <option value="">Select Unit</option>
+    <option value="KG">KG</option>
+    <option value="Sacks">Sacks</option>
+</select>
+<script>
+function updateDeductLimit(unit) {
+
+    const quantityInput = document.getElementById('deduct-quantity');
+    const helpText = document.getElementById('deduct-help');
+
+    const totalSacks = <?= $dialogTotal ?>;
+    const KG_PER_SACK = 50;
+
+    if (unit === 'KG') {
+
+        const maxKG = totalSacks * KG_PER_SACK;
+
+        quantityInput.max = maxKG;
+
+        helpText.textContent =
+            'Amount to remove (KG). Cannot exceed ' +
+            maxKG.toLocaleString() +
+            ' KG (' +
+            totalSacks +
+            ' Sacks).';
+
+    } else if (unit === 'Sacks') {
+
+        quantityInput.max = totalSacks;
+
+        helpText.textContent =
+            'Amount to remove (Sacks). Cannot exceed ' +
+            totalSacks +
+            ' Sacks.';
+
+    } else {
+
+        quantityInput.removeAttribute('max');
+
+        helpText.textContent =
+            'Select a unit.';
+    }
+}
+</script>
+
+                <!-- Dynamic explanation -->
+                <div
+                    id="deduct-help"
+                    style="margin-top: 6px; font-size: 0.85rem; color: #666;"
+                >
+                   
+                </div>
+
+            </div>
+
+            <!-- Receiver -->
+            <details class="dialog-details">
+
+                <summary class="summaries">
+                    Receiver Name
+                </summary>
+
+                <div class="form-group" style="margin-top: 8px;">
+
+                    <label>Receipt</label>
+
+                    <textarea
+                        placeholder="Enter Company/Client"
+                        name="description"
+                        class="desc"
+                    ></textarea>
+
+                </div>
+
+            </details>
+
+            <div class="dialog-actions">
+
+                <button
+                    type="button"
+                    class="btn-secondary"
+                    command="close"
+                    commandfor="item-diag"
+                >
+                    Cancel
+                </button>
+
+                <button
+                    type="submit"
+                    class="btn-primary"
+                >
+                    <i class="fa-solid fa-minus"></i>
+                    Deduct Stock
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</dialog>
+<!-- Update/Edit Total Stock Dialog END -->
 
     <!-- Feedback dialog -->
     <dialog id="feedback-diag">
@@ -641,7 +762,7 @@ if ($chGran === 'weekly') {
                 </div>
             </div>
         <?php endif; ?>
-        <div class="content-card">
+       <!-- <div class="content-card">
             <div class="card-header">
                 <h2><i class="fa-solid fa-arrow"></i> Recent Inventory Movements</h2>
             </div>
@@ -704,103 +825,209 @@ if ($chGran === 'weekly') {
         </div>
 
         <!-- Card 3: History START -->
-        <div class="content-card">
-            <div class="card-header card-header-flex">
-                <h2><i class="fa-solid fa-clock-rotate-left"></i> History</h2>
-                <div class="card-filter">
-                    <div class="search-bar">
-                        <form method="GET" action="inventory.php" id="history-filter-form">
-                            <?php if (trim($_GET['search-inv'] ?? '') !== ''): ?>
-                                <input type="hidden" name="search-inv"
-                                    value="<?= htmlspecialchars(trim($_GET['search-inv'] ?? '')) ?>">
-                            <?php endif; ?>
-                            <?php if ($currentDate !== 'all'): ?>
-                                <input type="hidden" name="current-date" value="<?= htmlspecialchars($currentDate) ?>">
-                            <?php endif; ?>
-                            <?php if ($chGran !== 'daily'): ?>
-                                <input type="hidden" name="ch-gran" value="<?= htmlspecialchars($chGran) ?>">
-                            <?php endif; ?>
-                            <?php if ($chN != 7): ?>
-                                <input type="hidden" name="ch-n" value="<?= htmlspecialchars($chN) ?>">
-                            <?php endif; ?>
-                            <?php if ($chGran === 'custom'): ?>
-                                <input type="hidden" name="ch-from" value="<?= htmlspecialchars($chRangeStart) ?>">
-                                <input type="hidden" name="ch-to" value="<?= htmlspecialchars($chRangeEnd) ?>">
-                            <?php endif; ?>
-                            <input type="text" id="search-box-history" placeholder="Search..." name="search-history"
-                                value="<?= htmlspecialchars($searchHistory) ?>">
-                            <!--Set the value of search bar for consistent memory-->
-                            <button type="submit" id="search-btn-history"><i
-                                    class="fa-solid fa-magnifying-glass"></i></button>
+        <div class="card-body"> -->
+        <!--
+<thead>
+    <tr>
+        <th>Transaction</th>
+        <th>Quantity</th>
+        <th>Unit</th>
+        <th>Date Created</th>
+    </tr>
+</thead>
 
+<tbody>
+
+<?php if (empty($historyRows)): ?>
+
+    <tr>
+        <td colspan="4">
+            No deducted transactions yet.
+        </td>
+    </tr>
+
+<?php else: ?>
+
+    <?php foreach ($historyRows as $h_row): ?>
+
+        <tr>
+
+            <td>
+                <strong>
+                    <?= htmlspecialchars($h_row['action']) ?>
+                </strong>
+            </td>
+
+            <td>
+                <?= htmlspecialchars($h_row['quantity']) ?>
+            </td>
+
+            <td>
+                <?= htmlspecialchars($h_row['unit']) ?>
+            </td>
+
+            <td>
+                <?= htmlspecialchars($h_row['created_at']) ?>
+            </td>
+
+        </tr>
+
+    <?php endforeach; ?>
+
+<?php endif; ?>
+-->
+</tbody>
+    <?php
+    require_once "php_backend/db.php";
+
+
+    $historySql = "
+    SELECT
+        id,
+        action,
+        ref_id,
+        product,
+        quantity,
+        unit,
+        created_at
+    FROM history
+    WHERE action = 'Stock Deducted'
+";
+
+    $historyParams = [];
+
+    // Search
+    if ($searchHistory !== '') {
+        $historySql .= "
+            AND (
+                CAST(ref_id AS CHAR) LIKE :search
+                OR action LIKE :search
+                OR product LIKE :search
+                OR description LIKE :search
+                OR unit LIKE :search
+            )
+        ";
+
+        $historyParams[':search'] = "%" . $searchHistory . "%";
+    }
+
+    // Date
+    if ($historyDate !== 'all') {
+        $historySql .= " AND DATE(created_at) = :hdate";
+        $historyParams[':hdate'] = $historyDate;
+    }
+
+    // Month
+    if ($historyMonth !== 'all') {
+        $historySql .= " AND DATE_FORMAT(created_at, '%Y-%m') = :hmonth";
+        $historyParams[':hmonth'] = $historyMonth;
+    }
+
+    // Year
+    if ($historyYear !== 'all') {
+        $historySql .= " AND YEAR(created_at) = :hyear";
+        $historyParams[':hyear'] = $historyYear;
+    }
+
+    // Sorting
+    $historySortMap = [
+        'newest' => 'created_at DESC',
+        'oldest' => 'created_at ASC',
+        'highest' => 'quantity DESC',
+        'lowest' => 'quantity ASC'
+    ];
+
+    $historySql .= " ORDER BY " . $historySortMap[$historySort];
+
+    $historyStmt = $pdo->prepare($historySql);
+
+    foreach ($historyParams as $key => $value) {
+        $historyStmt->bindValue($key, $value);
+    }
+
+    $historyStmt->execute();
+
+    $historyRows = $historyStmt->fetchAll(PDO::FETCH_ASSOC);
+    ?>
+
+    <div class="table-responsive">
+<div class="content-card">
+            <div class="card-header">
+                <h2><i class="fa-solid fa-arrow"></i> Recent Inventory Movements</h2>
+        <table class="data-table" id="historyTable">
+
+            <thead>
+                <tr>
+                   <th>Transaction</th>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                   <th>Unit</th>
+                   <th>Date Created</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                <?php if (empty($historyRows)): ?>
+
+                    <tr>
+                        <td colspan="5">
                             <?php
-                            require_once "php_backend/db.php";
-                            // Fetch the search var value.
-                            $historyLike = "%{$searchHistory}%";
-                            $dateOpts = $pdo->prepare("SELECT DISTINCT DATE(created_at) AS d FROM inventory WHERE status = 'Completed' AND (CAST(prod_id AS CHAR) LIKE :search OR product LIKE :search OR description LIKE :search OR unit LIKE :search) ORDER BY d DESC");
-                            $dateOpts->bindValue(':search', $historyLike);
-                            $dateOpts->execute();
-                            $historyDates = $dateOpts->fetchAll(PDO::FETCH_COLUMN);
-                            $monthOpts = $pdo->prepare("SELECT DISTINCT DATE_FORMAT(created_at, '%Y-%m') AS m FROM inventory WHERE status = 'Completed' AND (CAST(prod_id AS CHAR) LIKE :search OR product LIKE :search OR description LIKE :search OR unit LIKE :search) ORDER BY m DESC");
-                            $monthOpts->bindValue(':search', $historyLike);
-                            $monthOpts->execute();
-                            $historyMonths = $monthOpts->fetchAll(PDO::FETCH_COLUMN);
-                            $yearOpts = $pdo->prepare("SELECT DISTINCT YEAR(created_at) AS y FROM inventory WHERE status = 'Completed' AND (CAST(prod_id AS CHAR) LIKE :search OR product LIKE :search OR description LIKE :search OR unit LIKE :search) ORDER BY y DESC");
-                            $yearOpts->bindValue(':search', $historyLike);
-                            $yearOpts->execute();
-                            $historyYears = $yearOpts->fetchAll(PDO::FETCH_COLUMN);
+                            if (
+                                $searchHistory !== '' ||
+                                $historyDate !== 'all' ||
+                                $historyMonth !== 'all' ||
+                                $historyYear !== 'all'
+                            ) {
+                                echo "No history matches your search/filter.";
+                            } else {
+                                echo "No transactions yet.";
+                            }
                             ?>
-                            <i class="fa-solid fa-filter"></i>
-                            <label for="history-date-filter">Filter by Date:</label>
-                            <select id="history-date-filter" name="history-date"
-                                onchange="document.getElementById('history-filter-form').submit()">
-                                <option value="all" <?= $historyDate === 'all' ? 'selected' : '' ?>>All Dates</option>
-                                <?php foreach ($historyDates as $d): ?>
-                                    <option value="<?= htmlspecialchars($d) ?>" <?= $historyDate === $d ? 'selected' : '' ?>>
-                                        <?= htmlspecialchars($d) ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                            <label for="history-month-filter">Month:</label>
-                            <select id="history-month-filter" name="history-month"
-                                onchange="document.getElementById('history-filter-form').submit()">
-                                <option value="all" <?= $historyMonth === 'all' ? 'selected' : '' ?>>All Months</option>
-                                <?php foreach ($historyMonths as $m): ?>
-                                    <option value="<?= htmlspecialchars($m) ?>" <?= $historyMonth === $m ? 'selected' : '' ?>>
-                                        <?= htmlspecialchars(date('M Y', strtotime($m . '-01'))) ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                            <label for="history-year-filter">Year:</label>
-                            <select id="history-year-filter" name="history-year"
-                                onchange="document.getElementById('history-filter-form').submit()">
-                                <option value="all" <?= $historyYear === 'all' ? 'selected' : '' ?>>All Years</option>
-                                <?php foreach ($historyYears as $y): ?>
-                                    <option value="<?= htmlspecialchars($y) ?>" <?= (string) $historyYear === (string) $y ? 'selected' : '' ?>>
-                                        <?= htmlspecialchars($y) ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                            <label for="history-sort">Sort by:</label>
-                            <select id="history-sort" name="history-sort"
-                                onchange="document.getElementById('history-filter-form').submit()">
-                                <option value="newest" <?= $historySort === 'newest' ? 'selected' : '' ?>>Newest
-                                </option>
-                                <option value="oldest" <?= $historySort === 'oldest' ? 'selected' : '' ?>>Oldest
-                                </option>
-                                <option value="highest" <?= $historySort === 'highest' ? 'selected' : '' ?>>Highest
-                                    quantity</option>
-                                <option value="lowest" <?= $historySort === 'lowest' ? 'selected' : '' ?>>Lowest
-                                    quantity</option>
-                            </select>
-                            <?php if ($searchHistory !== '' || $historyDate !== 'all' || $historyMonth !== 'all' || $historyYear !== 'all' || $historySort !== 'newest'): ?>
-                                <a href="inventory.php<?= (trim($_GET['search-inv'] ?? '') !== '' || $currentDate !== 'all') ? '?search-inv=' . urlencode(trim($_GET['search-inv'] ?? '')) . '&current-date=' . urlencode($currentDate) : '' ?>"
-                                    class="btn-secondary" style="text-decoration:none;padding:6px 10px;">Clear</a>
-                            <?php endif; ?>
-                        </form>
-                    </div>
-                </div>
-            </div>
+                        </td>
+                    </tr>
+
+                <?php else: ?>
+<div class="card-body">
+                    <?php foreach ($historyRows as $h_row): ?>
+
+                        <tr>
+
+                            <td>
+                                <strong>
+                                    <?= htmlspecialchars($h_row['action']) ?>
+                                </strong>
+                            </td>
+
+                            <td>
+                                <?= htmlspecialchars($h_row['quantity']) ?>
+                            </td>
+
+                            <td>
+                                <?= htmlspecialchars($h_row['unit']) ?>
+                            </td>
+
+                            <td>
+    <?= htmlspecialchars($h_row['product'] ?? 'Stock') ?>
+</td>
+
+                            <td>
+                                <?= htmlspecialchars($h_row['created_at']) ?>
+                            </td>
+
+                        </tr>
+
+                    <?php endforeach; ?>
+
+                <?php endif; ?>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
             <!--Content Card End, History END-->
             <div class="card-body">
                 <?php
@@ -837,6 +1064,7 @@ if ($chGran === 'weekly') {
                     }
                     ?>
                 </div>
+                
                 <div class="table-responsive">
                     <table class="data-table" id="historyTable">
                         <thead>
@@ -866,7 +1094,7 @@ if ($chGran === 'weekly') {
                                         <?= ($searchHistory !== '' || $historyDate !== 'all') ? "No history matches your search/filter." : "No completed items yet." ?>
                                     </td>
                                 </tr>
-                            <?php else: ?>
+                            <?php else: ?> 
                                 <?php foreach ($historyRows as $h_row): ?>
                                     <tr>
                                         <td><?= htmlspecialchars($h_row['product']) ?></td>
@@ -885,6 +1113,97 @@ if ($chGran === 'weekly') {
     </div> <!-- Card 3 END -->
     </div> <!-- Inventorypage END -->
     <script>
+    <script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const unitSelect = document.getElementById('deduct-unit');
+    const quantityInput = document.getElementById('deduct-quantity');
+
+    const totalSacks = <?= $dialogTotal ?>;
+    const KG_PER_SACK = 50;
+
+    function updateMaximum() {
+
+        if (unitSelect.value === 'KG') {
+
+            // Example: 52 sacks × 50 kg = 2600 kg
+            quantityInput.max = totalSacks * KG_PER_SACK;
+
+        } else {
+
+            // Sacks
+            quantityInput.max = totalSacks;
+        }
+
+        quantityInput.value = '';
+    }
+
+    unitSelect.addEventListener('change', updateMaximum);
+
+    updateMaximum();
+});
+// =====================================================
+// TOTAL STOCK DEDUCTION UNIT CONVERSION
+// 1 SACK = 50 KG
+// =====================================================
+
+const deductUnit = document.getElementById('deduct-unit');
+const deductQuantity = document.getElementById('deduct-quantity');
+const deductHelp = document.getElementById('deduct-help');
+
+const totalSacks = <?= $dialogTotal ?>;
+const KG_PER_SACK = 50;
+
+if (deductUnit && deductQuantity) {
+
+    deductUnit.addEventListener('change', function () {
+
+        if (this.value === 'KG') {
+
+            // 52 sacks × 50 KG = 2600 KG
+            const maxKg = totalSacks * KG_PER_SACK;
+
+            deductQuantity.max = maxKg;
+            deductQuantity.step = '1';
+
+            deductHelp.textContent =
+                'Amount to remove (KG). Maximum: ' +
+                maxKg +
+                ' KG (' +
+                totalSacks +
+                ' Sacks).';
+
+        }
+
+        else if (this.value === 'Sacks') {
+
+            deductQuantity.max = totalSacks;
+            deductQuantity.step = '1';
+
+            deductHelp.textContent =
+                'Amount to remove (Sacks). Maximum: ' +
+                totalSacks +
+                ' Sacks.';
+
+        }
+
+        else {
+
+            deductQuantity.max = totalSacks;
+
+            deductHelp.textContent =
+                'Select a unit.';
+
+        }
+
+        // Clear old amount when changing unit
+        deductQuantity.value = '';
+
+    });
+
+}
+</script> 
+<!-- added script -->
         document.addEventListener('DOMContentLoaded', () => {
             /* Dropdown change for edit dialog - Custom Value removed
                         const stat = document.getElementById('stat');
