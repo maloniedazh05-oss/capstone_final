@@ -1,5 +1,11 @@
 <?php
 # PHP register
+$stmt = $pdo->prepare("SELECT COUNT(*) FROM accounts WHERE admin = :adminbool");
+$stmt->execute(['adminbool' => true]);
+$count = $stmt->fetchColumn();
+if($count > 0) {
+    include_once "account.php";
+}
 if ((isset($_POST['rusername'])) && (isset($_POST['rpassword'])) && $_SERVER['REQUEST_METHOD'] == "POST") {
     # init fetch    
     require_once "php_backend/db.php";
