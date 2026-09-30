@@ -1,7 +1,7 @@
 <?php
 require_once "php_backend/session.php";
 
-requireRole(['admin']);
+requireRole(['admin', 'staff', 'manager']);
 
 // Monthly SES forecaster lives in php_backend/forecast_lib.php (shared with reports.php).
 require_once "php_backend/forecast_lib.php";
@@ -35,7 +35,10 @@ $fcNextMonth = '';
 $fcSeries = [];
 $histWarn = false;
 $thinNotice = false;
-if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['generate'])) {
+// Staff gets a read-only view: latest saved run, never a fresh generate
+// (even a forged POST can't trigger one - the generate branch is closed).
+$isStaffView = ($_SESSION['user_role'] ?? '') === 'staff';
+if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['generate']) && !$isStaffView) {
     $res = runForecast($pdo, $selProduct);
     $forecast = $res['forecast'];
     $method = $res['method'];
@@ -56,6 +59,26 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['generate'])) {
         } catch (Exception $e) {
             $histWarn = true;
         }
+    }
+}
+if ($isStaffView) {
+    // Latest saved run for the selected product - display only, never saved.
+    try {
+        $latest = $pdo->prepare("SELECT forecast_qty, forecast_month, months_used, alpha, monthly_json FROM forecasting_monthly WHERE product = :prod ORDER BY id DESC LIMIT 1");
+        $latest->execute([':prod' => $selProduct]);
+        $lastRun = $latest->fetch(PDO::FETCH_ASSOC);
+    } catch (Exception $e) {
+        $lastRun = false;
+    }
+    if ($lastRun) {
+        $forecast = [(float)$lastRun['forecast_qty']];
+        $method = 'SES (monthly)';
+        $fcAlpha = $lastRun['alpha'];
+        $fcMonths = (int)$lastRun['months_used'];
+        $fcNextMonth = $lastRun['forecast_month'];
+        $fcSeries = json_decode($lastRun['monthly_json'] ?? '[]', true) ?: [];
+    } else {
+        $thinNotice = true;
     }
 }
 ?>
@@ -99,9 +122,13 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['generate'])) {
                         <!-- For DEBUGGING<label>Method</label>
                         <div>Simple Exponential Smoothing (monthly): next month predicts the smoothed level of monthly demand, with &alpha; tuned per run (0.05-0.95). Needs 12 months of sales (complete months + month-to-date).</div>
                     </div>-->
+                    <?php if ($isStaffView): ?>
+                    <button type="submit" class="btn-primary"><i class="fa-solid fa-eye"></i> View Latest Forecast</button>
+                    <p class="section-desc" style="margin:10px 0 0;">View-only access: staff can see saved forecasts but cannot generate new ones.</p>
+                    <?php else: ?>
                     <input type="hidden" name="generate" value="1">
-
                     <button type="submit" class="btn-primary"><i class="fa-solid fa-wand-magic-sparkles"></i> Generate Forecast</button>
+                    <?php endif; ?>
                 </form>
             </div>
         </div>
@@ -109,7 +136,11 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['generate'])) {
         <?php if ($thinNotice): ?>
         <div class="content-card">
             <div class="card-body">
+                <?php if ($isStaffView): ?>
+                <p class="section-desc">No saved forecast for this product yet - an admin or manager needs to generate one first. (View-only access: staff cannot run new forecasts.)</p>
+                <?php else: ?>
                 <p class="section-desc">Not enough history yet - forecasts need 12 months of sales (complete months + month-to-date) for this product (found <?= (int)$fcMonths ?>).</p>
+                <?php endif; ?>
             </div>
         </div>
         <?php endif; ?>

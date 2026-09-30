@@ -158,11 +158,13 @@ $goalData = array_fill(0, count($chartData), $salesGoal);
                 <div style="display: flex; flex-direction: column; align-items: center;">
                     <h2 id="salesGoal">Safety Stock (Target Minimum Stock)</h2>
                     <h3><?= htmlspecialchars($salesGoal) ?> Sacks</h3>
+                    <?php if (in_array($userRole, ['admin', 'manager'])): ?>
                     <form method="POST" action="php_backend/setGoal.php">
                         <input type="number" id="sales_goal" name="sales_goal" min="0" max="1000000"
                             value="<?= htmlspecialchars($salesGoal) ?>" style="width:100px;">
                         <button type="submit" class="btn-primary">Save Goal</button>
                     </form>
+                    <?php endif; ?>
                 </div>
             </div>
             <div class="stat-card" style="grid-column: span 2; height: 380px;">

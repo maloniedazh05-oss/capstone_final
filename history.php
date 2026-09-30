@@ -22,6 +22,17 @@ if ($filterYear !== 'all' && !preg_match('/^\d{4}$/', $filterYear)) {
 if (!in_array($filterSort, ['newest', 'oldest', 'highest', 'lowest'], true)) {
     $filterSort = 'newest';
 }
+// Role scope (matrix): staff sees own rows only; manager sees
+// inventory/sales actions (deducts, stock-outs, imports); admin sees all.
+$histRole = $_SESSION['user_role'] ?? '';
+$histScopeSql = '';
+$histScopeParams = [];
+if ($histRole === 'staff') {
+    $histScopeSql = " AND user = :ownuser";
+    $histScopeParams[':ownuser'] = $_SESSION['user_name'] ?? '';
+} elseif ($histRole === 'manager') {
+    $histScopeSql = " AND (action IN ('Stock Deducted', 'Stock-Out Recorded') OR action LIKE 'Imported%')";
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -51,7 +62,12 @@ if (!in_array($filterSort, ['newest', 'oldest', 'highest', 'lowest'], true)) {
 
                         <?php
                         require_once "php_backend/db.php";
-                        $actionOpts = $pdo->query("SELECT DISTINCT action FROM history ORDER BY action")->fetchAll(PDO::FETCH_COLUMN);
+                        $actionOptStmt = $pdo->prepare("SELECT DISTINCT action FROM history WHERE 1 = 1" . $histScopeSql . " ORDER BY action");
+                        foreach ($histScopeParams as $sk => $sv) {
+                            $actionOptStmt->bindValue($sk, $sv);
+                        }
+                        $actionOptStmt->execute();
+                        $actionOpts = $actionOptStmt->fetchAll(PDO::FETCH_COLUMN);
                         $dateOpts = $pdo->query("SELECT DISTINCT DATE(created_at) AS d FROM history ORDER BY d DESC")->fetchAll(PDO::FETCH_COLUMN);
                         $monthOpts = $pdo->query("SELECT DISTINCT DATE_FORMAT(created_at, '%Y-%m') AS m FROM history ORDER BY m DESC")->fetchAll(PDO::FETCH_COLUMN);
                         $yearOpts = $pdo->query("SELECT DISTINCT YEAR(created_at) AS y FROM history ORDER BY y DESC")->fetchAll(PDO::FETCH_COLUMN);
@@ -109,8 +125,8 @@ if (!in_array($filterSort, ['newest', 'oldest', 'highest', 'lowest'], true)) {
             <div class="card-body">
                 <?php
                 require_once "php_backend/db.php";
-                $histSql = "SELECT id, action, ref_id, product, quantity, unit, receiver, created_at FROM history WHERE 1 = 1";
-                $histParams = [];
+                $histSql = "SELECT id, action, ref_id, product, quantity, unit, receiver, created_at FROM history WHERE 1 = 1" . $histScopeSql;
+                $histParams = $histScopeParams;
                 if ($searchHist !== '') {
                     $histSql .= " AND (action LIKE :search OR ref_id LIKE :search OR product LIKE :search OR receiver LIKE :search)";
                     $histParams[':search'] = "%" . $searchHist . "%";

@@ -1,7 +1,7 @@
 <?php 
 require_once "php_backend/session.php";
 
-requireRole(['admin']);
+requireRole(['admin', 'manager']);
 ?>
 <!DOCTYPE html>
 <html lang="en">

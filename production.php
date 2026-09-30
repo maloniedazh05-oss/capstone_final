@@ -277,10 +277,12 @@ if (!in_array($prodSort, ['newest', 'oldest', 'highest', 'lowest'], true)) {
                                     <button type="button" class="btn-table-action" id="receiverButton"
                                         data-company="<?=htmlspecialchars($row['receiver'] ?? '');?>"
                                         data-viewstatus="<?=htmlspecialchars($row['status'] ?? '');?>">Details</button>
+                                    <?php if (in_array($userRole, ['admin', 'staff'])): ?>
                                     <button type="button" class="btn-table-action" id="statusButton"
                                         data-productionid="<?=$row['production_id']?>"
                                         data-quantitystockin="<?=$row['quantity']?>"
                                         data-editstatus="<?=htmlspecialchars($row['status'] ?? '');?>"><?=$row['status']?></button>
+                                    <?php endif; ?>
                                 </td>
                             </tr>
                             <?php endforeach; ?>

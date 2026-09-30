@@ -2,7 +2,7 @@
 require_once "session.php";
 require_once "db.php";
 
-requireRole(['admin']);
+requireRole(['admin', 'manager']);
 
 if ($_SERVER['REQUEST_METHOD'] != "POST" || !isset($_FILES['historyFile'])) {
     header("Location: ../sales.php?import_error=" . urlencode("No file uploaded."));

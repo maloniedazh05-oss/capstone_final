@@ -1,7 +1,7 @@
 <?php
 require_once "php_backend/session.php";
 
-requireRole(['admin']);
+requireRole(['admin', 'manager']);
 
 // Report branch tabs. Only production is built; the rest are placeholders.
 $tab = $_GET['tab'] ?? 'production';

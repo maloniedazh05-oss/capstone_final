@@ -44,21 +44,21 @@ $userName = $_SESSION['user_name'] ?? '';
             </li>
         <?php endif; ?>
 
-        <?php if (in_array($userRole, ['admin'])): ?>
+        <?php if (in_array($userRole, ['admin', 'manager'])): ?>
             <li class="<?=$currentPage == 'sales.php' ? 'active' : ''?>" data-page="sales.php">
                 <i class="fa-solid fa-cart-shopping"></i>
                 <span>Sales</span>
             </li>
         <?php endif; ?>
 
-        <?php if (in_array($userRole, ['admin'])): ?>
+        <?php if (in_array($userRole, ['admin', 'staff', 'manager'])): ?>
             <li class="<?=$currentPage == 'forecasting.php' ? 'active' : ''?>" data-page="forecasting.php">
                 <i class="fa-solid fa-chart-line"></i>
                 <span>Forecasting</span>
             </li>
         <?php endif; ?>
 
-        <?php if (in_array($userRole, ['admin'])): ?>
+        <?php if (in_array($userRole, ['admin', 'manager'])): ?>
             <li class="<?=$currentPage == 'reports.php' ? 'active' : ''?>" data-page="reports.php">
                 <i class="fa-solid fa-file-lines"></i>
                 <span>Reports</span>

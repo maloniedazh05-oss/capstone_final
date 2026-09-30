@@ -1,7 +1,7 @@
 <?php
 // Real PDF downloads for the reports branches (FPDF, core Helvetica only).
 require_once "session.php";
-requireRole(['admin']);
+requireRole(['admin', 'manager']);
 require_once "db.php";
 require_once "forecast_lib.php";
 require_once "fpdf/fpdf.php";
