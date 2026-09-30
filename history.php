@@ -5,7 +5,6 @@ requireRole(['admin', 'staff', 'manager']);
 
 // Filters (GET so search + dropdowns combine in the URL).
 $searchHist = trim($_GET['search'] ?? '');
-$filterUser = trim($_GET['user'] ?? 'all');
 $filterAction = trim($_GET['action'] ?? 'all');
 $filterDate = $_GET['date'] ?? 'all';
 if ($filterDate !== 'all' && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $filterDate)) {
@@ -52,20 +51,11 @@ if (!in_array($filterSort, ['newest', 'oldest', 'highest', 'lowest'], true)) {
 
                         <?php
                         require_once "php_backend/db.php";
-                        $userOpts = $pdo->query("SELECT DISTINCT user FROM history ORDER BY user")->fetchAll(PDO::FETCH_COLUMN);
                         $actionOpts = $pdo->query("SELECT DISTINCT action FROM history ORDER BY action")->fetchAll(PDO::FETCH_COLUMN);
                         $dateOpts = $pdo->query("SELECT DISTINCT DATE(created_at) AS d FROM history ORDER BY d DESC")->fetchAll(PDO::FETCH_COLUMN);
                         $monthOpts = $pdo->query("SELECT DISTINCT DATE_FORMAT(created_at, '%Y-%m') AS m FROM history ORDER BY m DESC")->fetchAll(PDO::FETCH_COLUMN);
                         $yearOpts = $pdo->query("SELECT DISTINCT YEAR(created_at) AS y FROM history ORDER BY y DESC")->fetchAll(PDO::FETCH_COLUMN);
                         ?>
-                        <i class="fa-solid fa-user"></i>
-                        <label for="user-filter">User:</label>
-                        <select id="user-filter" name="user" onchange="document.getElementById('history-filter-form').submit()">
-                            <option value="all" <?= $filterUser === 'all' ? 'selected' : '' ?>>All Users</option>
-                            <?php foreach ($userOpts as $u): ?>
-                            <option value="<?= htmlspecialchars($u) ?>" <?= $filterUser === $u ? 'selected' : '' ?>><?= htmlspecialchars($u) ?></option>
-                            <?php endforeach; ?>
-                        </select>
                         <i class="fa-solid fa-filter"></i>
                         <label for="action-filter">Action:</label>
                         <select id="action-filter" name="action" onchange="document.getElementById('history-filter-form').submit()">
@@ -103,7 +93,7 @@ if (!in_array($filterSort, ['newest', 'oldest', 'highest', 'lowest'], true)) {
                             <option value="highest" <?= $filterSort === 'highest' ? 'selected' : '' ?>>Highest quantity</option>
                             <option value="lowest" <?= $filterSort === 'lowest' ? 'selected' : '' ?>>Lowest quantity</option>
                         </select>
-                        <?php if ($searchHist !== '' || $filterUser !== 'all' || $filterAction !== 'all' || $filterDate !== 'all' || $filterMonth !== 'all' || $filterYear !== 'all' || $filterSort !== 'newest'): ?>
+                        <?php if ($searchHist !== '' || $filterAction !== 'all' || $filterDate !== 'all' || $filterMonth !== 'all' || $filterYear !== 'all' || $filterSort !== 'newest'): ?>
                         <a href="history.php" class="btn-secondary" style="text-decoration:none;">Clear</a>
                         <?php endif; ?>
                     </form>
@@ -119,15 +109,11 @@ if (!in_array($filterSort, ['newest', 'oldest', 'highest', 'lowest'], true)) {
             <div class="card-body">
                 <?php
                 require_once "php_backend/db.php";
-                $histSql = "SELECT * FROM history WHERE 1 = 1";
+                $histSql = "SELECT id, action, ref_id, product, quantity, unit, created_at FROM history WHERE 1 = 1";
                 $histParams = [];
                 if ($searchHist !== '') {
-                    $histSql .= " AND (user LIKE :search OR action LIKE :search OR ref_id LIKE :search OR product LIKE :search)";
+                    $histSql .= " AND (action LIKE :search OR ref_id LIKE :search OR product LIKE :search)";
                     $histParams[':search'] = "%" . $searchHist . "%";
-                }
-                if ($filterUser !== 'all') {
-                    $histSql .= " AND user = :huser";
-                    $histParams[':huser'] = $filterUser;
                 }
                 if ($filterAction !== 'all') {
                     $histSql .= " AND action = :haction";
@@ -157,7 +143,6 @@ if (!in_array($filterSort, ['newest', 'oldest', 'highest', 'lowest'], true)) {
                         <thead>
                             <tr>
                                 <th>Date/Time</th>
-                                <th>User</th>
                                 <th>Action</th>
                                 <th>Details</th>
                             </tr>
@@ -171,18 +156,26 @@ if (!in_array($filterSort, ['newest', 'oldest', 'highest', 'lowest'], true)) {
                                 $histRows = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             } catch (Exception $e) {
                                 $histError = true;
-                                echo "<tr><td colspan='4'>Search query not found!</td></tr>";
+                                echo "<tr><td colspan='3'>Search query not found!</td></tr>";
                             }
                             if (!$histError && empty($histRows)):
                             ?>
-                            <tr><td colspan="4"><?= ($searchHist !== '' || $filterUser !== 'all' || $filterAction !== 'all' || $filterDate !== 'all' || $filterMonth !== 'all' || $filterYear !== 'all' || $filterSort !== 'newest') ? "No activity matches your search/filter." : "No activity yet." ?></td></tr>
+                            <tr><td colspan="3"><?= ($searchHist !== '' || $filterAction !== 'all' || $filterDate !== 'all' || $filterMonth !== 'all' || $filterYear !== 'all' || $filterSort !== 'newest') ? "No activity matches your search/filter." : "No activity yet." ?></td></tr>
                             <?php else: ?>
                             <?php foreach ($histRows as $h_row): ?>
                             <tr>
                                 <td><?= htmlspecialchars(date('M d h:i A', strtotime($h_row['created_at']))) ?></td>
-                                <td><?= htmlspecialchars($h_row['user']) ?></td>
                                 <td><?= htmlspecialchars($h_row['action']) ?></td>
-                                <td><?= htmlspecialchars(!empty($h_row['ref_id']) ? 'Batch ' . $h_row['ref_id'] . ' - ' . $h_row['quantity'] . ' ' . strtolower($h_row['unit']) : $h_row['quantity'] . ' ' . strtolower($h_row['unit'])) ?></td>
+                                <td><?php
+                                    // Details: batch id + quantity only. Deduct rows show the
+                                    // amount alone (receiver names are stored, never shown).
+                                    $qtyUnit = htmlspecialchars($h_row['quantity'] . ' ' . strtolower($h_row['unit']));
+                                    if ($h_row['action'] === 'Stock Deducted' || empty($h_row['ref_id'])) {
+                                        echo $qtyUnit;
+                                    } else {
+                                        echo 'Batch ' . htmlspecialchars($h_row['ref_id']) . ' - ' . $qtyUnit;
+                                    }
+                                ?></td>
                             </tr>
                             <?php endforeach; ?>
                             <?php endif; ?>

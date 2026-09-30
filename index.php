@@ -88,27 +88,24 @@ $goalData = array_fill(0, count($chartData), $salesGoal);
             <h2>Good <?= $greet ?>, <strong><?= htmlspecialchars($_SESSION['user_name']) ?></strong></h2>
         </div>
         <?php
-        // Stock notice band: no gaps, server-rendered so the logos + icon survive.
-        if ($current_vermicast > 20) {
+        // Stock notice band driven by the safety-stock goal (G): no gaps,
+        // server-rendered so the logos + icon survive.
+        if ($current_vermicast >= $salesGoal) {
             $notifClass = 'notif-green';
             $notifIcon = 'fa-circle-check';
-            $notifText = "Stocks levels are healthy ({$vermiFmt} Sacks)";
-        } elseif ($current_vermicast >= 10) {
-            $notifClass = 'notif-good';
-            $notifIcon = 'fa-circle-info';
-            $notifText = "Stocks levels are sufficient ({$vermiFmt} Sacks)";
-        } elseif ($current_vermicast >= 5) {
+            $notifText = "Stocks levels are healthy ({$vermiFmt} Sacks, at/above safety stock of {$salesGoal})";
+        } elseif ($current_vermicast >= $salesGoal / 2) {
+            $notifClass = 'notif-orange';
+            $notifIcon = 'fa-triangle-exclamation';
+            $notifText = "Stocks levels are low ({$vermiFmt} Sacks left, safety stock is {$salesGoal})";
+        } elseif ($current_vermicast > 0) {
             $notifClass = 'notif-red';
             $notifIcon = 'fa-triangle-exclamation';
-            $notifText = "Stocks levels are low ({$vermiFmt} Sacks left)";
-        } elseif ($current_vermicast >= 1) {
-            $notifClass = 'notif-danger';
-            $notifIcon = 'fa-triangle-exclamation';
-            $notifText = "Stocks levels are critically low! ({$vermiFmt} Sacks left)";
+            $notifText = "Action required: stock ({$vermiFmt} Sacks) is below safety stock ({$salesGoal})";
         } else {
             $notifClass = 'notif-danger';
             $notifIcon = 'fa-circle-xmark';
-            $notifText = "No stocks!";
+            $notifText = "No stocks! Safety stock is {$salesGoal} Sacks.";
         }
         ?>
         <h2 id="dashboard-notif" class="notif <?= $notifClass ?>">
@@ -119,7 +116,7 @@ $goalData = array_fill(0, count($chartData), $salesGoal);
 
         <?php if (isset($_GET['success'])): ?>
             <div class="feedback-success">
-                <i class="fa-solid fa-circle-check"></i> Goal saved successfully!
+                <i class="fa-solid fa-circle-check"></i> Safety stock saved successfully!
             </div>
         <?php elseif (isset($_GET['error'])): ?>
             <div class="feedback-error">
@@ -159,7 +156,7 @@ $goalData = array_fill(0, count($chartData), $salesGoal);
         <div class="info-cards">
             <div class="stat-card" style="display: flex; align-items: center; justify-content: center;">
                 <div style="display: flex; flex-direction: column; align-items: center;">
-                    <h2 id="salesGoal">Safety Stock(Target Minimum Stock)</h2>
+                    <h2 id="salesGoal">Safety Stock (Target Minimum Stock)</h2>
                     <h3><?= htmlspecialchars($salesGoal) ?> Sacks</h3>
                     <form method="POST" action="php_backend/setGoal.php">
                         <input type="number" id="sales_goal" name="sales_goal" min="0" max="1000000"
@@ -256,7 +253,7 @@ $goalData = array_fill(0, count($chartData), $salesGoal);
 
 
                     }, {
-                        label: 'Target Minimum Stock',
+                        label: 'Safety Stock',
                         data: goalData,
                         borderColor: '#ef4444',
                         borderDash: [6, 4],
