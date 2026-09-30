@@ -302,7 +302,7 @@ if ($tab === 'forecast' && ($_GET['export'] ?? '') === 'csv') {
                                 <td><?= htmlspecialchars($r_row['batch_id']) ?></td>
                                 <td><?= htmlspecialchars(date('M d', strtotime($r_row['production_date']))) ?></td>
                                 <td><?= htmlspecialchars($r_row['item']) ?></td>
-                                <td><strong><?= htmlspecialchars($r_row['quantity']) ?></strong></td>
+                                <td><strong><?= htmlspecialchars($r_row['quantity']) ?> Sacks</strong></td>
                                 <td><?= htmlspecialchars($r_row['status']) ?><?= $r_row['status'] === 'Completed' ? ' ✓' : '' ?></td>
                             </tr>
                             <?php endforeach; ?>
@@ -550,9 +550,9 @@ if ($tab === 'forecast' && ($_GET['export'] ?? '') === 'csv') {
                             <tr>
                                 <td><?= htmlspecialchars(date('M d', strtotime($m_row['day']))) ?></td>
                                 <td><?= htmlspecialchars($m_row['tx']) ?></td>
-                                <td><?= htmlspecialchars($m_row['qty']) ?></td>
-                                <td><?= htmlspecialchars($m_row['eff']) ?></td>
-                                <td><?= htmlspecialchars($m_row['bal']) ?></td>
+                                <td><?= htmlspecialchars($m_row['qty']) ?> Sacks</td>
+                                <td><?= htmlspecialchars($m_row['eff']) ?> Sacks</td>
+                                <td><?= htmlspecialchars($m_row['bal']) ?> Sacks</td>
                             </tr>
                             <?php endforeach; ?>
                             <?php endif; ?>
@@ -775,7 +775,7 @@ if ($tab === 'forecast' && ($_GET['export'] ?? '') === 'csv') {
                             <tr>
                                 <td><?= htmlspecialchars(date('M d', strtotime($s_row['day']))) ?></td>
                                 <td><?= htmlspecialchars($s_row['product']) ?></td>
-                                <td><strong><?= htmlspecialchars($s_row['quantity']) ?></strong></td>
+                                <td><strong><?= htmlspecialchars($s_row['quantity']) ?> Sacks</strong></td>
                                 <td><?= htmlspecialchars($s_row['description'] ?: 'None') ?></td>
                             </tr>
                             <?php endforeach; ?>
