@@ -29,7 +29,7 @@ if (!in_array($repStatus, ['all', 'Recent', 'Ongoing', 'Completed'], true)) {
 }
 
 // Forecast CSV export must stream before any HTML output (headers).
-// Monthly SES: last 12-36 complete months in, next month out.
+// Monthly SES: complete months + month-to-date in, next month out.
 if ($tab === 'forecast' && ($_GET['export'] ?? '') === 'csv') {
     require_once "php_backend/db.php";
     require_once "php_backend/forecast_lib.php";
@@ -825,7 +825,7 @@ if ($tab === 'forecast' && ($_GET['export'] ?? '') === 'csv') {
                             <?php endforeach; ?>
                         </select>
                         <span class="section-desc" style="margin:0;">Historical: <strong><?= htmlspecialchars($fcRangeLabel) ?></strong></span>
-                        <!--<span class="section-desc" style="margin:0;">SES (monthly) · Next 1 Month · Needs 12+ complete months history</span>-->
+                        <span class="section-desc" style="margin:0;">SES (monthly) · Next 1 Month · Needs 12 months (complete + month-to-date)</span>
                         <input type="hidden" name="fc-generate" value="1">
                         <button type="submit" class="btn-primary">Generate</button>
                     </form>
@@ -839,10 +839,11 @@ if ($tab === 'forecast' && ($_GET['export'] ?? '') === 'csv') {
         $fcDiff = round($fcCurrent - $fcQty, 2);
         $fcNextLabel = date('M Y', strtotime($fcResult['nextMonth'] . '-01'));
         $fcFmt = function ($v) { return rtrim(rtrim(number_format((float)$v, 2, '.', ''), '0'), '.'); };
+        $fcMLabel = function ($pt) { $l = date('M Y', strtotime($pt['key'] . '-01')); return !empty($pt['partial']) ? $l . ' (to date)' : $l; };
         $fcHistLabels = [];
         $fcHistVals = [];
         foreach (($fcResult['series'] ?? []) as $pt) {
-            $fcHistLabels[] = date('M Y', strtotime($pt['key'] . '-01'));
+            $fcHistLabels[] = $fcMLabel($pt);
             $fcHistVals[] = $pt['qty'];
         }
         $fcHistLabels[] = $fcNextLabel . ' (fc)';
@@ -919,7 +920,7 @@ if ($tab === 'forecast' && ($_GET['export'] ?? '') === 'csv') {
                         <tbody>
                             <?php foreach (($fcResult['series'] ?? []) as $pt): ?>
                             <tr>
-                                <td><?= htmlspecialchars(date('M Y', strtotime($pt['key'] . '-01'))) ?></td>
+                                <td><?= htmlspecialchars($fcMLabel($pt)) ?></td>
                                 <td><?= $fcFmt($pt['qty']) ?></td>
                                 <td>—</td>
                             </tr>
@@ -937,7 +938,7 @@ if ($tab === 'forecast' && ($_GET['export'] ?? '') === 'csv') {
         <?php elseif ($fcResult !== null && $fcResult['thin']): ?>
         <div class="content-card">
             <div class="card-body">
-                <p class="section-desc">Not enough history yet - forecasts need 12+ complete months of sales for this product.</p>
+                <p class="section-desc">Not enough history yet - forecasts need 12 months of sales (complete months + month-to-date) for this product.</p>
             </div>
         </div>
         <?php endif; ?>

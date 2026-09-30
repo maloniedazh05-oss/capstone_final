@@ -1,8 +1,9 @@
 <?php
 // Monthly SES forecaster (pure PHP, no extensions).
-// Uses last 12-36 COMPLETE months of Completed totals for one product:
-// each month predicts next month's demand. Shared by forecasting.php,
-// reports.php and report_pdf.php so they can never drift apart.
+// Uses up to 36 months of Completed totals for one product (complete months
+// plus the current month-to-date when it already holds sales, pro-rated to
+// a full-month equivalent). Predicts next full month's demand. Shared by
+// forecasting.php, reports.php and report_pdf.php so they can never drift.
 //
 // Future methods slot into $FORECAST_METHODS (e.g. 'holt', 'hw') without
 // touching any caller: runForecast($pdo, $product, $selMethod).
@@ -52,7 +53,7 @@ function runForecast($pdo, $product, $selMethod = null) {
         $qtyMap[sprintf('%04d-%02d', $row['y'], $row['m'])] = (float)$row['total_qty'];
     }
     if (empty($qtyMap)) {
-        return ['forecast' => [], 'method' => '', 'note' => '', 'average' => 0, 'thin' => true, 'alpha' => 0, 'months' => 0, 'nextMonth' => '', 'series' => []];
+        return ['forecast' => [], 'method' => '', 'note' => '', 'average' => 0, 'thin' => true, 'alpha' => 0, 'months' => 0, 'complete' => 0, 'mtd' => null, 'nextMonth' => '', 'series' => []];
     }
     // Continuous calendar, oldest -> newest, gaps = 0 demand.
     $keys = array_keys($qtyMap);
@@ -60,22 +61,39 @@ function runForecast($pdo, $product, $selMethod = null) {
     $k = $keys[0];
     $lastK = end($keys);
     while ($k <= $lastK) {
-        $months[] = ['key' => $k, 'qty' => $qtyMap[$k] ?? 0.0];
+        $months[] = ['key' => $k, 'qty' => $qtyMap[$k] ?? 0.0, 'partial' => false];
         $k = date('Y-m', strtotime($k . '-01 +1 month'));
     }
 
-    // Drop the partial current month: never fit on an incomplete bucket.
+    // Month-to-date: the current partial month joins the fit ONLY when it
+    // already holds sales, pro-rated to a full-month equivalent (pacing:
+    // MTD x days-in-month / days-elapsed). Empty months are skipped so
+    // early-month zeros can't crater the level.
     $thisMonth = date('Y-m');
-    if (!empty($months) && end($months)['key'] === $thisMonth) {
+    $mtdRaw = round((float)($qtyMap[$thisMonth] ?? 0), 2);
+    $mtd = null;
+    if ($mtdRaw > 0) {
+        $elapsed = max(1, (int)date('j'));
+        $dim = (int)date('t');
+        $mtdQty = round($mtdRaw * $dim / $elapsed, 2);
+        // Avoid a duplicate key when the calendar already ends this month.
+        if (!empty($months) && end($months)['key'] === $thisMonth) {
+            array_pop($months);
+        }
+        $months[] = ['key' => $thisMonth, 'qty' => $mtdQty, 'partial' => true];
+        $mtd = ['key' => $thisMonth, 'raw' => $mtdRaw, 'prorated' => $mtdQty];
+    } elseif (!empty($months) && end($months)['key'] === $thisMonth) {
+        // Empty current month: drop it, fit on complete months only.
         array_pop($months);
     }
-    // Cap at the most recent 36 so old regimes don't drag the level.
+    // Cap at the most recent 36 points so old regimes don't drag the level.
     if (count($months) > 36) {
         $months = array_slice($months, -36);
     }
-    // Gate: SES needs at least 12 complete months.
+    // Gate: at least 12 points (complete months + MTD when present).
+    $completeCount = count($months) - ($mtd !== null ? 1 : 0);
     if (count($months) < 12) {
-        return ['forecast' => [], 'method' => '', 'note' => '', 'average' => 0, 'thin' => true, 'alpha' => 0, 'months' => count($months), 'nextMonth' => '', 'series' => []];
+        return ['forecast' => [], 'method' => '', 'note' => '', 'average' => 0, 'thin' => true, 'alpha' => 0, 'months' => count($months), 'complete' => $completeCount, 'mtd' => $mtd, 'nextMonth' => '', 'series' => []];
     }
 
     $data = array_column($months, 'qty');
@@ -96,6 +114,8 @@ function runForecast($pdo, $product, $selMethod = null) {
         'thin' => false,
         'alpha' => $alpha,
         'months' => count($months),
+        'complete' => $completeCount,
+        'mtd' => $mtd,
         'nextMonth' => $nextMonth,
         'series' => $months,
     ];

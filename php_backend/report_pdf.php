@@ -138,7 +138,8 @@ if ($branch === 'production') {
     $fcRes = runForecast($pdo, $fcProd);
     $rows = [];
     foreach (($fcRes['series'] ?? []) as $pt) {
-        $rows[] = [date('M Y', strtotime($pt['key'] . '-01')), (string)$pt['qty'], '-'];
+        $ml = date('M Y', strtotime($pt['key'] . '-01')) . (!empty($pt['partial']) ? ' (to date)' : '');
+        $rows[] = [$ml, (string)$pt['qty'], '-'];
     }
     if (!$fcRes['thin']) {
         $rows[] = [date('M Y', strtotime($fcRes['nextMonth'] . '-01')), '-', (string)$fcRes['forecast'][0]];

@@ -159,7 +159,7 @@ $goalData = array_fill(0, count($chartData), $salesGoal);
         <div class="info-cards">
             <div class="stat-card" style="display: flex; align-items: center; justify-content: center;">
                 <div style="display: flex; flex-direction: column; align-items: center;">
-                    <h2 id="salesGoal">Sales goal (Target Minimum Stock)</h2>
+                    <h2 id="salesGoal">Safety Stock(Target Minimum Stock)</h2>
                     <h3><?= htmlspecialchars($salesGoal) ?> Sacks</h3>
                     <form method="POST" action="php_backend/setGoal.php">
                         <input type="number" id="sales_goal" name="sales_goal" min="0" max="1000000"
