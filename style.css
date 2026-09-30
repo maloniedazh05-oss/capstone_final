@@ -1735,3 +1735,16 @@ Responsive Media Queries
         padding: 12px 16px;
     }
 }
+
+/* Below PC width (< 1024px): hide brand logos and decorative pictures so
+   mobile/tablet views stay clean and light. Desktop is untouched. */
+@media (max-width: 1023px) {
+    img#logo,
+    .header-logo,
+    .main-sidebar > img,
+    #dashboard-notif img,
+    #notif img,
+    .notif img {
+        display: none !important;
+    }
+}
