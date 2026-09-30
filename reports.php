@@ -825,7 +825,7 @@ if ($tab === 'forecast' && ($_GET['export'] ?? '') === 'csv') {
                             <?php endforeach; ?>
                         </select>
                         <span class="section-desc" style="margin:0;">Historical: <strong><?= htmlspecialchars($fcRangeLabel) ?></strong></span>
-                        <span class="section-desc" style="margin:0;">SES (monthly) · Next 1 Month · Needs 12+ complete months history</span>
+                        <!--<span class="section-desc" style="margin:0;">SES (monthly) · Next 1 Month · Needs 12+ complete months history</span>-->
                         <input type="hidden" name="fc-generate" value="1">
                         <button type="submit" class="btn-primary">Generate</button>
                     </form>
@@ -869,7 +869,7 @@ if ($tab === 'forecast' && ($_GET['export'] ?? '') === 'csv') {
                 <h2><i class="fa-solid fa-chart-line"></i> Forecast Overview</h2>
             </div>
             <div class="card-body">
-                <p class="section-desc">Method: <?= htmlspecialchars($fcResult['method']) ?> (&alpha; = <?= htmlspecialchars($fcResult['alpha']) ?>, <?= (int)$fcResult['months'] ?> months)</p>
+                <p class="section-desc">Method: <?= htmlspecialchars($fcResult['method']) ?> (<?= (int)$fcResult['months'] ?> months)</p>
                 <div style="height: 320px;"><canvas id="fcChart"></canvas></div>
             </div>
         </div>

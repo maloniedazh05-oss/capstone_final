@@ -155,7 +155,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['generate'])) {
                     <div class="stat-card stat-card-purple">
                         <h2>Forecast Period</h2>
                         <h3>1 Month</h3>
-                        <div class="stat-sub"><?= htmlspecialchars($fcNextLabel) ?> (&alpha; = <?= htmlspecialchars($fcAlpha) ?>, <?= (int)$fcMonths ?> months)</div>
+                        <div class="stat-sub"><?= htmlspecialchars($fcNextLabel) ?> (<?= (int)$fcMonths ?> months)</div>
                     </div>
                 </div>
             </div>
@@ -195,7 +195,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['generate'])) {
         <!-- Forecasted Demand -->
         <div class="content-card">
             <div class="card-header">
-                <h2><i class="fa-solid fa-calendar-days"></i> Forecasted Demand (<?= htmlspecialchars($method) ?>, &alpha; = <?= htmlspecialchars($fcAlpha) ?>)</h2>
+                <h2><i class="fa-solid fa-calendar-days"></i> Forecasted Demand (<?= htmlspecialchars($method) ?>)</h2>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
