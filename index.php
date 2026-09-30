@@ -167,8 +167,8 @@ $goalData = array_fill(0, count($chartData), $salesGoal);
                     <?php endif; ?>
                 </div>
             </div>
-            <div class="stat-card" style="grid-column: span 2; height: 380px;">
-                <div class="card-header card-header-flex" style="background: none; flex-wrap: wrap; row-gap: 10px;">
+            <div class="stat-card" style="grid-column: span 2; min-height: 380px; justify-content: flex-start; align-items: stretch;">
+                <div class="card-header card-header-flex" style="background: none; flex-wrap: wrap; row-gap: 10px; width: 100%;">
                     <h2>Inventory Trend (<?= $trend === '30' ? '30 Days' : ($trend === '7' ? '7 Days' : 'Recent') ?>)
                     </h2>
                     <div class="card-filter">
@@ -182,7 +182,7 @@ $goalData = array_fill(0, count($chartData), $salesGoal);
                             Days</a>
                     </div>
                     </div>
-                <canvas id="stockChart" height="200"></canvas>
+                <div style="position: relative; width: 100%; height: 280px;"><canvas id="stockChart"></canvas></div>
             </div>
         </div>
 
