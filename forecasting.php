@@ -33,6 +33,7 @@ $fcComplete = 0;
 $fcMtd = null;
 $fcNextMonth = '';
 $fcSeries = [];
+$fcSavedAt = '';
 $histWarn = false;
 $thinNotice = false;
 // Staff gets a read-only view: latest saved run, never a fresh generate
@@ -62,9 +63,16 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['generate']) && !$isSta
     }
 }
 if ($isStaffView) {
-    // Latest saved run for the selected product - display only, never saved.
+    // Staff view is read-only: no generate branch exists below for them,
+    // so fall through to the retained-run loader (even a forged POST with
+    // generate=1 lands here, never in a fresh compute).
+    $thinNotice = false;
+}
+if ($forecast === null) {
+    // Retained-run loader: show the previous calculation on page load.
+    // Display only, never saved.
     try {
-        $latest = $pdo->prepare("SELECT forecast_qty, forecast_month, months_used, alpha, monthly_json FROM forecasting_monthly WHERE product = :prod ORDER BY id DESC LIMIT 1");
+        $latest = $pdo->prepare("SELECT forecast_qty, forecast_month, months_used, alpha, monthly_json, created_at FROM forecasting_monthly WHERE product = :prod ORDER BY id DESC LIMIT 1");
         $latest->execute([':prod' => $selProduct]);
         $lastRun = $latest->fetch(PDO::FETCH_ASSOC);
     } catch (Exception $e) {
@@ -77,6 +85,7 @@ if ($isStaffView) {
         $fcMonths = (int)$lastRun['months_used'];
         $fcNextMonth = $lastRun['forecast_month'];
         $fcSeries = json_decode($lastRun['monthly_json'] ?? '[]', true) ?: [];
+        $fcSavedAt = $lastRun['created_at'];
     } else {
         $thinNotice = true;
     }
@@ -171,7 +180,10 @@ if ($isStaffView) {
                     <span>Run computed but not saved (forecasting_monthly table missing - run its CREATE from database_query).</span>
                 </div>
                 <?php endif; ?>
-                <h3 style="margin: 0 0 14px; font-size: 1.05rem;">Demand Forecast Overview</h3>
+                <h3 style="margin: 0 0 4px; font-size: 1.05rem;">Demand Forecast Overview</h3>
+                <?php if ($fcSavedAt !== '' && !isset($_POST['generate'])): ?>
+                <p class="section-desc" style="margin: 0 0 14px;">Last calculated: <?= htmlspecialchars(date('M d, Y h:i A', strtotime($fcSavedAt))) ?> — retained run, generate a fresh forecast for updated numbers.</p>
+                <?php endif; ?>
                 <div class="info-cards">
                     <div class="stat-card stat-card-green">
                         <h2>Predicted Demand</h2>
