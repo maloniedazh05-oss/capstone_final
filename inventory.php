@@ -825,202 +825,129 @@ function updateDeductLimit(unit) {
             </div>
         </div>
 
-        <!-- Card 3: History START-->
-        <div class="card-body"> 
-        
+        <!-- Card 3: Deducted Transactions START -->
+        <?php
+        require_once "php_backend/db.php";
 
-<tbody> 
-
-<?php if (empty($historyRows)): ?>
-
-    <tr>
-        <td colspan="4">
-            No deducted transactions yet.
-        </td>
-    </tr>
-
-<?php else: ?>
-
-    <?php foreach ($historyRows as $h_row): ?>
-
-        <tr>
-
-            <td>
-                <strong>
-                    <?= htmlspecialchars($h_row['action']) ?>
-                </strong>
-            </td>
-
-            <td>
-                <?= htmlspecialchars($h_row['quantity']) ?>
-            </td>
-
-            <td>
-                <?= htmlspecialchars($h_row['unit']) ?>
-            </td>
-
-            <td>
-                <?= htmlspecialchars($h_row['created_at']) ?>
-            </td>
-
-        </tr>
-
-    <?php endforeach; ?>
-
-<?php endif; ?>
-
-</tbody>
-    <?php
-    require_once "php_backend/db.php";
-
-
-    $historySql = "
-    SELECT
-        id,
-        action,
-        ref_id,
-        product,
-        quantity,
-        unit,
-        created_at
-    FROM history
-    WHERE action = 'Stock Deducted'
-";
-
-    $historyParams = [];
-
-    // Search
-    if ($searchHistory !== '') {
-        $historySql .= "
-            AND (
-                CAST(ref_id AS CHAR) LIKE :search
-                OR action LIKE :search
-                OR product LIKE :search
-                OR description LIKE :search
-                OR unit LIKE :search
-            )
+        $historySql = "
+        SELECT
+            id,
+            action,
+            ref_id,
+            product,
+            quantity,
+            unit,
+            created_at
+        FROM history
+        WHERE action = 'Stock Deducted'
         ";
 
-        $historyParams[':search'] = "%" . $searchHistory . "%";
-    }
+        $historyParams = [];
 
-    // Date
-    if ($historyDate !== 'all') {
-        $historySql .= " AND DATE(created_at) = :hdate";
-        $historyParams[':hdate'] = $historyDate;
-    }
+        // Search (history table has no description column)
+        if ($searchHistory !== '') {
+            $historySql .= "
+                AND (
+                    CAST(ref_id AS CHAR) LIKE :search
+                    OR action LIKE :search
+                    OR product LIKE :search
+                    OR unit LIKE :search
+                )
+            ";
 
-    // Month
-    if ($historyMonth !== 'all') {
-        $historySql .= " AND DATE_FORMAT(created_at, '%Y-%m') = :hmonth";
-        $historyParams[':hmonth'] = $historyMonth;
-    }
+            $historyParams[':search'] = "%" . $searchHistory . "%";
+        }
 
-    // Year
-    if ($historyYear !== 'all') {
-        $historySql .= " AND YEAR(created_at) = :hyear";
-        $historyParams[':hyear'] = $historyYear;
-    }
+        // Date
+        if ($historyDate !== 'all') {
+            $historySql .= " AND DATE(created_at) = :hdate";
+            $historyParams[':hdate'] = $historyDate;
+        }
 
-    // Sorting
-    $historySortMap = [
-        'newest' => 'created_at DESC',
-        'oldest' => 'created_at ASC',
-        'highest' => 'quantity DESC',
-        'lowest' => 'quantity ASC'
-    ];
+        // Month
+        if ($historyMonth !== 'all') {
+            $historySql .= " AND DATE_FORMAT(created_at, '%Y-%m') = :hmonth";
+            $historyParams[':hmonth'] = $historyMonth;
+        }
 
-    $historySql .= " ORDER BY " . $historySortMap[$historySort];
+        // Year
+        if ($historyYear !== 'all') {
+            $historySql .= " AND YEAR(created_at) = :hyear";
+            $historyParams[':hyear'] = $historyYear;
+        }
 
-    $historyStmt = $pdo->prepare($historySql);
+        // Sorting
+        $historySortMap = [
+            'newest' => 'created_at DESC',
+            'oldest' => 'created_at ASC',
+            'highest' => 'quantity DESC',
+            'lowest' => 'quantity ASC'
+        ];
 
-    foreach ($historyParams as $key => $value) {
-        $historyStmt->bindValue($key, $value);
-    }
+        $historySql .= " ORDER BY " . $historySortMap[$historySort];
 
-    $historyStmt->execute();
+        $historyStmt = $pdo->prepare($historySql);
 
-    $historyRows = $historyStmt->fetchAll(PDO::FETCH_ASSOC);
-    ?>
+        foreach ($historyParams as $key => $value) {
+            $historyStmt->bindValue($key, $value);
+        }
 
-    <div class="table-responsive">
-<div class="content-card">
+        $historyStmt->execute();
+
+        $historyRows = $historyStmt->fetchAll(PDO::FETCH_ASSOC);
+        ?>
+        <div class="content-card">
             <div class="card-header">
-                <h2><i class="fa-solid fa-arrow"></i> Recent Inventory Movements</h2>
-        <table class="data-table" id="historyTable">
-
-            <thead>
-                <tr>
-                   <th>Transaction</th>
-                    <th>Product</th>
-                    <th>Quantity</th>
-                   <th>Unit</th>
-                   <th>Date Created</th>
-                </tr>
-            </thead>
-
-            <tbody>
-
-                <?php if (empty($historyRows)): ?>
-
-                    <tr>
-                        <td colspan="5">
-                            <?php
-                            if (
-                                $searchHistory !== '' ||
-                                $historyDate !== 'all' ||
-                                $historyMonth !== 'all' ||
-                                $historyYear !== 'all'
-                            ) {
-                                echo "No history matches your search/filter.";
-                            } else {
-                                echo "No transactions yet.";
-                            }
-                            ?>
-                        </td>
-                    </tr>
-
-                <?php else: ?>
-<div class="card-body">
-                    <?php foreach ($historyRows as $h_row): ?>
-
-                        <tr>
-
-                            <td>
-                                <strong>
-                                    <?= htmlspecialchars($h_row['action']) ?>
-                                </strong>
-                            </td>
-
-                            <td>
-                                <?= htmlspecialchars($h_row['quantity']) ?>
-                            </td>
-
-                            <td>
-                                <?= htmlspecialchars($h_row['unit']) ?>
-                            </td>
-
-                            <td>
-    <?= htmlspecialchars($h_row['product'] ?? 'Stock') ?>
-</td>
-
-                            <td>
-                                <?= htmlspecialchars($h_row['created_at']) ?>
-                            </td>
-
-                        </tr>
-
-                    <?php endforeach; ?>
-
-                <?php endif; ?>
-
-            </tbody>
-
-        </table>
-
-    </div>
-
-</div>
+                <h2><i class="fa-solid fa-arrow"></i> Deducted Transactions</h2>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="data-table" id="historyTable">
+                        <thead>
+                            <tr>
+                                <th>Transaction</th>
+                                <th>Product</th>
+                                <th>Quantity</th>
+                                <th>Unit</th>
+                                <th>Date Created</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if (empty($historyRows)): ?>
+                                <tr>
+                                    <td colspan="5">
+                                        <?= ($searchHistory !== '' || $historyDate !== 'all' || $historyMonth !== 'all' || $historyYear !== 'all') ? "No history matches your search/filter." : "No deducted transactions yet." ?>
+                                    </td>
+                                </tr>
+                            <?php else: ?>
+                                <?php foreach ($historyRows as $h_row): ?>
+                                    <tr>
+                                        <td>
+                                            <strong>
+                                                <?= htmlspecialchars($h_row['action']) ?>
+                                            </strong>
+                                        </td>
+                                        <td>
+                                            <?= htmlspecialchars($h_row['product'] ?? 'Stock') ?>
+                                        </td>
+                                        <td>
+                                            <?= htmlspecialchars($h_row['quantity']) ?>
+                                        </td>
+                                        <td>
+                                            <?= htmlspecialchars($h_row['unit']) ?>
+                                        </td>
+                                        <td>
+                                            <?= htmlspecialchars($h_row['created_at']) ?>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- Card 3: Deducted Transactions END -->
             <!--Content Card End, History END-->
             <div class="card-body">
                 <?php
