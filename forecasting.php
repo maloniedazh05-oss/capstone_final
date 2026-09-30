@@ -18,7 +18,7 @@ if (!in_array($selProduct, $prodOpts, true)) {
 $rangeStmt = $pdo->prepare("SELECT MIN(updated_at) AS mn, MAX(updated_at) AS mx FROM inventory WHERE status = 'Completed' AND product = :prod");
 $rangeStmt->execute([':prod' => $selProduct]);
 $rangeRow = $rangeStmt->fetch(PDO::FETCH_ASSOC);
-$rangeLabel = ($rangeRow && $rangeRow['mn']) ? date('F Y', strtotime($rangeRow['mn'])) . ' - ' . date('F Y', strtotime($rangeRow['mx'])) : 'No completed data';
+$rangeLabel = ($rangeRow && $rangeRow['mn']) ? date('F Y', strtotime($rangeRow['mn'])) . ' to ' . date('F Y', strtotime($rangeRow['mx'])) : 'No completed data';
 
 // Current inventory of the selected product (single-row total ledger).
 $curStmt = $pdo->prepare("SELECT total_stock FROM total LIMIT 1");
@@ -29,6 +29,8 @@ $forecast = null;
 $method = '';
 $fcAlpha = 0;
 $fcMonths = 0;
+$fcComplete = 0;
+$fcMtd = null;
 $fcNextMonth = '';
 $fcSeries = [];
 $histWarn = false;
@@ -40,6 +42,8 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['generate'])) {
     $thinNotice = $res['thin'];
     $fcAlpha = $res['alpha'] ?? 0;
     $fcMonths = $res['months'] ?? 0;
+    $fcComplete = $res['complete'] ?? 0;
+    $fcMtd = $res['mtd'] ?? null;
     $fcNextMonth = $res['nextMonth'] ?? '';
     $fcSeries = $res['series'] ?? [];
 
@@ -89,11 +93,11 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['generate'])) {
                     </div>
                     <div class="form-group" style="margin-bottom: 12px;">
                         <label>Historical Data</label>
-                        <div><strong><?= htmlspecialchars($rangeLabel) ?></strong> (12 - 36 Months)</div>
+                        <div><strong><?= htmlspecialchars($rangeLabel) ?> + Current Month</strong> (12 - 36 Months)</div>
                     </div>
                     <div class="form-group" style="margin-bottom: 16px;">
                         <!-- For DEBUGGING<label>Method</label>
-                        <div>Simple Exponential Smoothing (monthly): next month predicts the smoothed level of monthly demand, with &alpha; tuned per run (0.05-0.95). Needs 12+ complete months of history.</div>
+                        <div>Simple Exponential Smoothing (monthly): next month predicts the smoothed level of monthly demand, with &alpha; tuned per run (0.05-0.95). Needs 12 months of sales (complete months + month-to-date).</div>
                     </div>-->
                     <input type="hidden" name="generate" value="1">
 
@@ -105,7 +109,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['generate'])) {
         <?php if ($thinNotice): ?>
         <div class="content-card">
             <div class="card-body">
-                <p class="section-desc">Not enough history yet - forecasts need 12+ complete months of sales for this product (found <?= (int)$fcMonths ?>).</p>
+                <p class="section-desc">Not enough history yet - forecasts need 12 months of sales (complete months + month-to-date) for this product (found <?= (int)$fcMonths ?>).</p>
             </div>
         </div>
         <?php endif; ?>
@@ -115,10 +119,11 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['generate'])) {
         $fcShort = max(0, round($fcQty - $currentStock, 2));
         $fcNextLabel = $fcNextMonth !== '' ? date('M Y', strtotime($fcNextMonth . '-01')) : '';
         $fmtQty = function ($v) { return rtrim(rtrim(number_format((float)$v, 2, '.', ''), '0'), '.'); };
+        $mLabel = function ($pt) { $l = date('M Y', strtotime($pt['key'] . '-01')); return !empty($pt['partial']) ? $l . ' (to date)' : $l; };
         $chLabels = [];
         $chActual = [];
         foreach ($fcSeries as $pt) {
-            $chLabels[] = date('M Y', strtotime($pt['key'] . '-01'));
+            $chLabels[] = $mLabel($pt);
             $chActual[] = $pt['qty'];
         }
         $chLabels[] = $fcNextLabel . ' (fc)';
@@ -155,7 +160,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['generate'])) {
                     <div class="stat-card stat-card-purple">
                         <h2>Forecast Period</h2>
                         <h3>1 Month</h3>
-                        <div class="stat-sub"><?= htmlspecialchars($fcNextLabel) ?> (<?= (int)$fcMonths ?> months)</div>
+                        <div class="stat-sub"><?= htmlspecialchars($fcNextLabel) ?> (&alpha; = <?= htmlspecialchars($fcAlpha) ?>, <?= (int)$fcMonths ?> pts<?= $fcMtd !== null ? ' incl. MTD' : '' ?>)</div>
                     </div>
                 </div>
             </div>
@@ -210,7 +215,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['generate'])) {
                         <tbody>
                             <?php foreach ($fcSeries as $pt): ?>
                             <tr>
-                                <td><?= htmlspecialchars(date('M Y', strtotime($pt['key'] . '-01'))) ?></td>
+                                <td><?= htmlspecialchars($mLabel($pt)) ?></td>
                                 <td><strong><?= $fmtQty($pt['qty']) ?> Sacks</strong></td>
                                 <td>-</td>
                             </tr>

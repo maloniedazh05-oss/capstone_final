@@ -132,8 +132,10 @@ CREATE TABLE history (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
--- Forecast runs saved by forecasting.php (monthly SES: 12-36 complete months
--- in, 1 month out). Existing DBs: run just this CREATE once in phpMyAdmin.
+-- Forecast runs saved by forecasting.php (monthly SES: complete months plus
+-- the current month-to-date when it already holds sales, pro-rated to a
+-- full-month equivalent; gate is 12 points; predicts the next full month).
+-- Existing DBs: run just this CREATE once in phpMyAdmin.
 -- (forecasting_history is RETIRED: the old daily method no longer writes to
 -- it and no reader queries it. Drop it only if you are sure.)
 CREATE TABLE forecasting_monthly (
