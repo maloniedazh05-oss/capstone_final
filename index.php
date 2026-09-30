@@ -131,7 +131,7 @@ $goalData = array_fill(0, count($chartData), $salesGoal);
         <div class="info-cards">
             <div class="stat-card" id="currentStock">
                 <h2>Vermicast Stock</h2>
-                <h3 id="fertilizerStock" data-vermicastStock="<?=$current_vermicast * 50?>"><?= rtrim(rtrim(number_format(($current_vermicast ?? 0) * 50, 2, '.', ''), '0'), '.') ?> KG</h3>
+                <h3 id="fertilizerStock" class="conv-val" data-sacks="<?= $current_vermicast ?>" data-unit="KG"><?= rtrim(rtrim(number_format(($current_vermicast ?? 0) * 50, 2, '.', ''), '0'), '.') ?> KG</h3>
                 <div class="stat-sub"></div>
             </div>
             <div class="stat-card">
@@ -188,19 +188,51 @@ $goalData = array_fill(0, count($chartData), $salesGoal);
         </div>
 
         <script>
-            const formula = <?=$kgRate?>;
-
-            const vermicast_stock = document.querySelector('.stat-card h3#fertilizerStock');
-            const originalVermicastStock = parseFloat(vermicast_stock.dataset.vermicastStock);
-
-            document.querySelector('#currentStock').addEventListener('mouseenter', () => {
-                vermicast_stock.textContent = `<?=($current_vermicast * 50) / $kgRate . ' Sacks'?>`;
+        // Card value conversion (temporary display only): Sacks x 50 = KG, KG / 50 = Sacks.
+        // Desktop (>768px): hover converts, leave restores, taps ignored.
+        // Mobile (<=768px): hover disabled, tap toggles original/converted.
+        // Crossing the breakpoint resets every card to its original text.
+        (function () {
+            const isMobile = window.matchMedia('(max-width: 768px)');
+            const rate = <?= $kgRate ?>;
+            const fmt = v => {
+                v = Math.round(v * 100) / 100;
+                return Number.isInteger(v) ? String(v) : v.toFixed(2);
+            };
+            const converted = el => {
+                const sacks = parseFloat(el.dataset.sacks || '0');
+                const unit = el.dataset.unit || 'Sacks';
+                const base = unit === 'KG' ? sacks : sacks * rate;
+                const outUnit = unit === 'KG' ? ' Sacks' : ' KG';
+                const sign = base < 0 ? '-' : (el.dataset.plus === '1' && base > 0 ? '+' : '');
+                return sign + fmt(Math.abs(base)) + outUnit;
+            };
+            const cards = [];
+            document.querySelectorAll('.conv-val').forEach(el => {
+                const card = el.closest('.stat-card');
+                if (!card) return;
+                const state = { el, orig: el.textContent, flipped: false };
+                cards.push(state);
+                card.addEventListener('mouseenter', () => {
+                    if (isMobile.matches) return;
+                    el.textContent = converted(el);
+                });
+                card.addEventListener('mouseleave', () => {
+                    if (isMobile.matches) return;
+                    el.textContent = state.orig;
+                    state.flipped = false;
+                });
+                card.addEventListener('click', () => {
+                    if (!isMobile.matches) return;
+                    state.flipped = !state.flipped;
+                    el.textContent = state.flipped ? converted(el) : state.orig;
+                });
             });
-
-            document.querySelector('#currentStock').addEventListener('mouseleave', () => {
-                vermicast_stock.textContent = `<?=($current_vermicast * 50) . ' KG'?>`;
-            });     
-
+            const resetAll = () => cards.forEach(s => { s.flipped = false; s.el.textContent = s.orig; });
+            if (typeof isMobile.addEventListener === 'function') {
+                isMobile.addEventListener('change', resetAll);
+            }
+        })();
         </script>
 
         <script>

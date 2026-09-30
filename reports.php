@@ -459,15 +459,15 @@ if ($tab === 'forecast' && ($_GET['export'] ?? '') === 'csv') {
         <div class="info-cards">
             <div class="stat-card">
                 <h2>Beginning Stock</h2>
-                <h3><?= number_format($invBegin) ?> Sacks</h3>
+                <h3 class="conv-val" data-sacks="<?= round((float)$invBegin, 2) ?>" data-unit="Sacks"><?= number_format($invBegin) ?> Sacks</h3>
             </div>
             <div class="stat-card">
                 <h2>Production Added</h2>
-                <h3>+<?= number_format($invAdded) ?> Sacks</h3>
+                <h3 class="conv-val" data-sacks="<?= round((float)$invAdded, 2) ?>" data-unit="Sacks" data-plus="1">+<?= number_format($invAdded) ?> Sacks</h3>
             </div>
             <div class="stat-card">
                 <h2>Stock-Out</h2>
-                <h3>-<?= number_format($invOutSum) ?> Sacks</h3>
+                <h3 class="conv-val" data-sacks="<?= -round((float)$invOutSum, 2) ?>" data-unit="Sacks">-<?= number_format($invOutSum) ?> Sacks</h3>
             </div>
         </div>
 
@@ -676,15 +676,15 @@ if ($tab === 'forecast' && ($_GET['export'] ?? '') === 'csv') {
         <div class="info-cards">
             <div class="stat-card">
                 <h2>Total Stock-Out</h2>
-                <h3><?= number_format($soTotal) ?> Sacks</h3>
+                <h3 class="conv-val" data-sacks="<?= round((float)$soTotal, 2) ?>" data-unit="Sacks"><?= number_format($soTotal) ?> Sacks</h3>
             </div>
             <div class="stat-card">
                 <h2>Average Daily</h2>
-                <h3><?= htmlspecialchars($soAvg) ?> Sacks</h3>
+                <h3 class="conv-val" data-sacks="<?= round((float)$soAvg, 2) ?>" data-unit="Sacks"><?= htmlspecialchars($soAvg) ?> Sacks</h3>
             </div>
             <div class="stat-card">
                 <h2>Highest Stock-Out</h2>
-                <h3><?= number_format($soHigh) ?> Sacks</h3>
+                <h3 class="conv-val" data-sacks="<?= round((float)$soHigh, 2) ?>" data-unit="Sacks"><?= number_format($soHigh) ?> Sacks</h3>
                 <?php if ($soHighDay !== ''): ?>
                 <p class="section-desc" style="margin:0;"><?= htmlspecialchars($soHighDay) ?></p>
                 <?php endif; ?>
@@ -851,15 +851,15 @@ if ($tab === 'forecast' && ($_GET['export'] ?? '') === 'csv') {
         <div class="info-cards">
             <div class="stat-card">
                 <h2>Current Inventory</h2>
-                <h3><?= $fcFmt($fcCurrent) ?> Sacks</h3>
+                <h3 class="conv-val" data-sacks="<?= round((float)$fcCurrent, 2) ?>" data-unit="Sacks"><?= $fcFmt($fcCurrent) ?> Sacks</h3>
             </div>
             <div class="stat-card">
                 <h2>Forecasted Demand (<?= htmlspecialchars($fcNextLabel) ?>)</h2>
-                <h3><?= $fcFmt($fcQty) ?> Sacks</h3>
+                <h3 class="conv-val" data-sacks="<?= round((float)$fcQty, 2) ?>" data-unit="Sacks"><?= $fcFmt($fcQty) ?> Sacks</h3>
             </div>
             <div class="stat-card">
                 <h2>Difference</h2>
-                <h3><?= ($fcDiff >= 0 ? '+' : '') . $fcFmt($fcDiff) ?> Sacks</h3>
+                <h3 class="conv-val" data-sacks="<?= round((float)$fcDiff, 2) ?>" data-unit="Sacks" data-plus="1"><?= ($fcDiff >= 0 ? '+' : '') . $fcFmt($fcDiff) ?> Sacks</h3>
             </div>
         </div>
 
@@ -944,26 +944,51 @@ if ($tab === 'forecast' && ($_GET['export'] ?? '') === 'csv') {
         <?php endif; ?>
     </div>
     <script>
-    // Hover unit conversion (temporary display only): Sacks x 50 = KG,
-    // KG / 50 = Sacks. mouseleave restores the exact original text.
-    document.querySelectorAll('.conv-val').forEach(el => {
-        const orig = el.textContent;
-        const sacks = parseFloat(el.dataset.sacks || '0');
-        const unit = el.dataset.unit || 'Sacks';
+    // Card value conversion (temporary display only): Sacks x 50 = KG, KG / 50 = Sacks.
+    // Desktop (>768px): hover converts, leave restores, taps ignored.
+    // Mobile (<=768px): hover disabled, tap toggles original/converted.
+    // Crossing the breakpoint resets every card to its original text.
+    (function () {
+        const isMobile = window.matchMedia('(max-width: 768px)');
         const rate = 50;
         const fmt = v => {
             v = Math.round(v * 100) / 100;
             return Number.isInteger(v) ? String(v) : v.toFixed(2);
         };
-        const card = el.closest('.stat-card');
-        if (!card) return;
-        card.addEventListener('mouseenter', () => {
-            el.textContent = unit === 'KG' ? fmt(sacks / rate) + ' Sacks' : fmt(sacks * rate) + ' KG';
+        const converted = el => {
+            const sacks = parseFloat(el.dataset.sacks || '0');
+            const unit = el.dataset.unit || 'Sacks';
+            const base = unit === 'KG' ? sacks : sacks * rate;
+            const outUnit = unit === 'KG' ? ' Sacks' : ' KG';
+            const sign = base < 0 ? '-' : (el.dataset.plus === '1' && base > 0 ? '+' : '');
+            return sign + fmt(Math.abs(base)) + outUnit;
+        };
+        const cards = [];
+        document.querySelectorAll('.conv-val').forEach(el => {
+            const card = el.closest('.stat-card');
+            if (!card) return;
+            const state = { el, orig: el.textContent, flipped: false };
+            cards.push(state);
+            card.addEventListener('mouseenter', () => {
+                if (isMobile.matches) return;
+                el.textContent = converted(el);
+            });
+            card.addEventListener('mouseleave', () => {
+                if (isMobile.matches) return;
+                el.textContent = state.orig;
+                state.flipped = false;
+            });
+            card.addEventListener('click', () => {
+                if (!isMobile.matches) return;
+                state.flipped = !state.flipped;
+                el.textContent = state.flipped ? converted(el) : state.orig;
+            });
         });
-        card.addEventListener('mouseleave', () => {
-            el.textContent = orig;
-        });
-    });
+        const resetAll = () => cards.forEach(s => { s.flipped = false; s.el.textContent = s.orig; });
+        if (typeof isMobile.addEventListener === 'function') {
+            isMobile.addEventListener('change', resetAll);
+        }
+    })();
     </script>
 </body>
 </html>
