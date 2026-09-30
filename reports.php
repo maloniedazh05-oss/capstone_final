@@ -587,17 +587,22 @@ if ($tab === 'forecast' && ($_GET['export'] ?? '') === 'csv') {
             $soProd = 'all';
         }
         $soProdCond = $soProd !== 'all' ? " AND product = :prod" : "";
-        // Daily stock-out map: Completed flips keyed on updated_at.
-        $soStmt = $pdo->prepare("SELECT DATE(updated_at) AS day, SUM(quantity) AS q FROM inventory WHERE status = 'Completed' AND DATE(updated_at) BETWEEN :start AND :end" . $soProdCond . " GROUP BY DATE(updated_at)");
+        // Daily stock-out map: Completed flips (by updated_at) PLUS deducted
+        // transactions from history (by created_at) - deducts only touch the
+        // total ledger + history, so without this leg they never appear.
+        $soStmt = $pdo->prepare("SELECT day, SUM(qty) AS q FROM (SELECT DATE(updated_at) AS day, quantity AS qty FROM inventory WHERE status = 'Completed' AND DATE(updated_at) BETWEEN :start AND :end" . $soProdCond . " UNION ALL SELECT DATE(created_at) AS day, quantity AS qty FROM history WHERE action = 'Stock Deducted' AND DATE(created_at) BETWEEN :start2 AND :end2" . str_replace(':prod', ':prod2', $soProdCond) . ") AS u GROUP BY day");
         $soStmt->bindValue(':start', $soFrom);
         $soStmt->bindValue(':end', $soTo);
+        $soStmt->bindValue(':start2', $soFrom);
+        $soStmt->bindValue(':end2', $soTo);
         if ($soProd !== 'all') {
             $soStmt->bindValue(':prod', $soProd);
+            $soStmt->bindValue(':prod2', $soProd);
         }
         $soStmt->execute();
         $soMap = [];
         while ($soRow = $soStmt->fetch(PDO::FETCH_ASSOC)) {
-            $soMap[$soRow['day']] = (int)$soRow['q'];
+            $soMap[$soRow['day']] = round((float)$soRow['q'], 2);
         }
         $soLabels = [];
         $soVals = [];
@@ -624,13 +629,18 @@ if ($tab === 'forecast' && ($_GET['export'] ?? '') === 'csv') {
         if (!in_array($soRecSort, ['newest', 'oldest', 'highest', 'lowest'], true)) {
             $soRecSort = 'newest';
         }
-        $soRecSortMap = ['newest' => 'updated_at DESC', 'oldest' => 'updated_at ASC', 'highest' => 'quantity DESC', 'lowest' => 'quantity ASC'];
-        $soRecSql = "SELECT DATE(updated_at) AS day, product, quantity, description FROM inventory WHERE status = 'Completed' AND DATE(updated_at) BETWEEN :start AND :end" . $soProdCond . ($searchSo !== '' ? " AND (CAST(prod_id AS CHAR) LIKE :search OR product LIKE :search OR description LIKE :search OR unit LIKE :search)" : "") . " ORDER BY " . $soRecSortMap[$soRecSort];
+        $soRecSortMap = ['newest' => 'created DESC', 'oldest' => 'created ASC', 'highest' => 'quantity DESC', 'lowest' => 'quantity ASC'];
+        // Completed flips plus deducted transactions (receiver shown in Desc).
+        $soRecSearch = $searchSo !== '' ? " AND (product LIKE :search OR description LIKE :search)" : "";
+        $soRecSql = "SELECT day, product, quantity, description, created FROM (SELECT DATE(updated_at) AS day, updated_at AS created, product, quantity, description FROM inventory WHERE status = 'Completed' AND DATE(updated_at) BETWEEN :start AND :end" . $soProdCond . " UNION ALL SELECT DATE(created_at) AS day, created_at AS created, product, quantity, COALESCE(receiver, 'Deducted') AS description FROM history WHERE action = 'Stock Deducted' AND DATE(created_at) BETWEEN :start2 AND :end2" . str_replace(':prod', ':prod2', $soProdCond) . ") AS u WHERE 1 = 1" . $soRecSearch . " ORDER BY " . $soRecSortMap[$soRecSort];
         $soRecStmt = $pdo->prepare($soRecSql);
         $soRecStmt->bindValue(':start', $soFrom);
         $soRecStmt->bindValue(':end', $soTo);
+        $soRecStmt->bindValue(':start2', $soFrom);
+        $soRecStmt->bindValue(':end2', $soTo);
         if ($soProd !== 'all') {
             $soRecStmt->bindValue(':prod', $soProd);
+            $soRecStmt->bindValue(':prod2', $soProd);
         }
         if ($searchSo !== '') {
             $soRecStmt->bindValue(':search', "%" . $searchSo . "%");
@@ -676,7 +686,7 @@ if ($tab === 'forecast' && ($_GET['export'] ?? '') === 'csv') {
         <div class="info-cards">
             <div class="stat-card">
                 <h2>Total Stock-Out</h2>
-                <h3 class="conv-val" data-sacks="<?= round((float)$soTotal, 2) ?>" data-unit="Sacks"><?= number_format($soTotal) ?> Sacks</h3>
+                <h3 class="conv-val" data-sacks="<?= round((float)$soTotal, 2) ?>" data-unit="Sacks"><?= rtrim(rtrim(number_format((float)$soTotal, 2, '.', ''), '0'), '.') ?> Sacks</h3>
             </div>
             <div class="stat-card">
                 <h2>Average Daily</h2>
@@ -684,7 +694,7 @@ if ($tab === 'forecast' && ($_GET['export'] ?? '') === 'csv') {
             </div>
             <div class="stat-card">
                 <h2>Highest Stock-Out</h2>
-                <h3 class="conv-val" data-sacks="<?= round((float)$soHigh, 2) ?>" data-unit="Sacks"><?= number_format($soHigh) ?> Sacks</h3>
+                <h3 class="conv-val" data-sacks="<?= round((float)$soHigh, 2) ?>" data-unit="Sacks"><?= rtrim(rtrim(number_format((float)$soHigh, 2, '.', ''), '0'), '.') ?> Sacks</h3>
                 <?php if ($soHighDay !== ''): ?>
                 <p class="section-desc" style="margin:0;"><?= htmlspecialchars($soHighDay) ?></p>
                 <?php endif; ?>

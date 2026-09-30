@@ -109,16 +109,22 @@ if ($branch === 'production') {
     if (!in_array($soRecSort, ['newest', 'oldest', 'highest', 'lowest'], true)) {
         $soRecSort = 'newest';
     }
-    $soRecSortMap = ['newest' => 'updated_at DESC', 'oldest' => 'updated_at ASC', 'highest' => 'quantity DESC', 'lowest' => 'quantity ASC'];
-    $sql = "SELECT DATE(updated_at) AS day, product, quantity, description FROM inventory WHERE status = 'Completed' AND DATE(updated_at) BETWEEN :start AND :end"
+    $soRecSortMap = ['newest' => 'created DESC', 'oldest' => 'created ASC', 'highest' => 'quantity DESC', 'lowest' => 'quantity ASC'];
+    $sql = "SELECT day, product, quantity, description FROM (SELECT DATE(updated_at) AS day, updated_at AS created, product, quantity, description FROM inventory WHERE status = 'Completed' AND DATE(updated_at) BETWEEN :start AND :end"
         . ($soProd !== 'all' ? " AND product = :prod" : "")
-        . ($searchSo !== '' ? " AND (CAST(prod_id AS CHAR) LIKE :search OR product LIKE :search OR description LIKE :search OR unit LIKE :search)" : "")
+        . " UNION ALL SELECT DATE(created_at) AS day, created_at AS created, product, quantity, COALESCE(receiver, 'Deducted') AS description FROM history WHERE action = 'Stock Deducted' AND DATE(created_at) BETWEEN :start2 AND :end2"
+        . ($soProd !== 'all' ? " AND product = :prod2" : "")
+        . ") AS u WHERE 1 = 1"
+        . ($searchSo !== '' ? " AND (product LIKE :search OR description LIKE :search)" : "")
         . " ORDER BY " . $soRecSortMap[$soRecSort];
     $stmt = $pdo->prepare($sql);
     $stmt->bindValue(':start', $soFrom);
     $stmt->bindValue(':end', $soTo);
+    $stmt->bindValue(':start2', $soFrom);
+    $stmt->bindValue(':end2', $soTo);
     if ($soProd !== 'all') {
         $stmt->bindValue(':prod', $soProd);
+        $stmt->bindValue(':prod2', $soProd);
     }
     if ($searchSo !== '') {
         $stmt->bindValue(':search', "%" . $searchSo . "%");
