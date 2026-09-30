@@ -212,15 +212,15 @@ if ($tab === 'forecast' && ($_GET['export'] ?? '') === 'csv') {
 
         <!-- Summary cards -->
         <div class="info-cards">
-            <div class="stat-card">
+            <div class="stat-card stat-card-blue">
                 <h2>Total Production</h2>
                 <h3 class="conv-val" data-sacks="<?= round((float)$repTotal, 2) ?>" data-unit="Sacks"><?= number_format($repTotal) ?> Sacks</h3>
             </div>
-            <div class="stat-card">
+            <div class="stat-card stat-card-green">
                 <h2>Completed Batches</h2>
                 <h3><?= htmlspecialchars($repDoneBatches) ?></h3>
             </div>
-            <div class="stat-card">
+            <div class="stat-card stat-card-purple">
                 <h2>Average Per Batch</h2>
                 <h3 class="conv-val" data-sacks="<?= round((float)$repAvg, 2) ?>" data-unit="Sacks"><?= htmlspecialchars($repAvg) ?> Sacks</h3>
             </div>
@@ -457,15 +457,15 @@ if ($tab === 'forecast' && ($_GET['export'] ?? '') === 'csv') {
 
         <!-- Summary cards -->
         <div class="info-cards">
-            <div class="stat-card">
+            <div class="stat-card stat-card-green">
                 <h2>Beginning Stock</h2>
                 <h3 class="conv-val" data-sacks="<?= round((float)$invBegin, 2) ?>" data-unit="Sacks"><?= number_format($invBegin) ?> Sacks</h3>
             </div>
-            <div class="stat-card">
+            <div class="stat-card stat-card-blue">
                 <h2>Production Added</h2>
                 <h3 class="conv-val" data-sacks="<?= round((float)$invAdded, 2) ?>" data-unit="Sacks" data-plus="1">+<?= number_format($invAdded) ?> Sacks</h3>
             </div>
-            <div class="stat-card">
+            <div class="stat-card stat-card-amber">
                 <h2>Stock-Out</h2>
                 <h3 class="conv-val" data-sacks="<?= -round((float)$invOutSum, 2) ?>" data-unit="Sacks">-<?= number_format($invOutSum) ?> Sacks</h3>
             </div>
@@ -684,15 +684,15 @@ if ($tab === 'forecast' && ($_GET['export'] ?? '') === 'csv') {
 
         <!-- Summary cards -->
         <div class="info-cards">
-            <div class="stat-card">
+            <div class="stat-card stat-card-amber">
                 <h2>Total Stock-Out</h2>
                 <h3 class="conv-val" data-sacks="<?= round((float)$soTotal, 2) ?>" data-unit="Sacks"><?= rtrim(rtrim(number_format((float)$soTotal, 2, '.', ''), '0'), '.') ?> Sacks</h3>
             </div>
-            <div class="stat-card">
+            <div class="stat-card stat-card-blue">
                 <h2>Average Daily</h2>
                 <h3 class="conv-val" data-sacks="<?= round((float)$soAvg, 2) ?>" data-unit="Sacks"><?= htmlspecialchars($soAvg) ?> Sacks</h3>
             </div>
-            <div class="stat-card">
+            <div class="stat-card stat-card-purple">
                 <h2>Highest Stock-Out</h2>
                 <h3 class="conv-val" data-sacks="<?= round((float)$soHigh, 2) ?>" data-unit="Sacks"><?= rtrim(rtrim(number_format((float)$soHigh, 2, '.', ''), '0'), '.') ?> Sacks</h3>
                 <?php if ($soHighDay !== ''): ?>
@@ -860,15 +860,15 @@ if ($tab === 'forecast' && ($_GET['export'] ?? '') === 'csv') {
         ?>
         <!-- Summary cards -->
         <div class="info-cards">
-            <div class="stat-card">
+            <div class="stat-card stat-card-green">
                 <h2>Current Inventory</h2>
                 <h3 class="conv-val" data-sacks="<?= round((float)$fcCurrent, 2) ?>" data-unit="Sacks"><?= $fcFmt($fcCurrent) ?> Sacks</h3>
             </div>
-            <div class="stat-card">
+            <div class="stat-card stat-card-blue">
                 <h2>Forecasted Demand (<?= htmlspecialchars($fcNextLabel) ?>)</h2>
                 <h3 class="conv-val" data-sacks="<?= round((float)$fcQty, 2) ?>" data-unit="Sacks"><?= $fcFmt($fcQty) ?> Sacks</h3>
             </div>
-            <div class="stat-card">
+            <div class="stat-card stat-card-amber">
                 <h2>Difference</h2>
                 <h3 class="conv-val" data-sacks="<?= round((float)$fcDiff, 2) ?>" data-unit="Sacks" data-plus="1"><?= ($fcDiff >= 0 ? '+' : '') . $fcFmt($fcDiff) ?> Sacks</h3>
             </div>

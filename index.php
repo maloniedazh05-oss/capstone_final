@@ -126,12 +126,12 @@ $goalData = array_fill(0, count($chartData), $salesGoal);
 
 
         <div class="info-cards">
-            <div class="stat-card" id="currentStock">
+            <div class="stat-card stat-card-green" id="currentStock">
                 <h2>Vermicast Stock</h2>
                 <h3 id="fertilizerStock" class="conv-val" data-sacks="<?= $current_vermicast ?>" data-unit="KG"><?= rtrim(rtrim(number_format(($current_vermicast ?? 0) * 50, 2, '.', ''), '0'), '.') ?> KG</h3>
                 <div class="stat-sub"></div>
             </div>
-            <div class="stat-card">
+            <div class="stat-card stat-card-blue">
                 <h2>Active Batches</h2>
                 <?php
                 require_once "php_backend/db.php";
@@ -147,14 +147,14 @@ $goalData = array_fill(0, count($chartData), $salesGoal);
                 ?>
                 <h3><?= $count ?? 0 ?></h3>
             </div>
-            <div class="stat-card">
+            <div class="stat-card stat-card-purple">
                 <h2>Completed Today</h2>
                 <h3><?= (int) $prod_count ?? 0 ?> Sacks</h3>
             </div>
         </div><!-- info-cards END -->
         <!-- In dashboardpage, after info-cards -->
         <div class="info-cards">
-            <div class="stat-card" style="display: flex; align-items: center; justify-content: center;">
+            <div class="stat-card stat-card-amber" style="display: flex; align-items: center; justify-content: center;">
                 <div style="display: flex; flex-direction: column; align-items: center;">
                     <h2 id="salesGoal">Safety Stock (Target Minimum Stock)</h2>
                     <h3><?= htmlspecialchars($salesGoal) ?> Sacks</h3>
