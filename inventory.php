@@ -784,8 +784,9 @@ function updateDeductLimit(unit) {
                             // Inflow = production touches (status != Completed) by DATE(updated_at).
                             // Outflow = inventory Completed rows + Stock Deducted history
                             // rows, both by day. Deducts only touch the total
+                            
                             // ledger + history, so without the history leg they
-                            // would never appear here.
+                            // would never appear here
                             // Balance is reconstructed backward from current stock,
                             // so it is an approximation, not an exact ledger.
                             $moveStmtIn = $pdo->prepare("SELECT COALESCE(SUM(quantity), 0) FROM production WHERE DATE(updated_at) = :d AND status != 'Completed'");
