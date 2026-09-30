@@ -139,17 +139,17 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['generate'])) {
                 <div class="info-cards">
                     <div class="stat-card stat-card-green">
                         <h2>Predicted Demand</h2>
-                        <h3><?= $fmtQty($fcQty) ?> Sacks</h3>
+                        <h3 class="conv-val" data-sacks="<?= $fcQty ?>" data-unit="Sacks"><?= $fmtQty($fcQty) ?> Sacks</h3>
                         <div class="stat-sub"><?= htmlspecialchars($fcNextLabel) ?></div>
                     </div>
                     <div class="stat-card stat-card-blue">
                         <h2>Available Stock</h2>
-                        <h3><?= $fmtQty($currentStock) ?> Sacks</h3>
+                        <h3 class="conv-val" data-sacks="<?= $currentStock ?>" data-unit="Sacks"><?= $fmtQty($currentStock) ?> Sacks</h3>
                         <div class="stat-sub">Current inventory</div>
                     </div>
                     <div class="stat-card stat-card-amber">
                         <h2>Estimated Shortfall</h2>
-                        <h3><?= $fmtQty($fcShort) ?> Sacks</h3>
+                        <h3 class="conv-val" data-sacks="<?= $fcShort ?>" data-unit="Sacks"><?= $fmtQty($fcShort) ?> Sacks</h3>
                         <div class="stat-sub">Illustrative planning estimate</div>
                     </div>
                     <div class="stat-card stat-card-purple">
@@ -227,5 +227,27 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['generate'])) {
         </div>
         <?php endif; ?>
     </div> <!--Forecastingpage END-->
+    <script>
+    // Hover unit conversion (temporary display only): Sacks x 50 = KG,
+    // KG / 50 = Sacks. mouseleave restores the exact original text.
+    document.querySelectorAll('.conv-val').forEach(el => {
+        const orig = el.textContent;
+        const sacks = parseFloat(el.dataset.sacks || '0');
+        const unit = el.dataset.unit || 'Sacks';
+        const rate = 50;
+        const fmt = v => {
+            v = Math.round(v * 100) / 100;
+            return Number.isInteger(v) ? String(v) : v.toFixed(2);
+        };
+        const card = el.closest('.stat-card');
+        if (!card) return;
+        card.addEventListener('mouseenter', () => {
+            el.textContent = unit === 'KG' ? fmt(sacks / rate) + ' Sacks' : fmt(sacks * rate) + ' KG';
+        });
+        card.addEventListener('mouseleave', () => {
+            el.textContent = orig;
+        });
+    });
+    </script>
 </body>
 </html>

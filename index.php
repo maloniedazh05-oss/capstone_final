@@ -3,7 +3,7 @@ require_once "php_backend/session.php";
 
 requireRole(['admin', 'staff', 'manager']);
 // 50KG per 1Sac
-
+$kgRate = 50;
 // Inventory trend + sales goal setup.
 // Ending balance per day, reconstructed backward from current stock
 // (same math as inventory Movements: balance = current - inflows-after + outflows-after).
@@ -129,9 +129,9 @@ $goalData = array_fill(0, count($chartData), $salesGoal);
 
 
         <div class="info-cards">
-            <div class="stat-card">
+            <div class="stat-card" id="currentStock">
                 <h2>Vermicast Stock</h2>
-                <h3><?= rtrim(rtrim(number_format(($current_vermicast ?? 0) * 50, 2, '.', ''), '0'), '.') ?> KG</h3>
+                <h3 id="fertilizerStock" data-vermicastStock="<?=$current_vermicast * 50?>"><?= rtrim(rtrim(number_format(($current_vermicast ?? 0) * 50, 2, '.', ''), '0'), '.') ?> KG</h3>
                 <div class="stat-sub"></div>
             </div>
             <div class="stat-card">
@@ -186,6 +186,22 @@ $goalData = array_fill(0, count($chartData), $salesGoal);
                 <canvas id="stockChart" height="200"></canvas>
             </div>
         </div>
+
+        <script>
+            const formula = <?=$kgRate?>;
+
+            const vermicast_stock = document.querySelector('.stat-card h3#fertilizerStock');
+            const originalVermicastStock = parseFloat(vermicast_stock.dataset.vermicastStock);
+
+            document.querySelector('#currentStock').addEventListener('mouseenter', () => {
+                vermicast_stock.textContent = `<?=($current_vermicast * 50) / $kgRate . ' Sacks'?>`;
+            });
+
+            document.querySelector('#currentStock').addEventListener('mouseleave', () => {
+                vermicast_stock.textContent = `<?=($current_vermicast * 50) . ' KG'?>`;
+            });     
+
+        </script>
 
         <script>
             // Fetch data via AJAX or inline PHP

@@ -214,7 +214,7 @@ if ($tab === 'forecast' && ($_GET['export'] ?? '') === 'csv') {
         <div class="info-cards">
             <div class="stat-card">
                 <h2>Total Production</h2>
-                <h3><?= number_format($repTotal) ?> Sacks</h3>
+                <h3 class="conv-val" data-sacks="<?= round((float)$repTotal, 2) ?>" data-unit="Sacks"><?= number_format($repTotal) ?> Sacks</h3>
             </div>
             <div class="stat-card">
                 <h2>Completed Batches</h2>
@@ -222,7 +222,7 @@ if ($tab === 'forecast' && ($_GET['export'] ?? '') === 'csv') {
             </div>
             <div class="stat-card">
                 <h2>Average Per Batch</h2>
-                <h3><?= htmlspecialchars($repAvg) ?> Sacks</h3>
+                <h3 class="conv-val" data-sacks="<?= round((float)$repAvg, 2) ?>" data-unit="Sacks"><?= htmlspecialchars($repAvg) ?> Sacks</h3>
             </div>
         </div>
 
@@ -943,5 +943,27 @@ if ($tab === 'forecast' && ($_GET['export'] ?? '') === 'csv') {
         <?php endif; ?>
         <?php endif; ?>
     </div>
+    <script>
+    // Hover unit conversion (temporary display only): Sacks x 50 = KG,
+    // KG / 50 = Sacks. mouseleave restores the exact original text.
+    document.querySelectorAll('.conv-val').forEach(el => {
+        const orig = el.textContent;
+        const sacks = parseFloat(el.dataset.sacks || '0');
+        const unit = el.dataset.unit || 'Sacks';
+        const rate = 50;
+        const fmt = v => {
+            v = Math.round(v * 100) / 100;
+            return Number.isInteger(v) ? String(v) : v.toFixed(2);
+        };
+        const card = el.closest('.stat-card');
+        if (!card) return;
+        card.addEventListener('mouseenter', () => {
+            el.textContent = unit === 'KG' ? fmt(sacks / rate) + ' Sacks' : fmt(sacks * rate) + ' KG';
+        });
+        card.addEventListener('mouseleave', () => {
+            el.textContent = orig;
+        });
+    });
+    </script>
 </body>
 </html>

@@ -353,7 +353,7 @@ function updateDeductLimit(unit) {
         <div class="info-cards">
             <div class="stat-card stat-card-green">
                 <h2>Current Stock</h2>
-                <h3><?= $totalFmt ?> Sacks</h3>
+                <h3 class="conv-val" data-sacks="<?= $total_current ?>" data-unit="Sacks"><?= $totalFmt ?> Sacks</h3>
                 <div class="stat-sub">Available now</div>
             </div>
 
@@ -364,7 +364,7 @@ function updateDeductLimit(unit) {
                 $total_produced = $stmt_produced->fetchColumn();
                 ?>
                 <h2>Total Produced</h2>
-                <h3><?= rtrim(rtrim(number_format((float) ($total_produced ?? 0), 2, '.', ''), '0'), '.') ?> Sacks</h3>
+                <h3 class="conv-val" data-sacks="<?= round((float)($total_produced ?? 0), 2) ?>" data-unit="Sacks"><?= rtrim(rtrim(number_format((float) ($total_produced ?? 0), 2, '.', ''), '0'), '.') ?> Sacks</h3>
                 <div class="stat-sub">This month</div>
                 <div class="stat-desc">Production records within selected period</div>
             </div>
@@ -376,7 +376,7 @@ function updateDeductLimit(unit) {
                 $total_released = $stmt_released->fetchColumn();
                 ?>
                 <h2>Total Released</h2>
-                <h3><?= rtrim(rtrim(number_format((float) ($total_released ?? 0), 2, '.', ''), '0'), '.') ?> Sacks</h3>
+                <h3 class="conv-val" data-sacks="<?= round((float)($total_released ?? 0), 2) ?>" data-unit="Sacks"><?= rtrim(rtrim(number_format((float) ($total_released ?? 0), 2, '.', ''), '0'), '.') ?> Sacks</h3>
                 <div class="stat-sub">This month</div>
                 <div class="stat-desc">Quantity issued or sold</div>
             </div>
@@ -388,7 +388,7 @@ function updateDeductLimit(unit) {
                 $total_today = $stmt_today->fetchColumn();
                 ?>
                 <h2>Production Today</h2>
-                <h3><?= rtrim(rtrim(number_format((float) ($total_today ?? 0), 2, '.', ''), '0'), '.') ?> Sacks</h3>
+                <h3 class="conv-val" data-sacks="<?= round((float)($total_today ?? 0), 2) ?>" data-unit="Sacks"><?= rtrim(rtrim(number_format((float) ($total_today ?? 0), 2, '.', ''), '0'), '.') ?> Sacks</h3>
                 <div class="stat-sub">Today</div>
             </div>
         </div>
@@ -725,7 +725,7 @@ function updateDeductLimit(unit) {
                                     $invRows = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 } catch (Exception $e) {
                                     $invError = true;
-                                echo "<tr><td colspan='5'>Search query not found!</td></tr>";
+                                    echo "<tr><td colspan='6'>Search query not found!</td></tr>";
                                 }
                                 if (!$invError && empty($invRows)):
                                     echo "<tr><td colspan='6'>" . ($searchInv !== '' ? "No items match '" . htmlspecialchars($searchInv) . "'." : "No current supplies found.") . "</td></tr>";
@@ -837,7 +837,7 @@ function updateDeductLimit(unit) {
     </tr>
 </thead>
 
-<tbody>
+<tbody> 
 
 <?php if (empty($historyRows)): ?>
 
@@ -1114,7 +1114,6 @@ function updateDeductLimit(unit) {
     </div> <!-- Card 3 END -->
     </div> <!-- Inventorypage END -->
     <script>
-    <script>
 document.addEventListener('DOMContentLoaded', function () {
 
     const unitSelect = document.getElementById('deduct-unit');
@@ -1145,7 +1144,8 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 // =====================================================
 // TOTAL STOCK DEDUCTION UNIT CONVERSION
-// 1 SACK = 50 KG
+// New hover js convert data
+// 1 SACK = 50 KG 
 // =====================================================
 
 const deductUnit = document.getElementById('deduct-unit');
@@ -1160,7 +1160,6 @@ if (deductUnit && deductQuantity) {
     deductUnit.addEventListener('change', function () {
 
         if (this.value === 'KG') {
-
             // 52 sacks × 50 KG = 2600 KG
             const maxKg = totalSacks * KG_PER_SACK;
 
@@ -1225,7 +1224,28 @@ if (deductUnit && deductQuantity) {
                     document.getElementById('feedback-diag').showModal();
                 });
             });
-        }); //
+    </script>
+    <script>
+    // Hover unit conversion (temporary display only): Sacks x 50 = KG,
+    // KG / 50 = Sacks. mouseleave restores the exact original text.
+    document.querySelectorAll('.conv-val').forEach(el => {
+        const orig = el.textContent;
+        const sacks = parseFloat(el.dataset.sacks || '0');
+        const unit = el.dataset.unit || 'Sacks';
+        const rate = 50;
+        const fmt = v => {
+            v = Math.round(v * 100) / 100;
+            return Number.isInteger(v) ? String(v) : v.toFixed(2);
+        };
+        const card = el.closest('.stat-card');
+        if (!card) return;
+        card.addEventListener('mouseenter', () => {
+            el.textContent = unit === 'KG' ? fmt(sacks / rate) + ' Sacks' : fmt(sacks * rate) + ' KG';
+        });
+        card.addEventListener('mouseleave', () => {
+            el.textContent = orig;
+        });
+    });
     </script>
 </body>
 
