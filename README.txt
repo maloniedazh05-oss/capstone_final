@@ -70,6 +70,7 @@ CREATE TABLE history (
     product VARCHAR(50),
     quantity DECIMAL(10,2),
     unit VARCHAR(10),
+    receiver VARCHAR(50),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 

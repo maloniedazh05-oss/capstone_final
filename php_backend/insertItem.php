@@ -28,13 +28,13 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['quantity'])) {
     $updT = $pdo->prepare("UPDATE total SET total_stock = :total");
     $updT->execute([':total' => round($current - $deduct, 2)]);
 
-    $hist = $pdo->prepare("INSERT INTO history (user, action, ref_id, product, quantity, unit) VALUES (:user, 'Stock Deducted', :ref, :prod, :quan, :unit)");
+    $hist = $pdo->prepare("INSERT INTO history (user, action, ref_id, product, quantity, unit, receiver) VALUES (:user, 'Stock Deducted', 'TOTAL', :prod, :quan, :unit, :receiver)");
     $hist->execute([
         ':user' => $_SESSION['user_name'] ?? '',
-        ':ref' => $receiver !== '' ? substr($receiver, 0, 15) : 'TOTAL',
         ':prod' => 'Vermicast',
         ':quan' => $deduct,
-        ':unit' => 'Sacks'
+        ':unit' => 'Sacks',
+        ':receiver' => $receiver !== '' ? substr($receiver, 0, 50) : null
     ]);
 
     header("Location: ../inventory.php?success=1");

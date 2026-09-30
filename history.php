@@ -109,10 +109,10 @@ if (!in_array($filterSort, ['newest', 'oldest', 'highest', 'lowest'], true)) {
             <div class="card-body">
                 <?php
                 require_once "php_backend/db.php";
-                $histSql = "SELECT id, action, ref_id, product, quantity, unit, created_at FROM history WHERE 1 = 1";
+                $histSql = "SELECT id, action, ref_id, product, quantity, unit, receiver, created_at FROM history WHERE 1 = 1";
                 $histParams = [];
                 if ($searchHist !== '') {
-                    $histSql .= " AND (action LIKE :search OR ref_id LIKE :search OR product LIKE :search)";
+                    $histSql .= " AND (action LIKE :search OR ref_id LIKE :search OR product LIKE :search OR receiver LIKE :search)";
                     $histParams[':search'] = "%" . $searchHist . "%";
                 }
                 if ($filterAction !== 'all') {

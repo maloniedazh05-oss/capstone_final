@@ -1,4 +1,9 @@
-<?php 
+<?php
+// Single clock for the whole system: PHP date() calls (3-day windows,
+// "today" filters, chart ranges) must agree with MySQL TIMESTAMP reads,
+// which follow the server SYSTEM clock (UTC+8). Without this, PHP can
+// sit a day behind MySQL and same-day rows vanish from date filters.
+date_default_timezone_set('Asia/Manila');
 $host = 'localhost';
 $dbname = 'rural_urban';
 $username = 'root';

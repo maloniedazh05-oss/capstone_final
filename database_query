@@ -129,6 +129,7 @@ CREATE TABLE history (
     product VARCHAR(50),
     quantity DECIMAL(10,2),
     unit VARCHAR(10),
+    receiver VARCHAR(50),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
@@ -200,6 +201,12 @@ ADD name VARCHAR(100);
 -- Run this in phpMyAdmin if total_stock is still INT.
 ALTER TABLE total
 MODIFY total_stock DECIMAL(10,2) NOT NULL DEFAULT 0.00;
+
+-- MIGRATION: receiver on deduct audit rows (2026-09-30):
+-- Run this in phpMyAdmin if history lacks `receiver`. Deduct writes store
+-- the full receipt text here; ref_id is 'TOTAL' for deducts.
+ALTER TABLE history
+ADD receiver VARCHAR(50);
 
 -- NOTES (remaining code mismatches):
 -- 1. FIXED: php_backend/updateBatch.php now updates `WHERE production_id`.

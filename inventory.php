@@ -782,23 +782,28 @@ function updateDeductLimit(unit) {
                             <?php
                             // Last 3 days net movements (newest first).
                             // Inflow = production touches (status != Completed) by DATE(updated_at).
-                            // Outflow = inventory Completed rows by DATE(updated_at).
+                            // Outflow = inventory Completed rows + Stock Deducted history
+                            // rows, both by day. Deducts only touch the total
+                            // ledger + history, so without the history leg they
+                            // would never appear here.
                             // Balance is reconstructed backward from current stock,
                             // so it is an approximation, not an exact ledger.
                             $moveStmtIn = $pdo->prepare("SELECT COALESCE(SUM(quantity), 0) FROM production WHERE DATE(updated_at) = :d AND status != 'Completed'");
                             $moveStmtOut = $pdo->prepare("SELECT COALESCE(SUM(quantity), 0) FROM inventory WHERE DATE(updated_at) = :d AND status = 'Completed'");
+                            $moveStmtDed = $pdo->prepare("SELECT COALESCE(SUM(quantity), 0) FROM history WHERE DATE(created_at) = :d AND action = 'Stock Deducted'");
                             $moveDays = [];
                             for ($m = 0; $m < 3; $m++) {
                                 $moveDay = date('Y-m-d', strtotime("today -$m days"));
                                 $moveStmtIn->execute([':d' => $moveDay]);
-                                $moveIn = (int) $moveStmtIn->fetchColumn();
+                                $moveIn = round((float) $moveStmtIn->fetchColumn(), 2);
                                 $moveStmtOut->execute([':d' => $moveDay]);
-                                $moveOut = (int) $moveStmtOut->fetchColumn();
+                                $moveStmtDed->execute([':d' => $moveDay]);
+                                $moveOut = round((float) $moveStmtOut->fetchColumn() + (float) $moveStmtDed->fetchColumn(), 2);
                                 if ($moveIn != 0 || $moveOut != 0) {
-                                    $moveDays[] = ['day' => $moveDay, 'net' => $moveIn - $moveOut];
+                                    $moveDays[] = ['day' => $moveDay, 'net' => round($moveIn - $moveOut, 2)];
                                 }
                             }
-                            $moveBal = (int) $total_current;
+                            $moveBal = round((float) $total_current, 2);
                             foreach ($moveDays as &$move) {
                                 $move['bal'] = $moveBal;
                                 $moveBal = $moveBal - $move['net'];
@@ -814,8 +819,8 @@ function updateDeductLimit(unit) {
                                     <tr>
                                         <td><?= date('M d', strtotime($move['day'])) ?></td>
                                         <td><?= $move['net'] >= 0 ? 'Production' : 'Stock-Out' ?></td>
-                                        <td><?= ($move['net'] >= 0 ? '+' : '') . $move['net'] ?></td>
-                                        <td><?= htmlspecialchars($move['bal']) ?></td>
+                                        <td><?= ($move['net'] >= 0 ? '+' : '') . $move['net'] ?> Sacks</td>
+                                        <td><?= htmlspecialchars($move['bal']) ?> Sacks</td>
                                     </tr>
                                 <?php endforeach; ?>
                             <?php endif; ?>
@@ -837,6 +842,7 @@ function updateDeductLimit(unit) {
             product,
             quantity,
             unit,
+            receiver,
             created_at
         FROM history
         WHERE action = 'Stock Deducted'
@@ -844,7 +850,7 @@ function updateDeductLimit(unit) {
 
         $historyParams = [];
 
-        // Search (history table has no description column)
+        // Search
         if ($searchHistory !== '') {
             $historySql .= "
                 AND (
@@ -852,6 +858,7 @@ function updateDeductLimit(unit) {
                     OR action LIKE :search
                     OR product LIKE :search
                     OR unit LIKE :search
+                    OR receiver LIKE :search
                 )
             ";
 
@@ -909,13 +916,14 @@ function updateDeductLimit(unit) {
                                 <th>Product</th>
                                 <th>Quantity</th>
                                 <th>Unit</th>
+                                <th>Receiver</th>
                                 <th>Date Created</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php if (empty($historyRows)): ?>
                                 <tr>
-                                    <td colspan="5">
+                                    <td colspan="6">
                                         <?= ($searchHistory !== '' || $historyDate !== 'all' || $historyMonth !== 'all' || $historyYear !== 'all') ? "No history matches your search/filter." : "No deducted transactions yet." ?>
                                     </td>
                                 </tr>
@@ -935,6 +943,9 @@ function updateDeductLimit(unit) {
                                         </td>
                                         <td>
                                             <?= htmlspecialchars($h_row['unit']) ?>
+                                        </td>
+                                        <td>
+                                            <?= htmlspecialchars($h_row['receiver'] ?? 'None') ?>
                                         </td>
                                         <td>
                                             <?= htmlspecialchars($h_row['created_at']) ?>
