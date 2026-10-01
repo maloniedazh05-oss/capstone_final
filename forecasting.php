@@ -169,7 +169,32 @@ if ($forecast === null) {
             $chLabels[] = $mLabel($pt);
             $chActual[] = $pt['qty'];
         }
+        // Current-month bar (chart/table layer only - never enters the fit):
+        // shows where stock sales stand right now, even at zero. Fresh runs
+        // carry the MTD raw value; retained runs need a live query since a
+        // zero-MTD month was never saved into monthly_json.
+        $curKey = date('Y-m');
+        $curLabel = date('M Y', strtotime($curKey . '-01')) . ' (to date)';
+        $lastKey = !empty($fcSeries) ? end($fcSeries)['key'] : '';
+        $curActual = null;
+        if ($lastKey !== $curKey) {
+            if ($fcMtd !== null && ($fcMtd['key'] ?? '') === $curKey) {
+                $curActual = round((float)$fcMtd['raw'], 2);
+            } else {
+                $curStmt2 = $pdo->prepare("SELECT COALESCE(SUM(quantity), 0) FROM inventory WHERE status = 'Completed' AND product = :prod AND YEAR(updated_at) = YEAR(CURDATE()) AND MONTH(updated_at) = MONTH(CURDATE())");
+                $curStmt2->execute([':prod' => $selProduct]);
+                $curActual = round((float)$curStmt2->fetchColumn(), 2);
+            }
+            $chLabels[] = $curLabel;
+        }
         $chLabels[] = $fcNextLabel . ' (fc)';
+        // Full-length datasets: actual (green), current-month-to-date
+        // (amber, single bar), forecast (blue, single bar).
+        $padSeries = array_fill(0, count($fcSeries), null);
+        $padMid = $curActual !== null ? [null] : [];
+        $dsActual = array_merge($chActual, $padMid, [null]);
+        $dsCur = array_merge($padSeries, $curActual !== null ? [$curActual] : [], [null]);
+        $dsFc = array_merge($padSeries, $padMid, [$fcQty]);
         ?>
         <!-- Forecast Result -->
         <div class="content-card">
@@ -223,15 +248,13 @@ if ($forecast === null) {
         </div>
         <script>
         const fcLabels = <?= json_encode($chLabels) ?>;
-        const fcActual = <?= json_encode($chActual) ?>;
-        const fcQty = <?= json_encode($fcQty) ?>;
-        const fcNulls = new Array(fcActual.length).fill(null);
         new Chart(document.getElementById('forecastChart'), {
             data: {
                 labels: fcLabels,
                 datasets: [
-                    { type: 'bar', label: 'Actual (monthly)', data: fcActual.concat([null]), backgroundColor: 'rgba(34,197,94,0.6)' },
-                    { type: 'bar', label: 'Forecast', data: fcNulls.concat([fcQty]), backgroundColor: 'rgba(59,130,246,0.85)' }
+                    { type: 'bar', label: 'Actual (monthly)', data: <?= json_encode($dsActual) ?>, backgroundColor: 'rgba(34,197,94,0.6)' },
+                    { type: 'bar', label: 'Current month (to date)', data: <?= json_encode($dsCur) ?>, backgroundColor: 'rgba(245,158,11,0.85)' },
+                    { type: 'bar', label: 'Forecast', data: <?= json_encode($dsFc) ?>, backgroundColor: 'rgba(59,130,246,0.85)' }
                 ]
             },
             options: {
@@ -266,6 +289,13 @@ if ($forecast === null) {
                                 <td>-</td>
                             </tr>
                             <?php endforeach; ?>
+                            <?php if ($curActual !== null): ?>
+                            <tr>
+                                <td><?= htmlspecialchars($curLabel) ?></td>
+                                <td><strong><?= $fmtQty($curActual) ?> Sacks</strong></td>
+                                <td>-</td>
+                            </tr>
+                            <?php endif; ?>
                             <tr>
                                 <td><strong><?= htmlspecialchars($fcNextLabel) ?></strong></td>
                                 <td>-</td>
