@@ -74,11 +74,13 @@ CREATE TABLE history (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
-CREATE TABLE forecasting_monthly (
+CREATE TABLE forecasting_history (
     id INT AUTO_INCREMENT PRIMARY KEY,
     product VARCHAR(50) NOT NULL,
     months_used INT NOT NULL,
     alpha DECIMAL(4,2) NOT NULL,
+    beta DECIMAL(4,2) NULL,
+    method VARCHAR(32) NOT NULL DEFAULT 'SES (monthly)',
     forecast_qty DECIMAL(10,2) NOT NULL,
     forecast_month CHAR(7) NOT NULL,
     monthly_json MEDIUMTEXT,
@@ -92,5 +94,5 @@ CREATE INDEX idx_production_date ON production(production_date);
 CREATE INDEX idx_production_status ON production(status);
 CREATE INDEX idx_production_updated ON production(updated_at);
 CREATE INDEX idx_history_created ON history(created_at);
-CREATE INDEX idx_forecasting_monthly_created ON forecasting_monthly(created_at);
+CREATE INDEX idx_forecasting_history_created ON forecasting_history(created_at);
 CREATE INDEX idx_accounts_user ON accounts(user);

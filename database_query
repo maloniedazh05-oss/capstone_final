@@ -133,17 +133,19 @@ CREATE TABLE history (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
--- Forecast runs saved by forecasting.php (monthly SES: complete months plus
--- the current month-to-date when it already holds sales, pro-rated to a
+-- Forecast runs saved by forecasting.php (monthly Holt's DES: complete months
+-- plus the current month-to-date when it already holds sales, pro-rated to a
 -- full-month equivalent; gate is 12 points; predicts the next full month).
--- Existing DBs: run just this CREATE once in phpMyAdmin.
--- (forecasting_history is RETIRED: the old daily method no longer writes to
--- it and no reader queries it. Drop it only if you are sure.)
-CREATE TABLE forecasting_monthly (
+-- Existing DBs: run just the MIGRATION block below once in phpMyAdmin instead.
+-- (The retired daily-method forecasting_history table must be dropped first -
+-- it is unread and unwritten. The migration does this for you.)
+CREATE TABLE forecasting_history (
     id INT AUTO_INCREMENT PRIMARY KEY,
     product VARCHAR(50) NOT NULL,
     months_used INT NOT NULL,
     alpha DECIMAL(4,2) NOT NULL,
+    beta DECIMAL(4,2) NULL,
+    method VARCHAR(32) NOT NULL DEFAULT 'SES (monthly)',
     forecast_qty DECIMAL(10,2) NOT NULL,
     forecast_month CHAR(7) NOT NULL,
     monthly_json MEDIUMTEXT,
@@ -158,7 +160,7 @@ CREATE INDEX idx_production_date ON production(production_date);
 CREATE INDEX idx_production_status ON production(status);
 CREATE INDEX idx_production_updated ON production(updated_at);
 CREATE INDEX idx_history_created ON history(created_at);
-CREATE INDEX idx_forecasting_monthly_created ON forecasting_monthly(created_at);
+CREATE INDEX idx_forecasting_history_created ON forecasting_history(created_at);
 CREATE INDEX idx_accounts_user ON accounts(user);
 
 -- MIGRATION for existing DBs (built before stock columns existed):
@@ -207,6 +209,19 @@ MODIFY total_stock DECIMAL(10,2) NOT NULL DEFAULT 0.00;
 -- the full receipt text here; ref_id is 'TOTAL' for deducts.
 ALTER TABLE history
 ADD receiver VARCHAR(50);
+
+-- MIGRATION: Holt's DES + forecasting_monthly -> forecasting_history (2026-10-01):
+-- Run this in phpMyAdmin. The old daily-method forecasting_history table is
+-- retired (unread, unwritten), so it is dropped first to free the name; then
+-- forecasting_monthly is renamed and gains beta + method columns. All saved
+-- runs are preserved; old SES rows get method 'SES (monthly)' and beta NULL.
+DROP TABLE IF EXISTS forecasting_history;
+ALTER TABLE forecasting_monthly RENAME TO forecasting_history;
+ALTER TABLE forecasting_history
+ADD beta DECIMAL(4,2) NULL AFTER alpha,
+ADD method VARCHAR(32) NOT NULL DEFAULT 'SES (monthly)' AFTER beta;
+ALTER TABLE forecasting_history DROP INDEX idx_forecasting_monthly_created;
+CREATE INDEX idx_forecasting_history_created ON forecasting_history(created_at);
 
 -- NOTES (remaining code mismatches):
 -- 1. FIXED: php_backend/updateBatch.php now updates `WHERE production_id`.

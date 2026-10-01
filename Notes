@@ -88,6 +88,8 @@ Bigger fonts, KG/Sack distinctions, Overall system fixes and improvements - 9/26
 Improve and consistent buttons UI overall - 9/30/26
 
 Hover effect convert Visual KG/Sacks - 9/30/26, Added for Mobile view also - 9/30/26
+
+Changed to Holt's double exponential smoothing forecasting method - 10/126
 ==============================================
 Potential React js, Encapsulation - Already have some in sys
 

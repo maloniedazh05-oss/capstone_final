@@ -95,7 +95,7 @@ if (!in_array($prodSort, ['newest', 'oldest', 'highest', 'lowest'], true)) {
                 // forecasted stock-out minus Total Produced this month.
                 $recText = 'No forecast yet - generate one in Forecasting to get a recommendation.';
                 try {
-                    $recFc = $pdo->prepare("SELECT forecast_qty FROM forecasting_monthly ORDER BY id DESC LIMIT 1");
+                    $recFc = $pdo->prepare("SELECT forecast_qty FROM forecasting_history ORDER BY id DESC LIMIT 1");
                     $recFc->execute();
                     $recRow = $recFc->fetch(PDO::FETCH_ASSOC);
                     if ($recRow) {

@@ -3,7 +3,7 @@ require_once "php_backend/session.php";
 
 requireRole(['admin', 'staff', 'manager']);
 
-// Monthly SES forecaster lives in php_backend/forecast_lib.php (shared with reports.php).
+// Monthly Holt's DES forecaster lives in php_backend/forecast_lib.php (shared with reports.php).
 require_once "php_backend/forecast_lib.php";
 
 // Fertilizer types available for forecasting.
@@ -28,6 +28,7 @@ $currentStock = round((float)($curStmt->fetchColumn() ?? 0), 2);
 $forecast = null;
 $method = '';
 $fcAlpha = 0;
+$fcBeta = null;
 $fcMonths = 0;
 $fcComplete = 0;
 $fcMtd = null;
@@ -45,6 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['generate']) && !$isSta
     $method = $res['method'];
     $thinNotice = $res['thin'];
     $fcAlpha = $res['alpha'] ?? 0;
+    $fcBeta = $res['beta'] ?? 0;
     $fcMonths = $res['months'] ?? 0;
     $fcComplete = $res['complete'] ?? 0;
     $fcMtd = $res['mtd'] ?? null;
@@ -55,8 +57,8 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['generate']) && !$isSta
     // Thin-history refusals save nothing - there is no forecast to record.
     if (!$thinNotice) {
         try {
-            $hist = $pdo->prepare("INSERT INTO forecasting_monthly (product, months_used, alpha, forecast_qty, forecast_month, monthly_json) VALUES (:prod, :months, :alpha, :qty, :fmonth, :monthly)");
-            $hist->execute([':prod' => $selProduct, ':months' => $fcMonths, ':alpha' => $fcAlpha, ':qty' => $forecast[0], ':fmonth' => $fcNextMonth, ':monthly' => json_encode($fcSeries)]);
+            $hist = $pdo->prepare("INSERT INTO forecasting_history (product, months_used, alpha, beta, method, forecast_qty, forecast_month, monthly_json) VALUES (:prod, :months, :alpha, :beta, :method, :qty, :fmonth, :monthly)");
+            $hist->execute([':prod' => $selProduct, ':months' => $fcMonths, ':alpha' => $fcAlpha, ':beta' => $fcBeta, ':method' => $method, ':qty' => $forecast[0], ':fmonth' => $fcNextMonth, ':monthly' => json_encode($fcSeries)]);
         } catch (Exception $e) {
             $histWarn = true;
         }
@@ -72,7 +74,7 @@ if ($forecast === null) {
     // Retained-run loader: show the previous calculation on page load.
     // Display only, never saved.
     try {
-        $latest = $pdo->prepare("SELECT forecast_qty, forecast_month, months_used, alpha, monthly_json, created_at FROM forecasting_monthly WHERE product = :prod ORDER BY id DESC LIMIT 1");
+        $latest = $pdo->prepare("SELECT forecast_qty, forecast_month, months_used, alpha, beta, method, monthly_json, created_at FROM forecasting_history WHERE product = :prod ORDER BY id DESC LIMIT 1");
         $latest->execute([':prod' => $selProduct]);
         $lastRun = $latest->fetch(PDO::FETCH_ASSOC);
     } catch (Exception $e) {
@@ -80,8 +82,9 @@ if ($forecast === null) {
     }
     if ($lastRun) {
         $forecast = [(float)$lastRun['forecast_qty']];
-        $method = 'SES (monthly)';
+        $method = $lastRun['method'] ?? "Holt's DES (monthly)";
         $fcAlpha = $lastRun['alpha'];
+        $fcBeta = $lastRun['beta'] !== null ? $lastRun['beta'] : null;
         $fcMonths = (int)$lastRun['months_used'];
         $fcNextMonth = $lastRun['forecast_month'];
         $fcSeries = json_decode($lastRun['monthly_json'] ?? '[]', true) ?: [];
@@ -129,7 +132,7 @@ if ($forecast === null) {
                     </div>
                     <div class="form-group" style="margin-bottom: 16px;">
                         <!-- For DEBUGGING<label>Method</label>
-                        <div>Simple Exponential Smoothing (monthly): next month predicts the smoothed level of monthly demand, with &alpha; tuned per run (0.05-0.95). Needs 12 months of sales (complete months + month-to-date).</div>
+                        <div>Holt's Double Exponential Smoothing (monthly): next month predicts smoothed level plus trend of monthly demand, with &alpha; and &beta; tuned per run (0.05-0.95). Needs 12 months of sales (complete months + month-to-date).</div>
                     </div>-->
                     <?php if ($isStaffView): ?>
                     <button type="submit" class="btn-primary"><i class="fa-solid fa-eye"></i> View Latest Forecast</button>
@@ -177,7 +180,7 @@ if ($forecast === null) {
                 <?php if ($histWarn): ?>
                 <div class="feedback-error">
                     <i class="fa-solid fa-triangle-exclamation"></i>
-                    <span>Run computed but not saved (forecasting_monthly table missing - run its CREATE from database_query).</span>
+                    <span>Run computed but not saved (forecasting_history table missing - run its CREATE from database_query).</span>
                 </div>
                 <?php endif; ?>
                 <h3 style="margin: 0 0 4px; font-size: 1.05rem;">Demand Forecast Overview</h3>
@@ -203,7 +206,7 @@ if ($forecast === null) {
                     <div class="stat-card stat-card-purple">
                         <h2>Forecast Period</h2>
                         <h3>1 Month</h3>
-                        <div class="stat-sub"><?= htmlspecialchars($fcNextLabel) ?> (&alpha; = <?= htmlspecialchars($fcAlpha) ?>, <?= (int)$fcMonths ?> pts<?= $fcMtd !== null ? ' incl. MTD' : '' ?>)</div>
+                        <div class="stat-sub"><?= htmlspecialchars($fcNextLabel) ?> (&alpha; = <?= htmlspecialchars($fcAlpha) ?>, &beta; = <?= $fcBeta !== null ? htmlspecialchars($fcBeta) : '—' ?>, <?= (int)$fcMonths ?> pts<?= $fcMtd !== null ? ' incl. MTD' : '' ?>)</div>
                     </div>
                 </div>
             </div>

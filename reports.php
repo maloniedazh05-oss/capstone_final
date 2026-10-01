@@ -29,7 +29,7 @@ if (!in_array($repStatus, ['all', 'Recent', 'Ongoing', 'Completed'], true)) {
 }
 
 // Forecast CSV export must stream before any HTML output (headers).
-// Monthly SES: complete months + month-to-date in, next month out.
+// Monthly Holt's DES: complete months + month-to-date in, next month out.
 if ($tab === 'forecast' && ($_GET['export'] ?? '') === 'csv') {
     require_once "php_backend/db.php";
     require_once "php_backend/forecast_lib.php";
@@ -809,8 +809,8 @@ if ($tab === 'forecast' && ($_GET['export'] ?? '') === 'csv') {
             $fcResult = runForecast($pdo, $fcProd);
             if (!$fcResult['thin']) {
                 try {
-                    $fcHist = $pdo->prepare("INSERT INTO forecasting_monthly (product, months_used, alpha, forecast_qty, forecast_month, monthly_json) VALUES (:prod, :months, :alpha, :qty, :fmonth, :monthly)");
-                    $fcHist->execute([':prod' => $fcProd, ':months' => $fcResult['months'], ':alpha' => $fcResult['alpha'], ':qty' => $fcResult['forecast'][0], ':fmonth' => $fcResult['nextMonth'], ':monthly' => json_encode($fcResult['series'])]);
+                    $fcHist = $pdo->prepare("INSERT INTO forecasting_history (product, months_used, alpha, beta, method, forecast_qty, forecast_month, monthly_json) VALUES (:prod, :months, :alpha, :beta, :method, :qty, :fmonth, :monthly)");
+                    $fcHist->execute([':prod' => $fcProd, ':months' => $fcResult['months'], ':alpha' => $fcResult['alpha'], ':beta' => $fcResult['beta'], ':method' => $fcResult['method'], ':qty' => $fcResult['forecast'][0], ':fmonth' => $fcResult['nextMonth'], ':monthly' => json_encode($fcResult['series'])]);
                 } catch (Exception $e) {
                     $fcHistWarn = true;
                 }
@@ -835,7 +835,7 @@ if ($tab === 'forecast' && ($_GET['export'] ?? '') === 'csv') {
                             <?php endforeach; ?>
                         </select>
                         <span class="section-desc" style="margin:0;">Historical: <strong><?= htmlspecialchars($fcRangeLabel) ?></strong></span>
-                        <span class="section-desc" style="margin:0;">SES (monthly) · Next 1 Month · Needs 12 months (complete + month-to-date)</span>
+                        <span class="section-desc" style="margin:0;">Holt's DES (monthly) · Next 1 Month · Needs 12 months (complete + month-to-date)</span>
                         <input type="hidden" name="fc-generate" value="1">
                         <button type="submit" class="btn-primary">Generate</button>
                     </form>
