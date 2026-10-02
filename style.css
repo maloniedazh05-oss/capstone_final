@@ -1291,7 +1291,7 @@ Page Header & Unified Page Container START
 .card-filter {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 5px;
     font-size: 0.85rem;
     color: var(--color-text-muted);
 }

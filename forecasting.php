@@ -210,7 +210,7 @@ if ($forecast === null) {
                 <?php endif; ?>
                 <h3 style="margin: 0 0 4px; font-size: 1.05rem;">Demand Forecast Overview</h3>
                 <?php if ($fcSavedAt !== '' && !isset($_POST['generate'])): ?>
-                <p class="section-desc" style="margin: 0 0 14px;">Last calculated: <?= htmlspecialchars(date('M d, Y h:i A', strtotime($fcSavedAt))) ?> — retained run, generate a fresh forecast for updated numbers.</p>
+                <p class="section-desc" style="margin: 0 0 14px;">Last calculated: <?= htmlspecialchars(date('M d, Y h:i A', strtotime($fcSavedAt))) ?> - retained run, generate a fresh forecast for updated numbers.</p>
                 <?php endif; ?>
                 <div class="info-cards">
                     <div class="stat-card stat-card-green">
@@ -231,7 +231,7 @@ if ($forecast === null) {
                     <div class="stat-card stat-card-purple">
                         <h2>Forecast Period</h2>
                         <h3>1 Month</h3>
-                        <div class="stat-sub"><?= htmlspecialchars($fcNextLabel) ?> (&alpha; = <?= htmlspecialchars($fcAlpha) ?>, &beta; = <?= $fcBeta !== null ? htmlspecialchars($fcBeta) : '—' ?>, <?= (int)$fcMonths ?> pts<?= $fcMtd !== null ? ' incl. MTD' : '' ?>)</div>
+                        <div class="stat-sub"><?= htmlspecialchars($fcNextLabel) ?>, <?= (int)$fcMonths ?> pts<?= $fcMtd !== null ? ' incl. MTD' : '' ?></div>
                     </div>
                 </div>
             </div>
