@@ -1016,6 +1016,47 @@ Dashboard START
     width: 100%;
 }
 
+/* Inventory Trend chart containment: grid items default to min-width:auto,
+   so a 30-label canvas forces its track wider than the container. Clamp the
+   card, wrapper, and canvas so Chart.js can only size inside the card. */
+.info-cards > * {
+    min-width: 0;
+}
+.dashboardpage .trend-card {
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+}
+.dashboardpage .trend-chart-wrap {
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+}
+.dashboardpage .trend-chart-wrap canvas {
+    display: block;
+    max-width: 100% !important;
+}
+.card-header-flex {
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+.card-header-flex h2 {
+    min-width: 0;
+}
+.card-filter {
+    flex-wrap: wrap;
+    row-gap: 5px;
+}
+
+/* Safety-stock + trend share one row on desktop (1:2) and stack on mobile.
+   The trend card must NOT carry grid-column span/1/-1 inline: span 2 breaks
+   the single-column mobile grid, and 1/-1 strands safety-stock on its own row. */
+.info-cards.trend-row {
+    grid-template-columns: minmax(240px, 1fr) minmax(0, 2fr);
+    align-items: stretch;
+}
+
 .dashboardpage input {
     width: 100%;
     padding: 9px 12px;
@@ -1722,6 +1763,10 @@ Responsive Media Queries
         gap: 14px;
     }
 
+    .info-cards.trend-row {
+        grid-template-columns: 1fr;
+    }
+
     .form-row {
         grid-template-columns: 1fr;
         gap: 12px;
@@ -1732,7 +1777,7 @@ Responsive Media Queries
     }
 
     .card-header {
-        padding: 12px 16px;
+        padding: 5px 7px;
     }
 }
 

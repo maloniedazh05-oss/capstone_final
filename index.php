@@ -19,17 +19,17 @@ $trendStmtIn = $pdo->prepare("SELECT DATE(updated_at) AS day, SUM(quantity) AS t
 $trendStmtIn->execute([':start' => $chart_start . ' 00:00:00', ':end' => $chart_today . ' 23:59:59']);
 $trendIn = [];
 while ($trend_row = $trendStmtIn->fetch(PDO::FETCH_ASSOC)) {
-    $trendIn[$trend_row['day']] = (int) $trend_row['total_qty'];
+    $trendIn[$trend_row['day']] = (float) $trend_row['total_qty'];
 }
 $trendStmtOut = $pdo->prepare("SELECT DATE(updated_at) AS day, SUM(quantity) AS total_qty FROM inventory WHERE status = 'Completed' AND updated_at BETWEEN :start AND :end GROUP BY DATE(updated_at)");
 $trendStmtOut->execute([':start' => $chart_start . ' 00:00:00', ':end' => $chart_today . ' 23:59:59']);
 $trendOut = [];
 while ($trend_row = $trendStmtOut->fetch(PDO::FETCH_ASSOC)) {
-    $trendOut[$trend_row['day']] = (int) $trend_row['total_qty'];
+    $trendOut[$trend_row['day']] = (float) $trend_row['total_qty'];
 }
 $trendCur = $pdo->prepare("SELECT COALESCE(SUM(quantity), 0) FROM inventory WHERE status != 'Completed'");
 $trendCur->execute();
-$trendBal = (int) $trendCur->fetchColumn();
+$trendBal = (float) $trendCur->fetchColumn();
 $trendPts = [];
 $trend_day = $chart_today;
 while ($trend_day >= $chart_start) {
@@ -42,7 +42,7 @@ $chartLabels = [];
 $chartData = [];
 foreach ($trendPts as $pt) {
     $chartLabels[] = date('M d', strtotime($pt['day']));
-    $chartData[] = $pt['bal'];
+    $chartData[] = round($pt['bal'], 2);
 }
 // Target minimum stock (Sacks). Set by admin/manager on the inventory tab.
 $salesGoalFile = __DIR__ . '/php_backend/sales_goal.php';
@@ -82,8 +82,8 @@ $goalData = array_fill(0, count($chartData), $salesGoal);
         </div>
         <div style="border-bottom: 1px solid var(--color-border);">
             <?php
-            $day = date('A');
-            $greet = $day == 'AM' ? $greet = 'Morning' : $greet = 'Evening';
+            $hour = (int) date('G');
+            $greet = $hour < 12 ? 'Morning' : ($hour < 18 ? 'Afternoon' : 'Evening');
             ?>
             <h2>Good <?= $greet ?>, <strong><?= htmlspecialchars($_SESSION['user_name']) ?></strong></h2>
         </div>
@@ -134,14 +134,13 @@ $goalData = array_fill(0, count($chartData), $salesGoal);
             <div class="stat-card stat-card-blue">
                 <h2>Active Batches</h2>
                 <?php
-                require_once "php_backend/db.php";
                 $stmt = $pdo->prepare("SELECT COUNT(*) FROM production WHERE status != 'Completed'");
                 $stmt->execute();
                 $count = $stmt->fetchColumn();
 
                 // Recent production
                 $today = date('Y-m-d');
-                $stmt_prod = $pdo->prepare("SELECT SUM(quantity), status FROM production WHERE production_date >= ? AND production_date <= ? AND status = 'Completed'");
+                $stmt_prod = $pdo->prepare("SELECT COALESCE(SUM(quantity), 0) FROM production WHERE production_date >= ? AND production_date <= ? AND status = 'Completed'");
                 $stmt_prod->execute([$today . ' 00:00:00', $today . ' 23:59:59']);
                 $prod_count = $stmt_prod->fetchColumn();
                 ?>
@@ -149,11 +148,11 @@ $goalData = array_fill(0, count($chartData), $salesGoal);
             </div>
             <div class="stat-card stat-card-purple">
                 <h2>Completed Today</h2>
-                <h3><?= (int) $prod_count ?? 0 ?> Sacks</h3>
+                <h3><?= rtrim(rtrim(number_format((float) ($prod_count ?? 0), 2, '.', ''), '0'), '.') ?> Sacks</h3>
             </div>
         </div><!-- info-cards END -->
         <!-- In dashboardpage, after info-cards -->
-        <div class="info-cards">
+        <div class="info-cards trend-row">
             <div class="stat-card stat-card-amber" style="display: flex; align-items: center; justify-content: center;">
                 <div style="display: flex; flex-direction: column; align-items: center;">
                     <h2 id="salesGoal">Safety Stock (Target Minimum Stock)</h2>
@@ -167,8 +166,8 @@ $goalData = array_fill(0, count($chartData), $salesGoal);
                     <?php endif; ?>
                 </div>
             </div>
-            <div class="stat-card" style="grid-column: span 2; min-height: 380px; justify-content: flex-start; align-items: stretch;">
-                <div class="card-header card-header-flex" style="background: none; flex-wrap: wrap; row-gap: 10px; width: 100%;">
+            <div class="stat-card trend-card" style="min-height: 380px; justify-content: flex-start; align-items: stretch;">
+                <div class="card-header card-header-flex" style="background: none; flex-wrap: wrap; row-gap: 5px; width: 100%; max-width: 100%;">
                     <h2>Inventory Trend (<?= $trend === '30' ? '30 Days' : ($trend === '7' ? '7 Days' : 'Recent') ?>)
                     </h2>
                     <div class="card-filter">
@@ -182,7 +181,7 @@ $goalData = array_fill(0, count($chartData), $salesGoal);
                             Days</a>
                     </div>
                     </div>
-                <div style="position: relative; width: 100%; height: 280px;"><canvas id="stockChart"></canvas></div>
+                <div class="trend-chart-wrap" style="position: relative; width: 100%; max-width: 100%; height: 280px; min-width: 0; overflow: hidden;"><canvas id="stockChart" style="max-width: 100%;"></canvas></div>
             </div>
         </div>
 
@@ -267,6 +266,13 @@ $goalData = array_fill(0, count($chartData), $salesGoal);
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    resizeDelay: 100,
+                    layout: {
+                        autoPadding: true,
+                        padding: {
+                            right: 4
+                        }
+                    },
                     plugins: {
                         legend: {
                             display: true,
@@ -283,7 +289,11 @@ $goalData = array_fill(0, count($chartData), $salesGoal);
                                 maxRotation: 0,
                                 minRotation: 0,
                                 autoSkip: true,
+                                autoSkipPadding: 12,
                                 maxTicksLimit: 10
+                            },
+                            grid: {
+                                drawTicks: false
                             }
                         },
                         y: {
