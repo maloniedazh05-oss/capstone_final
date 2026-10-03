@@ -109,7 +109,6 @@ $goalData = array_fill(0, count($chartData), $salesGoal);
         }
         ?>
         <h2 id="dashboard-notif" class="notif <?= $notifClass ?>">
-            <img src="assets/img/rutoplogos.png" height="30px">
             <i class="fa-solid <?= $notifIcon ?>"></i>
             <span><?= htmlspecialchars($notifText) ?></span>
         </h2>

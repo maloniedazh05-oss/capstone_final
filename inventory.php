@@ -308,46 +308,33 @@ function updateDeductLimit(unit) {
         $stmt_stock->execute();
         $total_current = round((float) ($stmt_stock->fetchColumn() ?? 0), 2);
         $totalFmt = rtrim(rtrim(number_format($total_current, 2, '.', ''), '0'), '.');
+
+        // Same safety-stock goal + band logic as index.php: thresholds are
+        // goal-relative (G, G/2, 0) so both pages always agree.
+        $salesGoalFileInv = __DIR__ . '/php_backend/sales_goal.php';
+        $salesGoalInv = file_exists($salesGoalFileInv) ? max(0, (int) include $salesGoalFileInv) : 50;
+        if ($total_current >= $salesGoalInv) {
+            $notifClass = 'notif-green';
+            $notifIcon = 'fa-circle-check';
+            $notifText = "Stocks levels are healthy ({$totalFmt} Sacks, at/above safety stock of {$salesGoalInv})";
+        } elseif ($total_current >= $salesGoalInv / 2) {
+            $notifClass = 'notif-orange';
+            $notifIcon = 'fa-triangle-exclamation';
+            $notifText = "Stocks levels are low ({$totalFmt} Sacks left, safety stock is {$salesGoalInv})";
+        } elseif ($total_current > 0) {
+            $notifClass = 'notif-red';
+            $notifIcon = 'fa-triangle-exclamation';
+            $notifText = "Action required: stock ({$totalFmt} Sacks) is below safety stock ({$salesGoalInv})";
+        } else {
+            $notifClass = 'notif-danger';
+            $notifIcon = 'fa-circle-xmark';
+            $notifText = "No stocks! Safety stock is {$salesGoalInv} Sacks.";
+        }
         ?>
-        <div id="notif" class="notif">
-            <i class="fa-solid fa-circle-info"></i>
-            <span id="notif-text">Checking stock status...</span>
-        </div>
-        <script>
-            (function () {
-                const notif = document.getElementById('notif');
-                <?php if ($total_current >= 100): ?>
-                    notif.className = 'notif notif-green';
-                    notif.style.color = '#15803d';
-                    notif.innerHTML =
-                        '<i class="fa-solid fa-circle-check"></i> Status: Good (<?= $totalFmt ?> Sacks Available)';
-                <?php elseif ($total_current >= 50): ?>
-                    notif.className = 'notif notif-good';
-                    notif.style.color = '#15803d';
-                    notif.innerHTML =
-                        '<i class="fa-solid fa-circle-info"></i> Status: Sufficient (<?= $totalFmt ?> Sacks Available)';
-                <?php elseif ($total_current >= 20): ?>
-                    notif.className = 'notif notif-good';
-                    notif.style.color = '#15803d';
-                    notif.innerHTML =
-                        '<i class="fa-solid fa-circle-info"></i> Status: OK (<?= $totalFmt ?> Sacks Available)';
-                <?php elseif ($total_current >= 8): ?>
-                    notif.className = 'notif notif-orange';
-                    notif.style.color = 'orange';
-                    notif.innerHTML =
-                        '<i class="fa-solid fa-triangle-exclamation"></i> Status: Low Stock (<?= $totalFmt ?> Sacks Left)';
-                <?php elseif ($total_current > 0): ?>
-                    notif.className = 'notif notif-red';
-                    notif.style.color = 'red';
-                    notif.innerHTML =
-                        '<i class="fa-solid fa-triangle-exclamation"></i> Status: Critically Low Stock! (<?= $totalFmt ?> Sacks Left)';
-                <?php else: ?>
-                    notif.className = 'notif notif-red';
-                    notif.style.color = 'red';
-                    notif.innerHTML = '<i class="fa-solid fa-circle-xmark"></i> Status: No Stock Available!';
-                <?php endif; ?>
-            })();
-        </script>
+        <h2 id="notif" class="notif <?= $notifClass ?>">
+            <i class="fa-solid <?= $notifIcon ?>"></i>
+            <span><?= htmlspecialchars($notifText) ?></span>
+        </h2>
 
        <!--Inventory head Summary-->
         <div class="info-cards">
@@ -469,8 +456,7 @@ function updateDeductLimit(unit) {
             $chOutPts[] = $chB['out'];
             $chBalPts[] = $chB['bal'];
         }
-        $salesGoalFileInv = __DIR__ . '/php_backend/sales_goal.php';
-        $salesGoalInv = file_exists($salesGoalFileInv) ? max(0, (int) include $salesGoalFileInv) : 50;
+        // $salesGoalInv already loaded with the stock band above; reuse it here.
         ?>
         <div class="content-card">
             <div class="card-header card-header-flex">
